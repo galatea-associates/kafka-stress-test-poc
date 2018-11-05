@@ -6,10 +6,6 @@ from kafka import KafkaConsumer
 from Counter import Counter
 from multiprocessing import Manager, Process
 
-prices_consumer = KafkaConsumer('prices', bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
-position_consumer = KafkaConsumer('position', bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
-instrument_reference_data_consumer = KafkaConsumer('instrument_reference_data', bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
-
 def close_consumer(consumer):
     consumer.close()
 
