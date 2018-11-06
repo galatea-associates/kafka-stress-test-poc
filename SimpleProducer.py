@@ -39,7 +39,6 @@ def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
             prev_time = time.time()
 
 def start_sending(counter, topic, val, numb_procs, time_interval, wait_for_response=True):
-    
     shared_dict[topic] = manager.list()
     procs = [Process(target=send, args=(counter, topic, val, wait_for_response)) for i in range(numb_procs)]
     for p in procs: p.start()
