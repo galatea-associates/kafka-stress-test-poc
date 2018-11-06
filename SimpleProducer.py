@@ -32,9 +32,10 @@ def send(counter, topic, val, counter_limit, wait_for_response):
 def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
     while True:
         if time.time() - prev_time >= time_interval:
-            print("Topic " + topic + " sent " + str(counter.value()) + " messages!")
-            shared_dict[topic].append(int(counter.value()))
+            counter_size = counter.value()
             counter.reset()
+            print("Topic " + topic + " sent " + str(counter_size) + " messages!")
+            shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
 def start_sending(topic, val, numb_procs, counter_limit, time_interval, wait_for_response=True):
