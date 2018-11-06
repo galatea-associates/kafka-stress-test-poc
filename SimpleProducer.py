@@ -80,10 +80,10 @@ if __name__ == '__main__':
     topics_procs = []
 
     #TODO: Read configuration externally (requires no more hard coding data)
-    procs = start_sending(topic='prices', val=b'1.0', numb_procs=40, counter_limit=40000, time_interval=1.0)
+    procs = start_sending(topic='prices', val=b'1.0', numb_procs=11, counter_limit=40000, time_interval=1.0)
     topics_procs.append(procs)
 
-    procs = start_sending(topic='positions', val=b'This is the position data', numb_procs=20, counter_limit=20000, time_interval=1.0)
+    procs = start_sending(topic='positions', val=b'This is the position data', numb_procs=4, counter_limit=20000, time_interval=1.0)
     topics_procs.append(procs)
 
     procs = start_sending(topic='instrument_reference_data', val=b'InstRef', numb_procs=1, counter_limit=100, time_interval=60.0)
