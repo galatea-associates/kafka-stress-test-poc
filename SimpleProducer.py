@@ -54,6 +54,8 @@ def cleanup_producer(producer):
     producer.close()
 
 def produce_output(dict_key, output_time):
+    if len(shared_dict[dict_key]) == 0:
+        return
     print(dict_key + " - Mean: " + str(sum(shared_dict[dict_key]) / len(shared_dict[dict_key])) + " Max: " + str(max(shared_dict[dict_key])) + " Min: " + str(min(shared_dict[dict_key])) ) 
     with open("output-send-" + str(int(output_time)) + ".csv", 'a', newline='') as output_file:
         wr = csv.writer(output_file, quoting=csv.QUOTE_ALL)
