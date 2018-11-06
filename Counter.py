@@ -3,7 +3,7 @@ from multiprocessing import Lock, Value
 class Counter(object):
     def __init__(self, init_val=0, limit=0):
         self.val = Value('i', init_val)
-        self.limit = Value('i', 0)
+        self.limit = Value('i', limit)
         self.lock = Lock()
 
     def increment(self):
