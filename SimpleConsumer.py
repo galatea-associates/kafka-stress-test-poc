@@ -27,6 +27,7 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
 
 def start_recieving(topic, time_interval, numb_procs):
     counter = Counter(0)
+    shared_dict[topic] = manager.list()
     procs = [Process(target=recieve, args=(counter, topic, get_consumer(topic))) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=count_msgs_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
