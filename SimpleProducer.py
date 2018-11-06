@@ -22,12 +22,12 @@ def send(counter, topic, val, counter_limit, wait_for_response):
     atexit.register(cleanup_producer, producer=producer)
     while True:
         while counter.value() < counter_limit:
+            counter.increment()
             if wait_for_response:
                 future = producer.send(topic, process_val(val))
                 result = future.get(timeout=60)
             else:
                 producer.send(topic, val)
-            counter.increment()
 
 def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
     while True:
