@@ -28,6 +28,7 @@ def send(counter, topic, val, wait_for_response):
             else:
                 producer.send(topic, val)
 
+
 def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
     while True:
         if time.time() - prev_time >= time_interval:
@@ -37,8 +38,8 @@ def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
-def start_sending(topic, val, numb_procs, counter_limit, time_interval, wait_for_response=True):
-    counter = Counter(0, counter_limit)
+def start_sending(counter, topic, val, numb_procs, time_interval, wait_for_response=True):
+    
     shared_dict[topic] = manager.list()
     procs = [Process(target=send, args=(counter, topic, val, wait_for_response)) for i in range(numb_procs)]
     for p in procs: p.start()
@@ -77,15 +78,17 @@ if __name__ == '__main__':
     shared_dict = manager.dict()    
 
     topics_procs = []
-
     #TODO: Read configuration externally (requires no more hard coding data)
-    procs = start_sending(topic='prices', val=b'1.0', numb_procs=11, counter_limit=40000, time_interval=1.0)
+    counter1 = Counter(init_val=0, limit_val=40000)
+    procs = start_sending(counter=counter1, topic='prices', val=b'1.0', numb_procs=11, time_interval=1.0)
     topics_procs.append(procs)
 
-    procs = start_sending(topic='positions', val=b'This is the position data', numb_procs=4, counter_limit=20000, time_interval=1.0)
+    counter2 = Counter(init_val=0, limit_val=20000)
+    procs = start_sending(counter=counter2, topic='positions', val=b'This is the position data', numb_procs=4, time_interval=1.0)
     topics_procs.append(procs)
 
-    procs = start_sending(topic='instrument_reference_data', val=b'InstRef', numb_procs=1, counter_limit=100, time_interval=60.0)
+    counter3 = Counter(init_val=0, limit_val=100)
+    procs = start_sending(counter=counter3, topic='instrument_reference_data', val=b'InstRef', numb_procs=1, time_interval=60.0)
     topics_procs.append(procs)
 
     atexit.register(cleanup, topics_procs=topics_procs)
