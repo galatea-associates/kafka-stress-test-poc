@@ -11,11 +11,21 @@ from multiprocessing import Manager, Process
 
 producer = KafkaProducer(bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
 
+def process_val(val):
+    if isinstance(val, bytes):
+        return val
+    elif isinstance(val, str):
+        return val.encode()
+    elif callable(val):
+        return val()
+    else:
+        return b''
+
 def send(counter, topic, val, counter_limit, wait_for_response):
     while True:
         while counter.value() < counter_limit:
             if wait_for_response:
-                future = producer.send(topic, val)
+                future = producer.send(topic, process_val(val))
                 result = future.get(timeout=60)
             else:
                 producer.send(topic, val)
