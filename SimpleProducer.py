@@ -17,7 +17,7 @@ def process_val(val):
     else:
         return b''
 
-def send(counter, topic, val, counter_limit, wait_for_response):
+def send(counter, topic, val, wait_for_response):
     producer = KafkaProducer(bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
     atexit.register(cleanup_producer, producer=producer)
     while True:
@@ -38,9 +38,9 @@ def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
             prev_time = time.time()
 
 def start_sending(topic, val, numb_procs, counter_limit, time_interval, wait_for_response=True):
-    counter = Counter(0)
+    counter = Counter(0, counter_limit)
     shared_dict[topic] = manager.list()
-    procs = [Process(target=send, args=(counter, topic, val, counter_limit, wait_for_response)) for i in range(numb_procs)]
+    procs = [Process(target=send, args=(counter, topic, val, wait_for_response)) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=reset_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
