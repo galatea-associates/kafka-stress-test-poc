@@ -20,9 +20,10 @@ def get_consumer(topic):
 def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dict):
     while True:
         if time.time() - prev_time >= time_interval:
-            print("Topic " + topic + " recieved " + str(counter.value()) + " messages!")
-            shared_dict[topic].append(int(counter.value()))
+            counter_size = counter.value()
             counter.reset()
+            print("Topic " + topic + " recieved " + str(counter_size) + " messages!")
+            shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
 def start_recieving(topic, time_interval, numb_procs):
