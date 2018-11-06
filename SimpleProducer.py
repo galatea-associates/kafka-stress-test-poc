@@ -21,8 +21,7 @@ def send(counter, topic, val, counter_limit, wait_for_response):
     producer = KafkaProducer(bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
     atexit.register(cleanup_producer, producer=producer)
     while True:
-        while counter.value() < counter_limit:
-            counter.increment()
+        while counter.check_value_and_increment():
             if wait_for_response:
                 future = producer.send(topic, process_val(val))
                 result = future.get(timeout=60)
