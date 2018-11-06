@@ -34,7 +34,7 @@ def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
         if time.time() - prev_time >= time_interval:
             counter_size = counter.value()
             counter.reset()
-            print("Topic " + topic + " sent " + str(counter_size) + " messages!")
+            #print("Topic " + topic + " sent " + str(counter_size) + " messages!")
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 

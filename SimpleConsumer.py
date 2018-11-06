@@ -22,7 +22,7 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
         if time.time() - prev_time >= time_interval:
             counter_size = counter.value()
             counter.reset()
-            print("Topic " + topic + " recieved " + str(counter_size) + " messages!")
+            #print("Topic " + topic + " recieved " + str(counter_size) + " messages!")
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
