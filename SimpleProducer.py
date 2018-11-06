@@ -4,12 +4,8 @@ import time
 
 from Counter import Counter
 from kafka import KafkaProducer
-from pandas.tests.scalar import timestamp
 
 from multiprocessing import Manager, Process
-
-
-producer = KafkaProducer(bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
 
 def process_val(val):
     if isinstance(val, bytes):
@@ -22,6 +18,8 @@ def process_val(val):
         return b''
 
 def send(counter, topic, val, counter_limit, wait_for_response):
+    producer = KafkaProducer(bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
+    atexit.register(cleanup_producer, producer=producer)
     while True:
         while counter.value() < counter_limit:
             if wait_for_response:
@@ -52,6 +50,9 @@ def start_sending(topic, val, numb_procs, counter_limit, time_interval, wait_for
 def cleanup_processes(procs):
     for p in procs: p.terminate()
 
+def cleanup_producer(producer):
+    producer.close()
+
 def produce_output(dict_key, output_time):
     print(dict_key + " - Mean: " + str(sum(shared_dict[dict_key]) / len(shared_dict[dict_key])) + " Max: " + str(max(shared_dict[dict_key])) + " Min: " + str(min(shared_dict[dict_key])) ) 
     with open("output-send-" + str(int(output_time)) + ".csv", 'a', newline='') as output_file:
@@ -61,7 +62,6 @@ def produce_output(dict_key, output_time):
 def cleanup(topics_procs):
     for procs in topics_procs:
         cleanup_processes(procs)
-    producer.close()
     output_time = time.time()
     #TODO: Automate the key selection.
     produce_output(dict_key="prices", output_time=output_time)
@@ -69,7 +69,7 @@ def cleanup(topics_procs):
     produce_output(dict_key="instrument_reference_data", output_time=output_time)
 
 if __name__ == '__main__':
-    global manager, shared_dict
+    global manager, shared_dict, producer
 
     manager =  Manager()
     shared_dict = manager.dict()    
