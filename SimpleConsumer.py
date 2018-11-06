@@ -61,13 +61,13 @@ if __name__ == '__main__':
     topics_procs = []
 
     #TODO: Read configuration externally (requires no more hard coding data)
-    procs = start_recieving(topic='prices', time_interval=1, numb_procs='1')
+    procs = start_recieving(topic='prices', time_interval=1, numb_procs=1)
     topics_procs.append(procs)
 
-    procs = start_recieving(topic='positions', time_interval=1, numb_procs='1')
+    procs = start_recieving(topic='positions', time_interval=1, numb_procs=1)
     topics_procs.append(procs)
 
-    procs = start_recieving(topic='instrument_reference_data', time_interval=60, numb_procs='1')
+    procs = start_recieving(topic='instrument_reference_data', time_interval=60, numb_procs=1)
     topics_procs.append(procs)
 
     atexit.register(cleanup, topics_procs=topics_procs)
