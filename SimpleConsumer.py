@@ -7,9 +7,11 @@ from Counter import Counter
 from kafka import KafkaConsumer
 from multiprocessing import Manager, Process
 
+from DataConfiguration import configuration
 
 def close_consumer(consumer):
     consumer.close()
+
 
 def recieve(server_args, counter, topic):
     consumer = get_consumer(server_args, topic)
@@ -59,6 +61,16 @@ def cleanup(topics_procs):
     produce_output(dict_key="instrument_reference_data", output_time=output_time)
 
 
+def process_data_config(config, server_args):
+
+    topics_procs = []
+
+    for topic in config:
+        procs = start_recieving(server_args=server_args, topic=topic, numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
+        topics_procs.append(procs)
+
+    return topics_procs
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument("-i", "--serverIP", dest="ip",
@@ -69,6 +81,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 if __name__ == '__main__':
     global manager, shared_dict
 
@@ -77,17 +90,7 @@ if __name__ == '__main__':
     manager =  Manager()
     shared_dict = manager.dict()    
 
-    topics_procs = []
-
-    #TODO: Read configuration externally (requires no more hard coding data)
-    procs = start_recieving(server_args=server_args, topic='prices', time_interval=1, numb_procs=1)
-    topics_procs.append(procs)
-
-    procs = start_recieving(server_args=server_args, topic='positions', time_interval=1, numb_procs=1)
-    topics_procs.append(procs)
-
-    procs = start_recieving(server_args=server_args, topic='instrument_reference_data', time_interval=60, numb_procs=1)
-    topics_procs.append(procs)
+    topics_procs = process_data_config(configuration, server_args)
 
     atexit.register(cleanup, topics_procs=topics_procs)
     input("Press Enter to exit...")

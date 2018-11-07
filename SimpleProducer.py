@@ -7,6 +7,8 @@ from Counter import Counter
 from kafka import KafkaProducer
 from multiprocessing import Manager, Process
 
+from DataConfiguration import configuration
+
 def process_val(val):
     if isinstance(val, bytes):
         return val
@@ -61,14 +63,25 @@ def produce_output(dict_key, output_time):
         wr = csv.writer(output_file, quoting=csv.QUOTE_ALL)
         wr.writerow(shared_dict[dict_key])
 
-def cleanup(topics_procs):
+def cleanup(config, topics_procs):
     for procs in topics_procs:
         cleanup_processes(procs)
     output_time = time.time()
-    #TODO: Automate the key selection.
-    produce_output(dict_key="prices", output_time=output_time)
-    produce_output(dict_key="positions", output_time=output_time)
-    produce_output(dict_key="instrument_reference_data", output_time=output_time)
+    for topic in config:
+        produce_output(dict_key=topic, output_time=output_time)
+ 
+def process_data_config(config, server_args):
+
+    topics_procs = []
+    counter_list = []
+
+    for topic in config:
+        new_counter = Counter(init_val=config[topic]["Counter"]["init_val"], limit_val=config[topic]["Counter"]["limit_val"])
+        counter_list.append(new_counter)
+        procs = start_sending(server_args=server_args, counter=new_counter, topic=topic, val=config[topic]["Value"], numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
+        topics_procs.append(procs)
+
+    return topics_procs, counter_list
 
 def parse_args():
     parser = ArgumentParser()
@@ -89,20 +102,8 @@ if __name__ == '__main__':
     manager =  Manager()
     shared_dict = manager.dict()    
 
-    topics_procs = []
-    #TODO: Read configuration externally (requires no more hard coding data)
-    counter1 = Counter(init_val=0, limit_val=40000)
-    procs = start_sending(server_args=server_args, counter=counter1, topic='prices', val=b'1.0', numb_procs=11, time_interval=1.0)
-    topics_procs.append(procs)
+    topics_procs, counter_list = process_data_config(configuration, server_args)
 
-    counter2 = Counter(init_val=0, limit_val=20000)
-    procs = start_sending(server_args=server_args, counter=counter2, topic='positions', val=b'This is the position data', numb_procs=4, time_interval=1.0)
-    topics_procs.append(procs)
-
-    counter3 = Counter(init_val=0, limit_val=100)
-    procs = start_sending(server_args=server_args, counter=counter3, topic='instrument_reference_data', val=b'InstRef', numb_procs=1, time_interval=60.0)
-    topics_procs.append(procs)
-
-    atexit.register(cleanup, topics_procs=topics_procs)
+    atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
     input("Press Enter to exit...")
 
