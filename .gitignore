@@ -1,0 +1,6 @@
+output*
+Consumer.py
+Producer.py
+.vscode
+.sonarlint
+__pycache__
