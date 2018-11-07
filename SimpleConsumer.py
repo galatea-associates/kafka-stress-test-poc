@@ -13,7 +13,7 @@ def close_consumer(consumer):
     consumer.close()
 
 
-def recieve(server_args, counter, topic):
+def receive(server_args, counter, topic):
     consumer = get_consumer(server_args, topic)
     atexit.register(close_consumer, consumer)
     for msg in consumer:
@@ -31,10 +31,10 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
-def start_recieving(server_args, topic, time_interval, numb_procs):
+def start_receiving(server_args, topic, time_interval, numb_procs):
     counter = Counter(0)
     shared_dict[topic] = manager.list()
-    procs = [Process(target=recieve, args=(server_args, counter, topic)) for i in range(numb_procs)]
+    procs = [Process(target=receive, args=(server_args, counter, topic)) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=count_msgs_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
@@ -66,7 +66,7 @@ def process_data_config(config, server_args):
     topics_procs = []
 
     for topic in config:
-        procs = start_recieving(server_args=server_args, topic=topic, numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
+        procs = start_receiving(server_args=server_args, topic=topic, numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
         topics_procs.append(procs)
 
     return topics_procs
