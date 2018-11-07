@@ -6,10 +6,14 @@ from kafka import KafkaConsumer
 from Counter import Counter
 from multiprocessing import Manager, Process
 
+from DataConfiguration import configuration
+
+
 def close_consumer(consumer):
     consumer.close()
 
-def recieve(counter, topic, consumer):
+def recieve(counter, topic):
+    consumer = get_consumer(topic)
     atexit.register(close_consumer, consumer)
     for msg in consumer:
         counter.increment()
@@ -29,7 +33,7 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
 def start_recieving(topic, time_interval, numb_procs):
     counter = Counter(0)
     shared_dict[topic] = manager.list()
-    procs = [Process(target=recieve, args=(counter, topic, get_consumer(topic))) for i in range(numb_procs)]
+    procs = [Process(target=recieve, args=(counter, topic)) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=count_msgs_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
@@ -56,23 +60,23 @@ def cleanup(topics_procs):
     produce_output(dict_key="instrument_reference_data", output_time=output_time)
 
 
+def process_data_config(config):
+
+    topics_procs = []
+
+    for topic in config:
+        procs = start_recieving(topic=topic, numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
+        topics_procs.append(procs)
+
+    return topics_procs
+
 if __name__ == '__main__':
     global manager, shared_dict
 
     manager =  Manager()
     shared_dict = manager.dict()    
 
-    topics_procs = []
-
-    #TODO: Read configuration externally (requires no more hard coding data)
-    procs = start_recieving(topic='prices', time_interval=1, numb_procs=1)
-    topics_procs.append(procs)
-
-    procs = start_recieving(topic='positions', time_interval=1, numb_procs=1)
-    topics_procs.append(procs)
-
-    procs = start_recieving(topic='instrument_reference_data', time_interval=60, numb_procs=1)
-    topics_procs.append(procs)
+    topics_procs = process_data_config(configuration)
 
     atexit.register(cleanup, topics_procs=topics_procs)
     input("Press Enter to exit...")
