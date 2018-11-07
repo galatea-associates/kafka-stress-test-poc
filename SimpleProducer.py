@@ -14,8 +14,10 @@ def process_val(val):
         return val
     elif isinstance(val, str):
         return val.encode()
+    elif isinstance(val, dict):
+        return val
     elif callable(val):
-        return val()
+        return process_val(val())
     else:
         return b''
 
