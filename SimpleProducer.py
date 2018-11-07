@@ -71,7 +71,7 @@ def cleanup(topics_procs):
     produce_output(dict_key="instrument_reference_data", output_time=output_time)
 
 if __name__ == '__main__':
-    global manager, shared_dict, producer
+    global manager, shared_dict
 
     manager =  Manager()
     shared_dict = manager.dict()    
