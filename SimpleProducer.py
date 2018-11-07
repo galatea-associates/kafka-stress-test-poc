@@ -2,9 +2,9 @@ import atexit
 import csv
 import time
 
+from argparse import ArgumentParser
 from Counter import Counter
 from kafka import KafkaProducer
-
 from multiprocessing import Manager, Process
 
 from DataConfiguration import configuration
@@ -19,8 +19,8 @@ def process_val(val):
     else:
         return b''
 
-def send(counter, topic, val, wait_for_response):
-    producer = KafkaProducer(bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
+def send(server_args, counter, topic, val, wait_for_response):
+    producer = KafkaProducer(bootstrap_servers=[str(server_args.ip) +":"+ str(server_args.port)])
     atexit.register(cleanup_producer, producer=producer)
     while True:
         while counter.check_value_and_increment():
@@ -40,9 +40,9 @@ def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
-def start_sending(counter, topic, val, numb_procs, time_interval, wait_for_response=True):
-    shared_dict[topic] = manager.list()
-    procs = [Process(target=send, args=(counter, topic, val, wait_for_response)) for i in range(numb_procs)]
+def start_sending(server_args, counter, topic, val, numb_procs, time_interval, wait_for_response=True):
+    shared_dict[topic] = manager.list() 
+    procs = [Process(target=send, args=(server_args, counter, topic, val, wait_for_response)) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=reset_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
@@ -70,7 +70,7 @@ def cleanup(config, topics_procs):
     for topic in config:
         produce_output(dict_key=topic, output_time=output_time)
  
-def process_data_config(config):
+def process_data_config(config, server_args):
 
     topics_procs = []
     counter_list = []
@@ -78,18 +78,31 @@ def process_data_config(config):
     for topic in config:
         new_counter = Counter(init_val=config[topic]["Counter"]["init_val"], limit_val=config[topic]["Counter"]["limit_val"])
         counter_list.append(new_counter)
-        procs = start_sending(counter=new_counter, topic=topic, val=config[topic]["Value"], numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
+        procs = start_sending(server_args=server_args, counter=new_counter, topic=topic, val=config[topic]["Value"], numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
         topics_procs.append(procs)
 
     return topics_procs, counter_list
 
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--serverIP", dest="ip",
+                        help="Kafka server address", required=True)
+    parser.add_argument("-p", "--serverPort", dest="port",
+                        help="Kafka server port", default=9092 )
+
+    args = parser.parse_args()
+    return args
+
+
 if __name__ == '__main__':
     global manager, shared_dict
+
+    server_args = parse_args()
 
     manager =  Manager()
     shared_dict = manager.dict()    
 
-    topics_procs, counter_list = process_data_config(configuration)
+    topics_procs, counter_list = process_data_config(configuration, server_args)
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
     input("Press Enter to exit...")
