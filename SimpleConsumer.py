@@ -2,20 +2,23 @@ import atexit
 import csv
 import time
 
-from kafka import KafkaConsumer
+from argparse import ArgumentParser
 from Counter import Counter
+from kafka import KafkaConsumer
 from multiprocessing import Manager, Process
+
 
 def close_consumer(consumer):
     consumer.close()
 
-def recieve(counter, topic, consumer):
+def recieve(server_args, counter, topic):
+    consumer = get_consumer(server_args, topic)
     atexit.register(close_consumer, consumer)
     for msg in consumer:
         counter.increment()
 
-def get_consumer(topic):
-    return KafkaConsumer(topic, bootstrap_servers=['ec2-3-8-1-159.eu-west-2.compute.amazonaws.com:9092'])
+def get_consumer(server_args, topic):
+    return KafkaConsumer(topic, bootstrap_servers=[str(server_args.ip) +":"+ str(server_args.port)])
 
 def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dict):
     while True:
@@ -26,10 +29,10 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
-def start_recieving(topic, time_interval, numb_procs):
+def start_recieving(server_args, topic, time_interval, numb_procs):
     counter = Counter(0)
     shared_dict[topic] = manager.list()
-    procs = [Process(target=recieve, args=(counter, topic, get_consumer(topic))) for i in range(numb_procs)]
+    procs = [Process(target=recieve, args=(server_args, counter, topic)) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=count_msgs_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
@@ -56,8 +59,20 @@ def cleanup(topics_procs):
     produce_output(dict_key="instrument_reference_data", output_time=output_time)
 
 
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--serverIP", dest="ip",
+                        help="Kafka server address", required=True)
+    parser.add_argument("-p", "--serverPort", dest="port",
+                        help="Kafka server port", default=9092 )
+
+    args = parser.parse_args()
+    return args
+
 if __name__ == '__main__':
     global manager, shared_dict
+
+    server_args = parse_args()
 
     manager =  Manager()
     shared_dict = manager.dict()    
@@ -65,13 +80,13 @@ if __name__ == '__main__':
     topics_procs = []
 
     #TODO: Read configuration externally (requires no more hard coding data)
-    procs = start_recieving(topic='prices', time_interval=1, numb_procs=1)
+    procs = start_recieving(server_args=server_args, topic='prices', time_interval=1, numb_procs=1)
     topics_procs.append(procs)
 
-    procs = start_recieving(topic='positions', time_interval=1, numb_procs=1)
+    procs = start_recieving(server_args=server_args, topic='positions', time_interval=1, numb_procs=1)
     topics_procs.append(procs)
 
-    procs = start_recieving(topic='instrument_reference_data', time_interval=60, numb_procs=1)
+    procs = start_recieving(server_args=server_args, topic='instrument_reference_data', time_interval=60, numb_procs=1)
     topics_procs.append(procs)
 
     atexit.register(cleanup, topics_procs=topics_procs)
