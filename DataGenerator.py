@@ -55,6 +55,6 @@ def generate_date():
     day = random.randint(1, 28)
     return datetime.datetime(year, month, day).date()
 
-print(generate_price_entity())
-print(generate_position_entity())
-print(generate_inst_ref_entity())
+#print(generate_price_entity())
+#print(generate_position_entity())
+#print(generate_inst_ref_entity())
