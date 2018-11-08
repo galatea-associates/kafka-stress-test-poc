@@ -49,11 +49,11 @@ def generate_inst_ref_entity():
 
 # Random date generator
 def generate_date():
-    year = random.randint(2018, 2020)
+    year = random.randint(2016, 2017)
     month = random.randint(1, 12)
     day = random.randint(1, 28)
     return datetime.datetime(year, month, day).date()
 
-# print(generate_price_entity())
-# print(generate_position_entity())
-# print(generate_inst_ref_entity())
+print(generate_price_entity())
+print(generate_position_entity())
+print(generate_inst_ref_entity())
