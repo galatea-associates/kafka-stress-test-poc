@@ -18,11 +18,12 @@ def generate_position_entity():
     types = ['SD']
     type = random.choice(types)
     # Possible instruments
-    instruments = ['IBM', 'APPL', 'USD', 'GBP']
+    instruments = ['IBM', 'APPL', 'TSLA']
     # Possible position directions
     directions = ['Credit', 'Debit']
     # Here we represent account with 'ACC00' + random integers
-    account = 'ACC00' + ''.join([random.choice(string.digits) for _ in range(4)])
+    account_types = ['ICP', 'ECP']
+    account = random.choice(account_types) + ''.join([random.choice(string.digits) for _ in range(4)])
     # Random quantity between 100 and 10,000
     qty = random.randint(100, 10000)
     # Assign random date to knowledge date
