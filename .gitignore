@@ -4,3 +4,5 @@ Producer.py
 .vscode
 .sonarlint
 __pycache__
+venv/
+.idea/

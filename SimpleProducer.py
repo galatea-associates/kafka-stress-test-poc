@@ -1,7 +1,10 @@
 import atexit
 import csv
 import time
-
+import json
+import io
+import avro.schema
+from avro.io import DatumWriter
 from argparse import ArgumentParser
 from Counter import Counter
 from kafka import KafkaProducer
@@ -9,25 +12,37 @@ from multiprocessing import Manager, Process
 
 from DataConfiguration import configuration
 
-def process_val(val):
+def process_val(val, schema=None, is_avro=False):
+    if schema:
+        writer = DatumWriter(schema)
+        bytes_writer = io.BytesIO()
+        encoder = avro.io.BinaryEncoder(bytes_writer)
+        writer.write(process_val(val, is_avro=True), encoder)
+        return bytes_writer.getvalue()
     if isinstance(val, bytes):
         return val
     elif isinstance(val, str):
         return val.encode()
-    elif isinstance(val, dict):
-        return val
     elif callable(val):
-        return process_val(val())
+        return process_val(val(), is_avro=is_avro)
+    elif (not is_avro) and isinstance(val, dict):
+        return json.dumps(val)
+    elif is_avro:
+        return val
     else:
         return b''
 
-def send(server_args, counter, topic, val, wait_for_response):
+def send(server_args, counter, topic, val, wait_for_response, avro_schema):
     producer = KafkaProducer(bootstrap_servers=[str(server_args.ip) +":"+ str(server_args.port)])
     atexit.register(cleanup_producer, producer=producer)
+    if avro_schema:
+        schema = avro.schema.Parse(open(avro_schema).read())
+    else:
+        schema = None    
     while True:
         while counter.check_value_and_increment():
             if wait_for_response:
-                future = producer.send(topic, process_val(val))
+                future = producer.send(topic, process_val(val, schema))
                 result = future.get(timeout=60)
             else:
                 producer.send(topic, val)
@@ -42,9 +57,9 @@ def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
-def start_sending(server_args, counter, topic, val, numb_procs, time_interval, wait_for_response=True):
+def start_sending(server_args, counter, topic, val, numb_procs, time_interval, wait_for_response=True, avro_schema=None):
     shared_dict[topic] = manager.list() 
-    procs = [Process(target=send, args=(server_args, counter, topic, val, wait_for_response)) for i in range(numb_procs)]
+    procs = [Process(target=send, args=(server_args, counter, topic, val, wait_for_response, avro_schema)) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=reset_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
@@ -80,7 +95,7 @@ def process_data_config(config, server_args):
     for topic in config:
         new_counter = Counter(init_val=config[topic]["Counter"]["init_val"], limit_val=config[topic]["Counter"]["limit_val"])
         counter_list.append(new_counter)
-        procs = start_sending(server_args=server_args, counter=new_counter, topic=topic, val=config[topic]["Value"], numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
+        procs = start_sending(server_args=server_args, counter=new_counter, topic=topic, val=config[topic]["Value"], numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"], avro_schema=config[topic]["Avro Schema"])
         topics_procs.append(procs)
 
     return topics_procs, counter_list
