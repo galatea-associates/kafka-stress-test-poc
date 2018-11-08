@@ -14,21 +14,24 @@ def generate_price_entity():
     return {'inst_id': inst_id, 'price': price}
 
 def generate_position_entity():
+    # Possible types of a position
+    types = ['SD']
+    type = random.choice(types)
     # Possible instruments
-    instruments = ['Stock', 'Bond', 'Cash']
+    instruments = ['IBM', 'APPL', 'USD', 'GBP']
     # Possible position directions
-    directions = ['Buy', 'Sell']
-    # Here we represent account by a random letter, i.e possible values are 'Account A', 'Account B', ..., 'Account Z'
-    account = 'Account ' + random.choice(string.ascii_uppercase)
+    directions = ['Credit', 'Debit']
+    # Here we represent account with 'ACC00' + random integers
+    account = 'ACC00' + ''.join([random.choice(string.digits) for _ in range(4)])
     # Random quantity between 100 and 10,000
     qty = random.randint(100, 10000)
     # Assign random date to knowledge date
     knowledge_date = generate_date()
     # Add 3 days to get the effective date
-    effective_date = knowledge_date + datetime.timedelta(days=3)
-    return {'knowledge_date': str(knowledge_date),
+    effective_date = knowledge_date + datetime.timedelta(days=3) if type == 'SD' else knowledge_date
+    return {'type': type,
+            'knowledge_date': str(knowledge_date),
             'effective_date': str(effective_date),
-            'type': 'Market',
             'account': account,
             'instrument': random.choice(instruments),
             'direction': random.choice(directions),
