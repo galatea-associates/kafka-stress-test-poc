@@ -1,22 +1,36 @@
 import atexit
-import csv
 import time
 
-from argparse import ArgumentParser
-from Counter import Counter
+import avro.schema
+import avro.io
+
 from kafka import KafkaConsumer
+
+import csv
+import io
+from Counter import Counter
+from DataConfiguration import configuration
+from argparse import ArgumentParser
 from multiprocessing import Manager, Process
 
-from DataConfiguration import configuration
+
 
 def close_consumer(consumer):
     consumer.close()
 
 
-def receive(server_args, counter, topic):
+def receive(server_args, counter, topic, avro_schema):
     consumer = get_consumer(server_args, topic)
     atexit.register(close_consumer, consumer)
+    if avro_schema:
+        schema = avro.schema.Parse(open(avro_schema).read())
     for msg in consumer:
+        if avro_schema:
+            bytes_reader = io.BytesIO(msg.value)
+            decoder = avro.io.BinaryDecoder(bytes_reader)
+            reader = avro.io.DatumReader(schema)
+            msg_data = reader.read(decoder)
+        #TODO: Find out what data type was sent to know how to de-seralize it.
         counter.increment()
 
 def get_consumer(server_args, topic):
@@ -31,10 +45,10 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
-def start_receiving(server_args, topic, time_interval, numb_procs):
+def start_receiving(server_args, topic, time_interval, numb_procs, avro_schema=None):
     counter = Counter(0)
     shared_dict[topic] = manager.list()
-    procs = [Process(target=receive, args=(server_args, counter, topic)) for i in range(numb_procs)]
+    procs = [Process(target=receive, args=(server_args, counter, topic, avro_schema)) for i in range(numb_procs)]
     for p in procs: p.start()
     timer_proc = Process(target=count_msgs_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
@@ -66,7 +80,7 @@ def process_data_config(config, server_args):
     topics_procs = []
 
     for topic in config:
-        procs = start_receiving(server_args=server_args, topic=topic, numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"])
+        procs = start_receiving(server_args=server_args, topic=topic, numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"], avro_schema=config[topic]["Avro Schema"])
         topics_procs.append(procs)
 
     return topics_procs
