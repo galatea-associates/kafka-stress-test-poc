@@ -14,7 +14,8 @@ def generate_price_entity():
     return {'inst_id': inst_id, 'price': price}
 
 def generate_position_entity():
-    types = ['SD', 'TD']
+    # Possible types of a position
+    types = ['SD']
     type = random.choice(types)
     # Possible instruments
     instruments = ['IBM', 'APPL', 'USD', 'GBP']
