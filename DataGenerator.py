@@ -17,12 +17,18 @@ def main():
     if args.inst_ref > 0:
         create_data_file('out/inst-ref.csv', args.inst_ref, generate_inst_ref_entity)
 
+# file_name corresponds to the name of the CSV file the function will write to
+# n is the number of data entities to write to the CSV file
+# data_generator is the function reference that generates the data entity of interest
 def create_data_file(file_name, n, data_generator):
+    # w+ means create file first if it does not already exist
     with open(file_name, mode='w+', newline='') as file:
         entity = data_generator()
         writer = csv.DictWriter(file, fieldnames=list(entity))
         writer.writeheader()
         writer.writerow(entity)
+        # n - 1 because we already wrote to the file once with the entity variable
+        # We do this to get the keys of the dictionary in order to get the field names of the CSV file
         for _ in range(n - 1):
             entity = data_generator()
             writer.writerow(entity)
