@@ -20,6 +20,7 @@ configuration = {
             "Generator" : generate_price_entity
         },
         "Number of Processes" : 11,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
     "positions": {
@@ -36,6 +37,7 @@ configuration = {
             "Generator" : generate_position_entity
         },
         "Number of Processes" : 4,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
     "instrument_reference_data": {
@@ -52,6 +54,7 @@ configuration = {
             "Generator" : generate_inst_ref_entity
         },
         "Number of Processes" : 1,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 60.0      
     },
 }
