@@ -8,6 +8,7 @@ from kafka import KafkaConsumer
 
 import csv
 import io
+import json
 from Counter import Counter
 from DataConfiguration import configuration
 from argparse import ArgumentParser
@@ -19,18 +20,27 @@ def close_consumer(consumer):
     consumer.close()
 
 
-def receive(server_args, counter, topic, avro_schema):
+def deserialize_msg(msg, serializer, schema=None):
+    if serializer == "Avro":
+        bytes_reader = io.BytesIO(msg.value)
+        decoder = avro.io.BinaryDecoder(bytes_reader)
+        reader = avro.io.DatumReader(schema)
+        msg_data = reader.read(decoder)
+        return msg_data
+    elif serializer == "JSON":
+        return json.loads(msg)
+    else:
+        return msg
+
+def receive(server_args, counter, topic, avro_schema, serializer):
     consumer = get_consumer(server_args, topic)
     atexit.register(close_consumer, consumer)
     if avro_schema:
         schema = avro.schema.Parse(open(avro_schema).read())
+    else:
+        schema = None
     for msg in consumer:
-        if avro_schema:
-            bytes_reader = io.BytesIO(msg.value)
-            decoder = avro.io.BinaryDecoder(bytes_reader)
-            reader = avro.io.DatumReader(schema)
-            msg_data = reader.read(decoder)
-        #TODO: Find out what data type was sent to know how to de-seralize it.
+        deserialize_msg(msg, serializer, schema)
         counter.increment()
 
 def get_consumer(server_args, topic):
@@ -44,11 +54,12 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
             #print("Topic " + topic + " recieved " + str(counter_size) + " messages!")
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
-def start_receiving(server_args, topic, time_interval, numb_procs, avro_schema=None):
+    
+def start_receiving(server_args, topic, time_interval, numb_procs, avro_schema=None, serializer=None):
     counter = Counter(0)
     shared_dict[topic] = manager.list()
     
-    procs = [Process(target=receive, args=(server_args, counter, topic, avro_schema)) for i in range(numb_procs)]
+    procs = [Process(target=receive, args=(server_args, counter, topic, avro_schema,serializer)) for i in range(numb_procs)]
 
     timer_proc = Process(target=count_msgs_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
     procs.append(timer_proc)
@@ -81,7 +92,12 @@ def process_data_config(config, server_args):
     topics_procs = []
 
     for topic in config:
-        procs = start_receiving(server_args=server_args, topic=topic, numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"], avro_schema=config[topic]["Avro Schema"])
+        procs = start_receiving(server_args=server_args, 
+                                topic=topic,         
+                                numb_procs=config[topic]["Number of Processes"], 
+                                time_interval=config[topic]["Time Interval"], 
+                                avro_schema=config[topic]["Avro Schema"],
+                                serializer=config[topic]["Serializer"])
         topics_procs.append(procs)
 
     return topics_procs
