@@ -14,11 +14,8 @@ from DataConfiguration import configuration
 from argparse import ArgumentParser
 from multiprocessing import Manager, Process
 
-
-
 def close_consumer(consumer):
     consumer.close()
-
 
 def deserialize_msg(msg, serializer, schema=None):
     if serializer == "Avro":
