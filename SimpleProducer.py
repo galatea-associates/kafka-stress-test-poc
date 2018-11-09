@@ -111,7 +111,7 @@ def process_data_config(config, server_args):
                                 counter=new_counter, 
                                 topic=topic, 
                                 data_generator=config[topic]["Data"], 
-                                numb_prod_procs=config[topic]["Number of Producer Processes"], 
+                                numb_prod_procs=config[topic]["Number of Processes"], 
                                 numb_data_procs=config[topic]["Number of Data Generation Processes"], 
                                 time_interval=config[topic]["Time Interval"], 
                                 avro_schema=config[topic]["Avro Schema"],

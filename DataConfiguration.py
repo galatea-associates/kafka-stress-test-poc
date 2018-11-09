@@ -15,7 +15,7 @@ configuration = {
         "Serializer": "Avro",
         "Data" : generate_price_entity,
         "Data Queue Max Size": 40,
-        "Number of Producer Processes" : 11,
+        "Number of Processes" : 11,
         "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
@@ -28,7 +28,7 @@ configuration = {
         "Serializer": "Avro",
         "Data" : generate_position_entity,
         "Data Queue Max Size": 20,
-        "Number of Producer Processes" : 4,
+        "Number of Processes" : 4,
         "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
@@ -41,7 +41,7 @@ configuration = {
         "Serializer": "Avro",
         "Data" : generate_inst_ref_entity,
         "Data Queue Max Size": 5,
-        "Number of Producer Processes" : 1,
+        "Number of Processes" : 1,
         "Number of Data Generation Processes": 1,
         "Time Interval" : 60.0      
     },
