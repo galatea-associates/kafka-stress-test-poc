@@ -6,3 +6,4 @@ Producer.py
 __pycache__
 venv
 .idea
+out/*
