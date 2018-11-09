@@ -8,8 +8,8 @@ from DataGenerator import generate_position_entity
 configuration = {
     "prices": {
         "Counter": {
-            "init_val" : 0,
-            "limit_val" : 40000
+            "Initial Value" : 0,
+            "Limit Value" : 40000
         },
         "Serialization": {
             "Type": "Avro",
@@ -24,8 +24,8 @@ configuration = {
     },
     "positions": {
         "Counter": {
-            "init_val" : 0,
-            "limit_val" : 20000
+            "Initial Value" : 0,
+            "Limit Value" : 20000
         },
         "Serialization": {
             "Type": "Avro",
@@ -40,8 +40,8 @@ configuration = {
     },
     "instrument_reference_data": {
         "Counter": {
-            "init_val" : 0,
-            "limit_val" : 100
+            "Initial Value" : 0,
+            "Limit Value" : 100
         },
         "Serialization": {
             "Type": "Avro",
