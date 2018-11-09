@@ -1,6 +1,31 @@
 import random
 import string
 import datetime
+import argparse
+import csv
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--prices', nargs='?', type=int, default=0)
+    parser.add_argument('--positions', nargs='?', type=int, default=0)
+    parser.add_argument('--inst-ref', nargs='?', type=int, default=0)
+    args = parser.parse_args()
+    if args.prices > 0:
+        create_data_file('out/prices.csv', args.prices, generate_price_entity)
+    if args.positions > 0:
+        create_data_file('out/positions.csv', args.positions, generate_position_entity)
+    if args.inst_ref > 0:
+        create_data_file('out/inst-ref.csv', args.inst_ref, generate_inst_ref_entity)
+
+def create_data_file(file_name, n, data_generator):
+    with open(file_name, mode='w+', newline='') as file:
+        entity = data_generator()
+        writer = csv.DictWriter(file, fieldnames=list(entity))
+        writer.writeheader()
+        writer.writerow(entity)
+        for _ in range(n - 1):
+            entity = data_generator()
+            writer.writerow(entity)
 
 def generate_price_entity():
     min = 100
@@ -54,3 +79,6 @@ def generate_date():
     month = random.randint(1, 12)
     day = random.randint(1, 28)
     return datetime.datetime(year, month, day).date()
+
+if __name__ == "__main__":
+    main()
