@@ -72,7 +72,7 @@ def cleanup(topics_procs):
     output_time = time.time()
     produce_output(dict_key="prices", output_time=output_time)
     produce_output(dict_key="positions", output_time=output_time)
-    produce_output(dict_key="instrument_reference_data", output_time=output_time)
+    produce_output(dict_key="instrument_reference_data", output_time=output_time) 
 
 
 def process_data_config(config, server_args):
