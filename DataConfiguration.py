@@ -6,8 +6,8 @@ from DataGenerator import DataGenerator
 configuration = {
     "prices": {
         "Counter": {
-            "init_val" : 0,
-            "limit_val" : 40000
+            "Initial Value" : 0,
+            "Limit Value" : 40000
         },
         "Avro Schema": "prices.avsc",
         "Serializer": "Avro",
@@ -19,8 +19,8 @@ configuration = {
     },
     "positions": {
         "Counter": {
-            "init_val" : 0,
-            "limit_val" : 20000
+            "Initial Value" : 0,
+            "Limit Value" : 20000
         },
         "Avro Schema": "positions.avsc",
         "Serializer": "Avro",
@@ -32,8 +32,8 @@ configuration = {
     },
     "instrument_reference_data": {
         "Counter": {
-            "init_val" : 0,
-            "limit_val" : 100
+            "Initial Value" : 0,
+            "Limit Value" : 100
         },
         "Avro Schema": "instrument_reference_data.avsc",
         "Serializer": "Avro",
