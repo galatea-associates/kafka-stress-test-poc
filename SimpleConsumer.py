@@ -44,15 +44,16 @@ def count_msgs_every_second(counter, topic, time_interval, prev_time, shared_dic
             #print("Topic " + topic + " recieved " + str(counter_size) + " messages!")
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
-
 def start_receiving(server_args, topic, time_interval, numb_procs, avro_schema=None):
     counter = Counter(0)
     shared_dict[topic] = manager.list()
+    
     procs = [Process(target=receive, args=(server_args, counter, topic, avro_schema)) for i in range(numb_procs)]
-    for p in procs: p.start()
+
     timer_proc = Process(target=count_msgs_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
-    timer_proc.start()
     procs.append(timer_proc)
+
+    for p in procs: p.start()
     return procs
 
 def cleanup_processes(procs):
