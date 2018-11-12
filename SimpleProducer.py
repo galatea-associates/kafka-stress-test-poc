@@ -3,7 +3,6 @@ import time
 
 import avro.schema
 from avro.io import DatumWriter
-from click import pass_context
 from kafka import KafkaProducer
 
 import csv

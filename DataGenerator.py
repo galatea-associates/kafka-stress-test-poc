@@ -107,5 +107,5 @@ class DataGenerator:
         day = random.randint(1, 28)
         return datetime.datetime(year, month, day).date()
 
-
-DataGenerator.run()
+if __name__ == '__main__':
+    DataGenerator.run()
