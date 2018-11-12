@@ -53,11 +53,9 @@ def send(server_args, producer_counters, topic, shared_data_queue, wait_for_resp
         while producer_counters.sent_counter.check_value_and_increment():
             val = shared_data_queue.get()
             if wait_for_response:
-                future = producer.send(topic, serialize_val(val,serializer, schema))
-                result = future.get(timeout=60)
+                producer.send(topic, serialize_val(val, serializer, schema)).add_callback(producer_counters.received_counter.increment)
             else:
                 producer.send(topic, val)
-            producer_counters.received_counter.increment()
 
 
 def reset_every_second(producer_counters, topic, time_interval, prev_time, shared_dict):
@@ -66,7 +64,6 @@ def reset_every_second(producer_counters, topic, time_interval, prev_time, share
             counter_size = producer_counters.received_counter.value()
             producer_counters.received_counter.reset()
             producer_counters.sent_counter.reset()
-            #print("Topic " + topic + " sent " + str(counter_size) + " messages!")
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
