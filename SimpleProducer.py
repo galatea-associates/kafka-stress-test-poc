@@ -12,6 +12,7 @@ from Counter import Counter
 from DataConfiguration import configuration
 from argparse import ArgumentParser
 from multiprocessing import Manager, Process, Queue
+from DataGenerator import DataGenerator
 
 class Producer(object):
     def __init__(self, init_val=0, limit_val=0):
@@ -32,9 +33,11 @@ def serialize_val(val, serializer, schema=None):
         return val
 
 
-def process_val(val):
+def process_val(val, args=None):
     if callable(val):
         return process_val(val())
+    elif isinstance(val, DataGenerator):
+        return process_val(val.run(args))
     else:
         return val
 
@@ -68,18 +71,20 @@ def reset_every_second(producer_counters, topic, time_interval, prev_time, share
             prev_time = time.time()
 
 
-def data_pipe_producer(shared_data_queue, data_generator, max_queue_size):
+def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_args):
     while True:
         if shared_data_queue.qsize() < max_queue_size:
-            shared_data_queue.put(process_val(data_generator))
+            shared_data_queue.put(process_val(data_generator, data_args))
 
-def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1, time_interval=1, wait_for_response=True, avro_schema=None, serializer=None, max_data_pipe_size=100):
+def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
+                  time_interval=1, wait_for_response=True, avro_schema=None, serializer=None, max_data_pipe_size=100,
+                  data_args=None):
     shared_dict[topic] = manager.list() 
     shared_data_queue = Queue()
 
     procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, wait_for_response, avro_schema, serializer)) for i in range(numb_prod_procs)]
     timer_proc = Process(target=reset_every_second, args=(producer_counters, topic, time_interval, time.time(), shared_dict))
-    data_gen_procs = [Process(target=data_pipe_producer, args=(shared_data_queue, data_generator, max_data_pipe_size)) for i in range(numb_data_procs)]
+    data_gen_procs = [Process(target=data_pipe_producer, args=(shared_data_queue, data_generator, max_data_pipe_size, data_args)) for i in range(numb_data_procs)]
 
     procs.append(timer_proc)
     procs+=data_gen_procs
@@ -124,7 +129,8 @@ def process_data_config(config, server_args):
                                 time_interval=config[topic]["Time Interval"], 
                                 avro_schema=config[topic]["Avro Schema"],
                                 serializer=config[topic]["Serializer"],
-                                max_data_pipe_size=config[topic]["Data Queue Max Size"])
+                                max_data_pipe_size=config[topic]["Data Queue Max Size"],
+                                data_args=config[topic]['Data Args'])
         topics_procs.append(procs)
 
     return topics_procs, producer_list
