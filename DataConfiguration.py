@@ -1,6 +1,4 @@
-from DataGenerator import generate_inst_ref_entity
-from DataGenerator import generate_price_entity
-from DataGenerator import generate_position_entity
+from RandomDataGenerator import RandomDataGenerator
 
 # This file will contrain the core configuration for running the consumer and producer.
 # It will also contain the functions needed to generate data for the different topics.
@@ -8,50 +6,50 @@ from DataGenerator import generate_position_entity
 configuration = {
     "prices": {
         "Counter": {
-            "Initial Value" : 0,
-            "Limit Value" : 40000
+            "init_val" : 0,
+            "limit_val" : 40000
         },
-        "Serialization": {
-            "Type": "Avro",
-            "Schema": "prices.avsc",
+        "Avro Schema": "prices.avsc",
+        "Serializer": "Avro",
+        "Data": RandomDataGenerator(),
+        "Data Args": {
+            "Type": "price"
         },
-        "Data" : {
-            "Generator Type": "Function",
-            "Generator" : generate_price_entity
-        },
+        "Data Queue Max Size": 40,
         "Number of Processes" : 11,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
     "positions": {
         "Counter": {
-            "Initial Value" : 0,
-            "Limit Value" : 20000
+            "init_val" : 0,
+            "limit_val" : 20000
         },
-        "Serialization": {
-            "Type": "Avro",
-            "Schema": "positions.avsc",
+        "Avro Schema": "positions.avsc",
+        "Serializer": "Avro",
+        "Data": RandomDataGenerator(),
+        "Data Args": {
+            "Type": "position"
         },
-        "Data" : {
-            "Generator Type": "Function",
-            "Generator" : generate_position_entity
-        },
+        "Data Queue Max Size": 20,
         "Number of Processes" : 4,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
     "instrument_reference_data": {
         "Counter": {
-            "Initial Value" : 0,
-            "Limit Value" : 100
+            "init_val" : 0,
+            "limit_val" : 100
         },
-        "Serialization": {
-            "Type": "Avro",
-            "Schema": "instrument_reference_data.avsc",
+        "Avro Schema": "instrument_reference_data.avsc",
+        "Serializer": "Avro",
+        "Data": RandomDataGenerator(),
+        "Data Args": {
+            "Type": "inst-ref"
         },
-        "Data" : {
-            "Generator Type": "Function",
-            "Generator" : generate_inst_ref_entity
-        },
+        "Data Queue Max Size": 5,
         "Number of Processes" : 1,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 60.0      
     },
 }

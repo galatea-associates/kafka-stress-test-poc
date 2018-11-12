@@ -1,7 +1,8 @@
 This is a proof of concept project for Kafka.
 
-To be able to run this code, you need to install kafka-python:
+To be able to run this code, you need to install kafka-python and avro:
 - pip install kafka-python
+- pip install avro-python3
 
 
 To run the Producer, execute the following command:
