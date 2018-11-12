@@ -6,3 +6,9 @@ Producer.py
 __pycache__
 venv
 .idea
+*.c
+*.pyc
+*.so
+*.o
+SimpleProducer
+SimpleConsumer
