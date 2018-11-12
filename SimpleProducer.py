@@ -12,6 +12,12 @@ from multiprocessing import Manager, Process
 
 from DataConfiguration import configuration
 
+class Producer(object):
+    def __init__(self, init_val=0, limit_val=0):
+        self.sent_counter= Counter(init_val=init_val, limit_val=limit_val)
+        self.received_counter= Counter(init_val=init_val, limit_val=limit_val)
+
+
 def process_val(val, schema=None, is_avro=False):
     if schema:
         writer = DatumWriter(schema)
@@ -32,7 +38,7 @@ def process_val(val, schema=None, is_avro=False):
     else:
         return b''
 
-def send(server_args, counter, topic, val, wait_for_response, avro_schema):
+def send(server_args, producer_counters, topic, val, wait_for_response, avro_schema):
     producer = KafkaProducer(bootstrap_servers=[str(server_args.ip) +":"+ str(server_args.port)])
     atexit.register(cleanup_producer, producer=producer)
     if avro_schema:
@@ -40,28 +46,30 @@ def send(server_args, counter, topic, val, wait_for_response, avro_schema):
     else:
         schema = None    
     while True:
-        while counter.check_value_and_increment():
+        while producer_counters.sent_counter.check_value_and_increment():
             if wait_for_response:
                 future = producer.send(topic, process_val(val, schema))
                 result = future.get(timeout=60)
             else:
                 producer.send(topic, val)
+            producer_counters.received_counter.increment()
 
 
-def reset_every_second(counter, topic, time_interval, prev_time, shared_dict):
+def reset_every_second(producer_counters, topic, time_interval, prev_time, shared_dict):
     while True:
         if time.time() - prev_time >= time_interval:
-            counter_size = counter.value()
-            counter.reset()
+            counter_size = producer_counters.received_counter.value()
+            producer_counters.received_counter.reset()
+            producer_counters.sent_counter.reset()
             #print("Topic " + topic + " sent " + str(counter_size) + " messages!")
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
-def start_sending(server_args, counter, topic, val, numb_procs, time_interval, wait_for_response=True, avro_schema=None):
+def start_sending(server_args, producer_counters, topic, val, numb_procs, time_interval, wait_for_response=True, avro_schema=None):
     shared_dict[topic] = manager.list() 
-    procs = [Process(target=send, args=(server_args, counter, topic, val, wait_for_response, avro_schema)) for i in range(numb_procs)]
+    procs = [Process(target=send, args=(server_args, producer_counters, topic, val, wait_for_response, avro_schema)) for i in range(numb_procs)]
     for p in procs: p.start()
-    timer_proc = Process(target=reset_every_second, args=(counter, topic, time_interval, time.time(), shared_dict))
+    timer_proc = Process(target=reset_every_second, args=(producer_counters, topic, time_interval, time.time(), shared_dict))
     timer_proc.start()
     procs.append(timer_proc)
     return procs
@@ -90,15 +98,15 @@ def cleanup(config, topics_procs):
 def process_data_config(config, server_args):
 
     topics_procs = []
-    counter_list = []
+    producer_list = []
 
     for topic in config:
-        new_counter = Counter(init_val=config[topic]["Counter"]["init_val"], limit_val=config[topic]["Counter"]["limit_val"])
-        counter_list.append(new_counter)
-        procs = start_sending(server_args=server_args, counter=new_counter, topic=topic, val=config[topic]["Value"], numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"], avro_schema=config[topic]["Avro Schema"])
+        producer_counters=Producer(init_val=config[topic]["Counter"]["init_val"], limit_val=config[topic]["Counter"]["limit_val"])
+        producer_list.append(producer_counters)
+        procs = start_sending(server_args=server_args, producer_counters=producer_counters, topic=topic, val=config[topic]["Value"], numb_procs=config[topic]["Number of Processes"], time_interval=config[topic]["Time Interval"], avro_schema=config[topic]["Avro Schema"])
         topics_procs.append(procs)
 
-    return topics_procs, counter_list
+    return topics_procs, producer_list
 
 def parse_args():
     parser = ArgumentParser()
@@ -119,7 +127,7 @@ if __name__ == '__main__':
     manager =  Manager()
     shared_dict = manager.dict()    
 
-    topics_procs, counter_list = process_data_config(configuration, server_args)
+    topics_procs, producer_list = process_data_config(configuration, server_args)
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
     input("Press Enter to exit...")
