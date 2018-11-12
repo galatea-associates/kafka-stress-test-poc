@@ -41,7 +41,7 @@ def process_val(val, args=None):
         return val
 
 
-def send(server_args, producer_counters, topic, shared_data_queue, wait_for_response, avro_schema, serializer):
+def send(server_args, producer_counters, topic, shared_data_queue, avro_schema, serializer):
     producer = KafkaProducer(bootstrap_servers=[str(server_args.ip) +":"+ str(server_args.port)])
     atexit.register(cleanup_producer, producer=producer)
     if avro_schema:
@@ -51,10 +51,7 @@ def send(server_args, producer_counters, topic, shared_data_queue, wait_for_resp
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             val = shared_data_queue.get()
-            if wait_for_response:
-                producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters)
-            else:
-                producer.send(topic, val)
+            producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters)
 
 def on_send_success(producer_counters, _):
     producer_counters.received_counter.increment()
@@ -75,12 +72,12 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
             shared_data_queue.put(process_val(data_generator, data_args))
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
-                  time_interval=1, wait_for_response=True, avro_schema=None, serializer=None, max_data_pipe_size=100,
+                  time_interval=1, avro_schema=None, serializer=None, max_data_pipe_size=100,
                   data_args=None):
     shared_dict[topic] = manager.list() 
     shared_data_queue = Queue()
 
-    procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, wait_for_response, avro_schema, serializer)) for i in range(numb_prod_procs)]
+    procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, avro_schema, serializer)) for i in range(numb_prod_procs)]
     timer_proc = Process(target=reset_every_second, args=(producer_counters, topic, time_interval, time.time(), shared_dict))
     data_gen_procs = [Process(target=data_pipe_producer, args=(shared_data_queue, data_generator, max_data_pipe_size, data_args)) for i in range(numb_data_procs)]
 
