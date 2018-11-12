@@ -11,7 +11,7 @@ configuration = {
         },
         "Avro Schema": "prices.avsc",
         "Serializer": "Avro",
-        "Data": RandomDataGenerator,
+        "Data": RandomDataGenerator(),
         "Data Args": {
             "Type": "price"
         },
@@ -27,7 +27,7 @@ configuration = {
         },
         "Avro Schema": "positions.avsc",
         "Serializer": "Avro",
-        "Data": RandomDataGenerator,
+        "Data": RandomDataGenerator(),
         "Data Args": {
             "Type": "position"
         },
@@ -43,7 +43,7 @@ configuration = {
         },
         "Avro Schema": "instrument_reference_data.avsc",
         "Serializer": "Avro",
-        "Data": RandomDataGenerator,
+        "Data": RandomDataGenerator(),
         "Data Args": {
             "Type": "inst-ref"
         },
