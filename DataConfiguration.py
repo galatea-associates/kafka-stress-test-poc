@@ -1,5 +1,5 @@
 from RandomDataGenerator import RandomDataGenerator
-
+from ReadFromFile import ReadFromFile
 # This file will contrain the core configuration for running the consumer and producer.
 # It will also contain the functions needed to generate data for the different topics.
 
@@ -11,9 +11,12 @@ configuration = {
         },
         "Avro Schema": "prices.avsc",
         "Serializer": "Avro",
-        "Data": RandomDataGenerator(),
+        "Data": ReadFromFile(),
         "Data Args": {
-            "Type": "price"
+            'File': 'out/prices.csv',
+            'Format' : 'CSV',
+            'Chunk Size': 10,
+            'Loop on end': True
         },
         "Data Queue Max Size": 40,
         "Number of Processes" : 11,
@@ -27,9 +30,12 @@ configuration = {
         },
         "Avro Schema": "positions.avsc",
         "Serializer": "Avro",
-        "Data": RandomDataGenerator(),
+        "Data": ReadFromFile(),
         "Data Args": {
-            "Type": "position"
+            'File': 'out/positions.csv',
+            'Format' : 'CSV',
+            'Chunk Size': 10,
+            'Loop on end': True
         },
         "Data Queue Max Size": 20,
         "Number of Processes" : 4,
@@ -43,9 +49,12 @@ configuration = {
         },
         "Avro Schema": "instrument_reference_data.avsc",
         "Serializer": "Avro",
-        "Data": RandomDataGenerator(),
+        "Data": ReadFromFile(),
         "Data Args": {
-            "Type": "inst-ref"
+            'File': 'out/inst-ref.csv',
+            'Format' : 'CSV',
+            'Chunk Size': 10,
+            'Loop on end': True
         },
         "Data Queue Max Size": 5,
         "Number of Processes" : 1,

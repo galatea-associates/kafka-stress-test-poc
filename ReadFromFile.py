@@ -1,8 +1,12 @@
-import csv
 import os
+from builtins import StopIteration
+
 import pandas as pd
 from DataGenerator import DataGenerator
+
+import csv
 from multiprocessing import Lock
+
 
 class ReadFromFile(DataGenerator):
     def __init__(self):
@@ -14,10 +18,12 @@ class ReadFromFile(DataGenerator):
 
     def __get_next_chunk(self):
         with self.__lock:
-            self.__file_reader.get_chunk().to_dict(orient='records')
+            try:
+                return self.__file_reader.get_chunk().to_dict(orient='records')
 
-    def __is_EOF(self):
-        return False
+            #If EOF a StopIteration exception occurs
+            except StopIteration:
+                return None
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'File': './out/prices.csv',
@@ -26,14 +32,21 @@ class ReadFromFile(DataGenerator):
     #  'Loop on end': True}
     def run(self, args):
         with self.__lock:
-            if self.__setup_file_reader is None:
+            if self.__file_reader is None:
                 self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
-            if self.__is_EOF():
-                if args["Loop on end"]:
-                    self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
-                else:
-                    return None
 
-        return self.__get_next_chunk()
+        data = self.__get_next_chunk()
+        
+        #Data will be None if EOF occured
+        if data is None:
+            if args["Loop on end"]:
+                
+                #If loop on EOF then start reader again at beginning
+                self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
+                data = self.__get_next_chunk()
+            else:
+                return None
+
+        return data
 
     

@@ -52,6 +52,8 @@ def send(server_args, producer_counters, topic, shared_data_queue, wait_for_resp
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             val = shared_data_queue.get()
+            if val is None:
+                break
             if wait_for_response:
                 future = producer.send(topic, serialize_val(val,serializer, schema))
                 result = future.get(timeout=60)
@@ -75,6 +77,10 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
     while True:
         if shared_data_queue.qsize() < max_queue_size:
             data = process_val(data_generator, data_args)
+            if data is None:
+                #Means producer has finished sending
+                shared_data_queue.put(data)
+                break
             if isinstance(data, list):
                 for item in data:
                      shared_data_queue.put(item)
