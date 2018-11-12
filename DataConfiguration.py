@@ -11,9 +11,9 @@ configuration = {
         },
         "Avro Schema": "prices.avsc",
         "Serializer": "Avro",
-        "Data" : RandomDataGenerator.generate_price_entity,
+        "Data": RandomDataGenerator.generate_price_entity,
         "Data Args": {
-            "Type": "Price"
+            "Type": "price"
         },
         "Data Queue Max Size": 40,
         "Number of Processes" : 11,
@@ -27,7 +27,10 @@ configuration = {
         },
         "Avro Schema": "positions.avsc",
         "Serializer": "Avro",
-        "Data" : RandomDataGenerator.generate_position_entity,
+        "Data": RandomDataGenerator.generate_position_entity,
+        "Data Args": {
+            "Type": "position"
+        },
         "Data Queue Max Size": 20,
         "Number of Processes" : 4,
         "Number of Data Generation Processes": 1,
@@ -40,7 +43,10 @@ configuration = {
         },
         "Avro Schema": "instrument_reference_data.avsc",
         "Serializer": "Avro",
-        "Data" : RandomDataGenerator.generate_inst_ref_entity,
+        "Data": RandomDataGenerator.generate_inst_ref_entity,
+        "Data Args": {
+            "Type": "inst-ref"
+        },
         "Data Queue Max Size": 5,
         "Number of Processes" : 1,
         "Number of Data Generation Processes": 1,
