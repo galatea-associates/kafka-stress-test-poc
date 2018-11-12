@@ -100,7 +100,7 @@ def produce_output(dict_key, output_time):
         wr = csv.writer(output_file, quoting=csv.QUOTE_ALL)
         wr.writerow(shared_dict[dict_key])
 
-def cleanup(config, topics_procs):
+def cleanup(config=None, topics_procs=None):
     for procs in topics_procs:
         cleanup_processes(procs)
     output_time = time.time()
