@@ -74,7 +74,12 @@ def reset_every_second(producer_counters, topic, time_interval, prev_time, share
 def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_args):
     while True:
         if shared_data_queue.qsize() < max_queue_size:
-            shared_data_queue.put(process_val(data_generator, data_args))
+            data = process_val(data_generator, data_args)
+            if isinstance(data, list):
+                for item in data:
+                     shared_data_queue.put(item)
+            else:
+                shared_data_queue.put(data)
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
                   time_interval=1, wait_for_response=True, avro_schema=None, serializer=None, max_data_pipe_size=100,
