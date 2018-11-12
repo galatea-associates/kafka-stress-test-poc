@@ -8,8 +8,13 @@ from DataGenerator import DataGenerator
 
 class RandomDataGenerator(DataGenerator):
 
-    def run(self):
-        print("Run method exists")
+    def run(self, data_type):
+        if data_type == 'price':
+            return RandomDataGenerator.generate_price_entity()
+        elif data_type == 'position':
+            return RandomDataGenerator.generate_position_entity()
+        elif data_type == 'inst-ref':
+            return RandomDataGenerator.generate_inst_ref_entity()
 
     @staticmethod
     def main():
