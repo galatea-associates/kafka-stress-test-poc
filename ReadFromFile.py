@@ -28,7 +28,7 @@ class ReadFromFile(DataGenerator):
         with self.__lock:
             if self.__setup_file_reader is None:
                 self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
-            if __is_EOF():
+            if self.__is_EOF():
                 if args["Loop on end"]:
                     self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
                 else:
