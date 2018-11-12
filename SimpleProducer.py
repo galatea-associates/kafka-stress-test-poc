@@ -14,8 +14,8 @@ from DataConfiguration import configuration
 
 class Producer(object):
     def __init__(self, init_val=0, limit_val=0):
-        self.sent_counter= Counter(init_val=init_val, limit_val=limit_val)
-        self.received_counter= Counter(init_val=init_val, limit_val=limit_val)
+        self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
+        self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
 
 
 def process_val(val, schema=None, is_avro=False):
