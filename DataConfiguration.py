@@ -7,7 +7,7 @@ configuration = {
     "prices": {
         "Counter": {
             "init_val": 0,
-            "limit_val": 40
+            "limit_val": 40000
         },
         "Avro Schema": "prices.avsc",
         "Serializer": "Avro",
@@ -23,7 +23,7 @@ configuration = {
     "positions": {
         "Counter": {
             "init_val": 0,
-            "limit_val": 20
+            "limit_val": 20000
         },
         "Avro Schema": "positions.avsc",
         "Serializer": "Avro",
