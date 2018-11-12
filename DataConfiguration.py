@@ -10,8 +10,11 @@ configuration = {
             "limit_val" : 40000
         },
         "Avro Schema": "prices.avsc",
-        "Value" : DataGenerator.generate_price_entity,
+        "Serializer": "Avro",
+        "Data" : DataGenerator.generate_price_entity,
+        "Data Queue Max Size": 40,
         "Number of Processes" : 11,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
     "positions": {
@@ -20,8 +23,11 @@ configuration = {
             "limit_val" : 20000
         },
         "Avro Schema": "positions.avsc",
-        "Value" : DataGenerator.generate_position_entity,
+        "Serializer": "Avro",
+        "Data" : DataGenerator.generate_position_entity,
+        "Data Queue Max Size": 20,
         "Number of Processes" : 4,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 1.0      
     },
     "instrument_reference_data": {
@@ -30,8 +36,11 @@ configuration = {
             "limit_val" : 100
         },
         "Avro Schema": "instrument_reference_data.avsc",
-        "Value" : DataGenerator.generate_inst_ref_entity,
+        "Serializer": "Avro",
+        "Data" : DataGenerator.generate_inst_ref_entity,
+        "Data Queue Max Size": 5,
         "Number of Processes" : 1,
+        "Number of Data Generation Processes": 1,
         "Time Interval" : 60.0      
     },
 }
