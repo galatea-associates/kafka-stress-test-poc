@@ -51,6 +51,8 @@ def send(server_args, producer_counters, topic, shared_data_queue, avro_schema, 
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             val = shared_data_queue.get()
+            if val is None:
+                break
             producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters)
 
 def on_send_success(producer_counters, _):
@@ -69,7 +71,16 @@ def reset_every_second(producer_counters, topic, time_interval, prev_time, share
 def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_args):
     while True:
         if shared_data_queue.qsize() < max_queue_size:
-            shared_data_queue.put(process_val(data_generator, data_args))
+            data = process_val(data_generator, data_args)
+            if data is None:
+                #Means producer has finished sending
+                shared_data_queue.put(data)
+                break
+            if isinstance(data, list):
+                for item in data:
+                     shared_data_queue.put(item)
+            else:
+                shared_data_queue.put(data)
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
                   time_interval=1, avro_schema=None, serializer=None, max_data_pipe_size=100,
