@@ -19,7 +19,6 @@ class Producer(object):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
 
-
 def serialize_val(val, serializer, schema=None):
     if serializer == "Avro":
         writer = DatumWriter(schema)
@@ -42,7 +41,7 @@ def process_val(val, args=None):
         return val
 
 
-def send(server_args, producer_counters, topic, shared_data_queue, wait_for_response, avro_schema, serializer):
+def send(server_args, producer_counters, topic, shared_data_queue, avro_schema, serializer):
     producer = KafkaProducer(bootstrap_servers=[str(server_args.ip) +":"+ str(server_args.port)])
     atexit.register(cleanup_producer, producer=producer)
     if avro_schema:
@@ -54,13 +53,10 @@ def send(server_args, producer_counters, topic, shared_data_queue, wait_for_resp
             val = shared_data_queue.get()
             if val is None:
                 break
-            if wait_for_response:
-                future = producer.send(topic, serialize_val(val,serializer, schema))
-                result = future.get(timeout=60)
-            else:
-                producer.send(topic, val)
-            producer_counters.received_counter.increment()
+            producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters)
 
+def on_send_success(producer_counters, _):
+    producer_counters.received_counter.increment()
 
 def reset_every_second(producer_counters, topic, time_interval, prev_time, shared_dict):
     while True:
@@ -68,7 +64,6 @@ def reset_every_second(producer_counters, topic, time_interval, prev_time, share
             counter_size = producer_counters.received_counter.value()
             producer_counters.received_counter.reset()
             producer_counters.sent_counter.reset()
-            #print("Topic " + topic + " sent " + str(counter_size) + " messages!")
             shared_dict[topic].append(int(counter_size))
             prev_time = time.time()
 
@@ -88,12 +83,12 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
                 shared_data_queue.put(data)
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
-                  time_interval=1, wait_for_response=True, avro_schema=None, serializer=None, max_data_pipe_size=100,
+                  time_interval=1, avro_schema=None, serializer=None, max_data_pipe_size=100,
                   data_args=None):
     shared_dict[topic] = manager.list() 
     shared_data_queue = Queue()
 
-    procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, wait_for_response, avro_schema, serializer)) for i in range(numb_prod_procs)]
+    procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, avro_schema, serializer)) for i in range(numb_prod_procs)]
     timer_proc = Process(target=reset_every_second, args=(producer_counters, topic, time_interval, time.time(), shared_dict))
     data_gen_procs = [Process(target=data_pipe_producer, args=(shared_data_queue, data_generator, max_data_pipe_size, data_args)) for i in range(numb_data_procs)]
 
@@ -116,7 +111,7 @@ def produce_output(dict_key, output_time):
         wr = csv.writer(output_file, quoting=csv.QUOTE_ALL)
         wr.writerow(shared_dict[dict_key])
 
-def cleanup(config, topics_procs):
+def cleanup(config=None, topics_procs=None):
     for procs in topics_procs:
         cleanup_processes(procs)
     output_time = time.time()
@@ -157,7 +152,7 @@ def parse_args():
     return args
 
 
-if __name__ == '__main__':
+def run():
     global manager, shared_dict
 
     server_args = parse_args()
@@ -169,4 +164,7 @@ if __name__ == '__main__':
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
     input("Press Enter to exit...")
+
+if __name__ == '__main__':
+    run()
 
