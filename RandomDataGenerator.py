@@ -13,32 +13,31 @@ class RandomDataGenerator(DataGenerator):
     def run(self, args):
         type = args["Type"]
         if type == 'price':
-            return RandomDataGenerator.generate_price_entity()
+            return self.__generate_price_entity()
         elif type == 'position':
-            return RandomDataGenerator.generate_position_entity()
+            return self.__generate_position_entity()
         elif type == 'inst-ref':
-            return RandomDataGenerator.generate_inst_ref_entity()
+            return self.__generate_inst_ref_entity()
 
     @staticmethod
     def main():
-        args = RandomDataGenerator.__get_args()
-        RandomDataGenerator.__generate_data_files(args)
+        rdm_data_generator = RandomDataGenerator()
+        args = rdm_data_generator.__get_args()
+        rdm_data_generator.__generate_data_files(args)
 
-    @staticmethod
-    def __generate_data_files(args):
+    def __generate_data_files(self, args):
         # Create out directory if it does not yet exist
         if not os.path.exists('out'):
             os.makedirs('out')
 
         if args.prices > 0:
-            RandomDataGenerator.create_data_file('out/prices.csv', args.prices, RandomDataGenerator.generate_price_entity)
+            self.__create_data_file('out/prices.csv', args.prices, self.__generate_price_entity)
         if args.positions > 0:
-            RandomDataGenerator.create_data_file('out/positions.csv', args.positions, RandomDataGenerator.generate_position_entity)
+            self.__create_data_file('out/positions.csv', args.positions, self.__generate_position_entity)
         if args.inst_ref > 0:
-            RandomDataGenerator.create_data_file('out/inst-ref.csv', args.inst_ref, RandomDataGenerator.generate_inst_ref_entity)
+            self.__create_data_file('out/inst-ref.csv', args.inst_ref, self.__generate_inst_ref_entity)
 
-    @staticmethod
-    def __get_args():
+    def __get_args(self):
         parser = argparse.ArgumentParser()
         parser.add_argument('--prices', nargs='?', type=int, default=0)
         parser.add_argument('--positions', nargs='?', type=int, default=0)
@@ -48,8 +47,7 @@ class RandomDataGenerator(DataGenerator):
     # file_name corresponds to the name of the CSV file the function will write to
     # n is the number of data entities to write to the CSV file
     # data_generator is the function reference that generates the data entity of interest
-    @staticmethod
-    def create_data_file(file_name, n, data_generator):
+    def __create_data_file(self, file_name, n, data_generator):
         # w+ means create file first if it does not already exist
         with open(file_name, mode='w+', newline='') as file:
             entity = data_generator()
@@ -62,8 +60,7 @@ class RandomDataGenerator(DataGenerator):
                 entity = data_generator()
                 writer.writerow(entity)
 
-    @staticmethod
-    def generate_price_entity():
+    def __generate_price_entity(self):
         min = 100
         max = 1000000
         num_decimal_points = 2
@@ -74,8 +71,7 @@ class RandomDataGenerator(DataGenerator):
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
         return {'inst_id': inst_id, 'price': price}
 
-    @staticmethod
-    def generate_position_entity():
+    def __generate_position_entity(self):
         # Possible types of a position
         types = ['SD']
         type = random.choice(types)
@@ -89,7 +85,7 @@ class RandomDataGenerator(DataGenerator):
         # Random quantity between 100 and 10,000
         qty = random.randint(100, 10000)
         # Assign random date to knowledge date
-        knowledge_date = RandomDataGenerator.__generate_date()
+        knowledge_date = self.__generate_date()
         # Add 3 days to get the effective date
         effective_date = knowledge_date + datetime.timedelta(days=3) if type == 'SD' else knowledge_date
         return {'type': type,
@@ -100,8 +96,7 @@ class RandomDataGenerator(DataGenerator):
                 'direction': random.choice(directions),
                 'qty': qty}
 
-    @staticmethod
-    def generate_inst_ref_entity():
+    def __generate_inst_ref_entity(self):
         bank_id = "ABC"
         # Generate random inst id with the prefix of the bank (ABC) and a random string composed of numbers and letters
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
@@ -112,8 +107,7 @@ class RandomDataGenerator(DataGenerator):
         return {'inst_id': inst_id, 'asset_class': random.choice(instruments), 'COI': random.choice(countries)}
 
     # Random date generator
-    @staticmethod
-    def __generate_date():
+    def __generate_date(self):
         year = random.randint(2016, 2017)
         month = random.randint(1, 12)
         day = random.randint(1, 28)
