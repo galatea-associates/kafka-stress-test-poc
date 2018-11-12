@@ -75,7 +75,7 @@ def produce_output(dict_key, output_time):
         wr = csv.writer(output_file, quoting=csv.QUOTE_ALL)
         wr.writerow(shared_dict[dict_key])
 
-def cleanup(topics_procs):
+def cleanup(topics_procs=None):
     for procs in topics_procs:
         cleanup_processes(procs)
     output_time = time.time()
@@ -110,7 +110,7 @@ def parse_args():
     return args
 
 
-if __name__ == '__main__':
+def run():
     global manager, shared_dict
 
     server_args = parse_args()
@@ -122,3 +122,6 @@ if __name__ == '__main__':
 
     atexit.register(cleanup, topics_procs=topics_procs)
     input("Press Enter to exit...")
+
+if __name__ == '__main__':
+    run()
