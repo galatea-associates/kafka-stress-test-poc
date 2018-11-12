@@ -111,7 +111,7 @@ def parse_args():
     return args
 
 
-if __name__ == '__main__':
+def run():
     global manager, shared_dict
 
     server_args = parse_args()
@@ -123,4 +123,7 @@ if __name__ == '__main__':
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
     input("Press Enter to exit...")
+
+if __name__ == '__main__':
+    run()
 
