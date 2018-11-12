@@ -3,19 +3,30 @@ import string
 import datetime
 import argparse
 import csv
+import os
 
 class DataGenerator:
 
-    def run(self):
-        args = self.__get_args()
-        if args.prices > 0:
-            self.create_data_file('out/prices.csv', args.prices, self.generate_price_entity)
-        if args.positions > 0:
-            self.create_data_file('out/positions.csv', args.positions, self.generate_position_entity)
-        if args.inst_ref > 0:
-            self.create_data_file('out/inst-ref.csv', args.inst_ref, self.generate_inst_ref_entity)
+    @staticmethod
+    def run():
+        args = DataGenerator.__get_args()
+        DataGenerator.__generate_data_files(args)
 
-    def __get_args(self):
+    @staticmethod
+    def __generate_data_files(args):
+        # Create out directory if it does not yet exist
+        if not os.path.exists('out'):
+            os.makedirs('out')
+
+        if args.prices > 0:
+            DataGenerator.create_data_file('out/prices.csv', args.prices, DataGenerator.generate_price_entity)
+        if args.positions > 0:
+            DataGenerator.create_data_file('out/positions.csv', args.positions, DataGenerator.generate_position_entity)
+        if args.inst_ref > 0:
+            DataGenerator.create_data_file('out/inst-ref.csv', args.inst_ref, DataGenerator.generate_inst_ref_entity)
+
+    @staticmethod
+    def __get_args():
         parser = argparse.ArgumentParser()
         parser.add_argument('--prices', nargs='?', type=int, default=0)
         parser.add_argument('--positions', nargs='?', type=int, default=0)
@@ -25,7 +36,8 @@ class DataGenerator:
     # file_name corresponds to the name of the CSV file the function will write to
     # n is the number of data entities to write to the CSV file
     # data_generator is the function reference that generates the data entity of interest
-    def create_data_file(self, file_name, n, data_generator):
+    @staticmethod
+    def create_data_file(file_name, n, data_generator):
         # w+ means create file first if it does not already exist
         with open(file_name, mode='w+', newline='') as file:
             entity = data_generator()
@@ -38,7 +50,8 @@ class DataGenerator:
                 entity = data_generator()
                 writer.writerow(entity)
 
-    def generate_price_entity(self):
+    @staticmethod
+    def generate_price_entity():
         min = 100
         max = 1000000
         num_decimal_points = 2
@@ -49,7 +62,8 @@ class DataGenerator:
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
         return {'inst_id': inst_id, 'price': price}
 
-    def generate_position_entity(self):
+    @staticmethod
+    def generate_position_entity():
         # Possible types of a position
         types = ['SD']
         type = random.choice(types)
@@ -63,7 +77,7 @@ class DataGenerator:
         # Random quantity between 100 and 10,000
         qty = random.randint(100, 10000)
         # Assign random date to knowledge date
-        knowledge_date = self.__generate_date()
+        knowledge_date = DataGenerator.__generate_date()
         # Add 3 days to get the effective date
         effective_date = knowledge_date + datetime.timedelta(days=3) if type == 'SD' else knowledge_date
         return {'type': type,
@@ -74,7 +88,8 @@ class DataGenerator:
                 'direction': random.choice(directions),
                 'qty': qty}
 
-    def generate_inst_ref_entity(self):
+    @staticmethod
+    def generate_inst_ref_entity():
         bank_id = "ABC"
         # Generate random inst id with the prefix of the bank (ABC) and a random string composed of numbers and letters
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
@@ -85,11 +100,12 @@ class DataGenerator:
         return {'inst_id': inst_id, 'asset_class': random.choice(instruments), 'COI': random.choice(countries)}
 
     # Random date generator
-    def __generate_date(self):
+    @staticmethod
+    def __generate_date():
         year = random.randint(2016, 2017)
         month = random.randint(1, 12)
         day = random.randint(1, 28)
         return datetime.datetime(year, month, day).date()
 
 
-DataGenerator().run()
+DataGenerator.run()
