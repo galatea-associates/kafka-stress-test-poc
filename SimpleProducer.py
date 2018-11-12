@@ -19,7 +19,6 @@ class Producer(object):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
 
-
 def serialize_val(val, serializer, schema=None):
     if serializer == "Avro":
         writer = DatumWriter(schema)
@@ -53,10 +52,12 @@ def send(server_args, producer_counters, topic, shared_data_queue, wait_for_resp
         while producer_counters.sent_counter.check_value_and_increment():
             val = shared_data_queue.get()
             if wait_for_response:
-                producer.send(topic, serialize_val(val, serializer, schema)).add_callback(producer_counters.received_counter.increment)
+                producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters)
             else:
                 producer.send(topic, val)
 
+def on_send_success(producer_counters, _):
+    producer_counters.received_counter.increment()
 
 def reset_every_second(producer_counters, topic, time_interval, prev_time, shared_dict):
     while True:
