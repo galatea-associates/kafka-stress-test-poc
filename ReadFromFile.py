@@ -16,6 +16,9 @@ class ReadFromFile(DataGenerator):
         with self.__lock:
             self.__file_reader.get_chunk().to_dict(orient='records')
 
+    def __is_EOF(self):
+        return False
+
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'File': './out/prices.csv',
     #  'Format' : 'CSV',
@@ -25,6 +28,12 @@ class ReadFromFile(DataGenerator):
         with self.__lock:
             if self.__setup_file_reader is None:
                 self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
+            if __is_EOF():
+                if args["Loop on end"]:
+                    self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
+                else:
+                    return None
+
         return self.__get_next_chunk()
 
     
