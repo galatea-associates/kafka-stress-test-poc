@@ -12,3 +12,4 @@ venv
 *.o
 SimpleProducer
 SimpleConsumer
+out/*
