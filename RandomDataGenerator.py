@@ -37,7 +37,8 @@ class RandomDataGenerator(DataGenerator):
         if args.inst_ref > 0:
             self.__create_data_file('out/inst-ref.csv', args.inst_ref, self.__generate_inst_ref_entity)
 
-    def __get_args(self):
+    @staticmethod
+    def __get_args():
         parser = argparse.ArgumentParser()
         parser.add_argument('--prices', nargs='?', type=int, default=0)
         parser.add_argument('--positions', nargs='?', type=int, default=0)
