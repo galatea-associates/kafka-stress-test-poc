@@ -10,7 +10,8 @@ class DictDataClasses:
 
     def get_dict(self):
         return {
-            'inst_id': self.__get_inst_ids(),
+            'inst_id_stock': self.__get_inst_ids(prefix='ABC'),
+            'inst_id_cash': self.__get_inst_ids(prefix='BCD'),
             'asset_class': self.__get_asset_classes(),
             'COI': self.__get_COIs(),
             'price': self.__get_prices(),
@@ -19,13 +20,14 @@ class DictDataClasses:
             'type': self.__get_types(),
             'date': self.__get_dates(),
             'account': self.__get_accounts(),
-            'inst': self.__get_insts(),
+            'cash_inst': self.__get_cash_insts(),
+            'stock_inst': self.__get_stock_insts(),
             'direction': self.__get_directions()
         }
 
-    def __get_inst_ids(self, n_chars=5):
+    def __get_inst_ids(self, prefix='ABC', n_chars=5):
         possible_chars = string.ascii_uppercase + string.digits
-        return ['ABC' + ''.join([random.choice(possible_chars) for _ in range(n_chars)]) for _ in range(self.__n_inst_ref)]
+        return [prefix + ''.join([random.choice(possible_chars) for _ in range(n_chars)]) for _ in range(self.__n_inst_ref)]
 
     def __get_asset_classes(self):
         return ['Stock', 'Cash']
@@ -43,8 +45,11 @@ class DictDataClasses:
             accounts.append(random.choice(account_types) + ''.join([random.choice(string.digits) for _ in range(4)]))
         return accounts
 
-    def __get_insts(self):
+    def __get_stock_insts(self):
         return ['IBM', 'APPL', 'TSLA']
+
+    def __get_cash_insts(self):
+        return ['USD', 'CAD', 'EUR', 'GBP']
 
     def __get_dates(self):
         dates = []

@@ -10,7 +10,9 @@ class DictDataGenerator(DataGenerator):
 
     def __init__(self):
         # Generate random inst ids with the prefix of the bank (ABC) and a random string composed of numbers and letters
-        self.dict = DictDataClasses().get_dict()
+        self.__stock_inst_ids = {}
+        self.__cash_inst_ids = {}
+        self.__dict = DictDataClasses().get_dict()
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'Type': 'position'}
@@ -33,13 +35,12 @@ class DictDataGenerator(DataGenerator):
         # Create out directory if it does not yet exist
         if not os.path.exists('out'):
             os.makedirs('out')
-
+        if args.inst_refs > 0:
+            self.__create_data_file('out/inst-ref.csv', args.inst_refs, self.__generate_inst_ref_entity)
         if args.prices > 0:
             self.__create_data_file('out/prices.csv', args.prices, self.__generate_price_entity)
         if args.positions > 0:
             self.__create_data_file('out/positions.csv', args.positions, self.__generate_position_entity)
-        if args.inst_refs > 0:
-            self.__create_data_file('out/inst-ref.csv', args.inst_refs, self.__generate_inst_ref_entity)
 
     @staticmethod
     def __get_args():
@@ -66,27 +67,71 @@ class DictDataGenerator(DataGenerator):
                 writer.writerow(entity)
 
     def __generate_price_entity(self):
-        return {'inst_id': random.choice(self.dict['inst_id']),
-                'price': random.choice(self.dict['price']),
-                'curr': random.choice(self.dict['curr'])}
+        asset_class = random.choice(self.__dict['asset_class'])
+        if asset_class == 'Stock':
+            inst_id = random.choice(list(self.__stock_inst_ids))
+            price = random.choice(self.__dict['price'])
+        else:
+            inst_id = random.choice(list(self.__cash_inst_ids))
+            price = 1.00
+        curr = random.choice(self.__dict['curr'])
+
+        return {'inst_id': inst_id,
+                'price': price,
+                'curr': curr}
 
     def __generate_position_entity(self):
+        type = random.choice(self.__dict['type'])
         # Assign random date to knowledge date
-        knowledge_date = random.choice(self.dict['date'])
+        knowledge_date = random.choice(self.__dict['date'])
         # Add 3 days to get the effective date if type is SD
         effective_date = knowledge_date + datetime.timedelta(days=3) if type == 'SD' else knowledge_date
-        return {'type': random.choice(self.dict['type']),
+        account = random.choice(self.__dict['account'])
+        direction = random.choice(self.__dict['direction'])
+        qty = random.choice(self.__dict['qty'])
+        asset_class = random.choice(self.__dict['asset_class'])
+        if asset_class == 'Stock':
+            inst_id = random.choice(list(self.__stock_inst_ids))
+            inst = self.__stock_inst_ids[inst_id]
+        else:
+            inst_id = random.choice(list(self.__cash_inst_ids))
+            inst = self.__cash_inst_ids[inst_id]
+
+        return {'type': type,
                 'knowledge_date': str(knowledge_date),
                 'effective_date': str(effective_date),
-                'account': random.choice(self.dict['account']),
-                'instrument': random.choice(self.dict['inst']),
-                'direction': random.choice(self.dict['direction']),
-                'qty': random.choice(self.dict['qty'])}
+                'account': account,
+                'direction': direction,
+                'qty': qty,
+                'instrument': inst,
+                'inst_id': inst_id}
 
     def __generate_inst_ref_entity(self):
-        return {'inst_id': random.choice(self.dict['inst_id']),
-                'asset_class': random.choice(self.dict['asset_class']),
-                'COI': random.choice(self.dict['COI'])}
+        asset_class = random.choice(self.__dict['asset_class'])
+        if asset_class == 'Stock':
+            inst_id = self.__generate_inst_id(asset_class, self.__stock_inst_ids)
+        else:
+            inst_id = self.__generate_inst_id(asset_class, self.__cash_inst_ids)
+        coi = random.choice(self.__dict['COI'])
+
+        return {'inst_id': inst_id,
+                'asset_class': asset_class,
+                'COI': coi}
+
+    def __generate_inst_id(self, asset_class, inst_ids):
+        if asset_class == 'Stock':
+            inst_id = random.choice(self.__dict['inst_id_stock'])
+            inst = random.choice(self.__dict['stock_inst'])
+        else:
+            inst_id = random.choice(self.__dict['inst_id_cash'])
+            inst = random.choice(self.__dict['cash_inst'])
+
+        while inst_id in inst_ids:
+            inst_id = random.choice(self.__dict['inst_id_stock']) if asset_class == 'Stock' else random.choice(
+                self.__dict['inst_id_cash'])
+        inst_ids[inst_id] = inst
+
+        return inst_id
 
 if __name__ == '__main__':
     DictDataGenerator.main()
