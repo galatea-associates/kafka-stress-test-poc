@@ -122,7 +122,7 @@ def cleanup_producer(producer):
     producer.close()
 
 def print_data_results(keys, dict_key):
-    print(dict_key + " -", end=' ')
+    print(dict_key + ":")
     for key in keys:
         print(key + " -", end=' ')
         length = sum(1 for _ in (item[key] for item in shared_dict[dict_key]))
@@ -131,7 +131,7 @@ def print_data_results(keys, dict_key):
         print("Min: " + str(min(item[key] for item in shared_dict[dict_key])), end=' ')
         if length > 1:
             print("Standard Deviation: " + str(statistics.stdev(item[key] for item in shared_dict[dict_key])))
-        
+    print()
 def produce_output(dict_key, output_time):
     if len(shared_dict[dict_key]) == 0:
         return
