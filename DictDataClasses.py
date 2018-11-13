@@ -4,9 +4,9 @@ import datetime
 
 class DictDataClasses:
 
-    def __init__(self):
-        self.__n_inst_ref = 14000
-        self.__n_values = 500
+    def __init__(self, n_inst_ref=14000, n_values=500):
+        self.__n_inst_ref = n_inst_ref
+        self.__n_values = n_values
 
     def get_dict(self):
         return {
@@ -23,9 +23,9 @@ class DictDataClasses:
             'direction': self.__get_directions()
         }
 
-    def __get_inst_ids(self):
+    def __get_inst_ids(self, n_chars=5):
         possible_chars = string.ascii_uppercase + string.digits
-        return ['ABC' + ''.join([random.choice(possible_chars) for _ in range(5)]) for _ in range(self.__n_inst_ref)]
+        return ['ABC' + ''.join([random.choice(possible_chars) for _ in range(n_chars)]) for _ in range(self.__n_inst_ref)]
 
     def __get_asset_classes(self):
         return ['Stock', 'Cash']
@@ -48,15 +48,21 @@ class DictDataClasses:
 
     def __get_dates(self):
         dates = []
+        from_year = 2016
+        to_year = 2017
+        from_month = 1
+        to_month = 12
+        from_day = 1
+        to_day = 28
         for _ in range(self.__n_values):
-            year = random.randint(2016, 2017)
-            month = random.randint(1, 12)
-            day = random.randint(1, 28)
+            year = random.randint(from_year, to_year)
+            month = random.randint(from_month, to_month)
+            day = random.randint(from_day, to_day)
             dates.append(datetime.datetime(year, month, day).date())
         return dates
 
-    def __get_quantities(self):
-        return [n * 100 for n in range(1, 21)]
+    def __get_quantities(self, min=1, max=21):
+        return [n * 100 for n in range(min, max)]
 
     def __get_types(self):
         return ['SD']
