@@ -15,6 +15,7 @@ from multiprocessing import Manager, Process, Queue
 from DataGenerator import DataGenerator
 
 import math
+import statistics
 
 class Producer(object):
     def __init__(self, init_val=0, limit_val=0):
@@ -120,14 +121,16 @@ def print_data_results(keys, dict_key):
         length = sum(1 for _ in (item[key] for item in shared_dict[dict_key]))
         print("Mean: " + str(sum(item[key] for item in shared_dict[dict_key]) / length), end=' ')
         print("Max: " + str(max(item[key] for item in shared_dict[dict_key])), end=' ')
-        print("Min: " + str(min(item[key] for item in shared_dict[dict_key]))) 
+        print("Min: " + str(min(item[key] for item in shared_dict[dict_key])), end=' ')
+        if length > 1:
+            print("Standard Deviation: " + str(statistics.stdev(item[key] for item in shared_dict[dict_key])))
         
 def produce_output(dict_key, output_time):
     if len(shared_dict[dict_key]) == 0:
         return
     keys = shared_dict[dict_key][0].keys()
     print_data_results(keys, dict_key)
-    with open("output-send-" + str(int(output_time)) + ".csv", 'a', newline='') as output_file:
+    with open("out/output-send-" + str(int(output_time)) + ".csv", 'a', newline='') as output_file:
         dict_writer = csv.DictWriter(output_file, keys)
         dict_writer.writeheader()
         dict_writer.writerows(shared_dict[dict_key])
