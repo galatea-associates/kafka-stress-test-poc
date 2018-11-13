@@ -10,17 +10,18 @@ import io
 import json
 from Counter import Counter
 from DataConfiguration import configuration
-from argparse import ArgumentParser
-from multiprocessing import Manager, Process, Queue
 from DataGenerator import DataGenerator
+from argparse import ArgumentParser
+from multiprocessing import Manager, Process, Queue, Value
 
 import math
 import statistics
 
 class Producer(object):
-    def __init__(self, init_val=0, limit_val=0):
+    def __init__(self, init_val=0, limit_val=0, ready_start_prod=False):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
+        self.ready_start_producing = Value('i', ready_start_prod)
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
 
 def serialize_val(val, serializer, schema=None):
@@ -51,7 +52,9 @@ def send(server_args, producer_counters, topic, shared_data_queue, avro_schema, 
     if avro_schema:
         schema = avro.schema.Parse(open(avro_schema).read())
     else:
-        schema = None    
+        schema = None
+    while not producer_counters.ready_start_producing:
+        pass
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             val = shared_data_queue.get()
@@ -64,8 +67,12 @@ def on_send_success(producer_counters, _):
 
 def on_send_error(producer_counters, _):
     producer_counters.error_counter.increment()
-
-def reset_every_second(producer_counters, topic, time_interval, prev_time, shared_dict):
+    
+def reset_every_second(producer_counters, topic, time_interval, shared_dict, shared_data_queue, max_queue_size):
+    while (not producer_counters.ready_start_producing) and (shared_data_queue.qsize() < max_queue_size):
+        pass
+    producer_counters.ready_start_producing = True
+    prev_time = time.time()
     while True:
         if time.time() - prev_time >= time_interval:
             result = {
@@ -100,7 +107,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
     shared_data_queue = Queue()
 
     procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, avro_schema, serializer)) for i in range(numb_prod_procs)]
-    timer_proc = Process(target=reset_every_second, args=(producer_counters, topic, time_interval, time.time(), shared_dict))
+    timer_proc = Process(target=reset_every_second, args=(producer_counters, topic, time_interval, shared_dict, shared_data_queue, max_data_pipe_size))
     data_gen_procs = [Process(target=data_pipe_producer, args=(shared_data_queue, data_generator, max_data_pipe_size, data_args)) for i in range(numb_data_procs)]
 
     procs.append(timer_proc)
@@ -115,7 +122,7 @@ def cleanup_producer(producer):
     producer.close()
 
 def print_data_results(keys, dict_key):
-    print(dict_key + " -", end=' ')
+    print(dict_key + ":")
     for key in keys:
         print(key + " -", end=' ')
         length = sum(1 for _ in (item[key] for item in shared_dict[dict_key]))
@@ -124,7 +131,7 @@ def print_data_results(keys, dict_key):
         print("Min: " + str(min(item[key] for item in shared_dict[dict_key])), end=' ')
         if length > 1:
             print("Standard Deviation: " + str(statistics.stdev(item[key] for item in shared_dict[dict_key])))
-        
+    print()
 def produce_output(dict_key, output_time):
     if len(shared_dict[dict_key]) == 0:
         return
@@ -148,7 +155,7 @@ def process_data_config(config, server_args):
     producer_list = []
 
     for topic in config:
-        producer_counters=Producer(init_val=config[topic]["Counter"]["init_val"], limit_val=config[topic]["Counter"]["limit_val"])
+        producer_counters=Producer(init_val=config[topic]["Counter"]["init_val"], limit_val=config[topic]["Counter"]["limit_val"], ready_start_prod=(not config[topic]['Load data first']))
         producer_list.append(producer_counters)
         procs = start_sending(server_args=server_args, 
                                 producer_counters=producer_counters, 
