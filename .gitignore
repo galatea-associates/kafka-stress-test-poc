@@ -13,3 +13,4 @@ venv
 SimpleProducer
 SimpleConsumer
 out/*
+credentials.json
