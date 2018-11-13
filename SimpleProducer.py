@@ -14,10 +14,13 @@ from argparse import ArgumentParser
 from multiprocessing import Manager, Process, Queue
 from DataGenerator import DataGenerator
 
+import math
+
 class Producer(object):
     def __init__(self, init_val=0, limit_val=0):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
+        self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
 
 def serialize_val(val, serializer, schema=None):
     if serializer == "Avro":
@@ -53,18 +56,25 @@ def send(server_args, producer_counters, topic, shared_data_queue, avro_schema, 
             val = shared_data_queue.get()
             if val is None:
                 break
-            producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters)
+            producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters).add_errback(on_send_error, producer_counters)
 
 def on_send_success(producer_counters, _):
     producer_counters.received_counter.increment()
 
+def on_send_error(producer_counters, _):
+    producer_counters.error_counter.increment()
+
 def reset_every_second(producer_counters, topic, time_interval, prev_time, shared_dict):
     while True:
         if time.time() - prev_time >= time_interval:
-            counter_size = producer_counters.received_counter.value()
+            result = {
+                "Sent Counter" : int(producer_counters.sent_counter.value()),
+                "Received Counter" : int(producer_counters.received_counter.value()),
+                "Error Counter" : int(producer_counters.error_counter.value())
+            }
             producer_counters.received_counter.reset()
             producer_counters.sent_counter.reset()
-            shared_dict[topic].append(int(counter_size))
+            shared_dict[topic].append(result)
             prev_time = time.time()
 
 
@@ -103,13 +113,24 @@ def cleanup_processes(procs):
 def cleanup_producer(producer):
     producer.close()
 
+def print_data_results(keys, dict_key):
+    print(dict_key + " -", end=' ')
+    for key in keys:
+        print(key + " -", end=' ')
+        length = sum(1 for x in (item[key] for item in shared_dict[dict_key]))
+        print("Mean: " + str(sum(item[key] for item in shared_dict[dict_key]) / length), end=' ')
+        print("Max: " + str(max(item[key] for item in shared_dict[dict_key])), end=' ')
+        print("Min: " + str(min(item[key] for item in shared_dict[dict_key]))) 
+        
 def produce_output(dict_key, output_time):
     if len(shared_dict[dict_key]) == 0:
         return
-    print(dict_key + " - Mean: " + str(sum(shared_dict[dict_key]) / len(shared_dict[dict_key])) + " Max: " + str(max(shared_dict[dict_key])) + " Min: " + str(min(shared_dict[dict_key])) ) 
+    keys = shared_dict[dict_key][0].keys()
+    print_data_results(keys, dict_key)
     with open("output-send-" + str(int(output_time)) + ".csv", 'a', newline='') as output_file:
-        wr = csv.writer(output_file, quoting=csv.QUOTE_ALL)
-        wr.writerow(shared_dict[dict_key])
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(shared_dict[dict_key])
 
 def cleanup(config=None, topics_procs=None):
     for procs in topics_procs:
