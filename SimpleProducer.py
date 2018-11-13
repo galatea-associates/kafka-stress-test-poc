@@ -117,7 +117,7 @@ def print_data_results(keys, dict_key):
     print(dict_key + " -", end=' ')
     for key in keys:
         print(key + " -", end=' ')
-        length = sum(1 for x in (item[key] for item in shared_dict[dict_key]))
+        length = sum(1 for _ in (item[key] for item in shared_dict[dict_key]))
         print("Mean: " + str(sum(item[key] for item in shared_dict[dict_key]) / length), end=' ')
         print("Max: " + str(max(item[key] for item in shared_dict[dict_key])), end=' ')
         print("Min: " + str(min(item[key] for item in shared_dict[dict_key]))) 
