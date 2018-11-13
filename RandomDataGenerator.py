@@ -69,7 +69,9 @@ class RandomDataGenerator(DataGenerator):
         bank_id = "ABC"
         # Generate random inst id with the prefix of the bank (ABC) and a random string composed of numbers and letters
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
-        return {'inst_id': inst_id, 'price': price}
+        # Possible currencies
+        currencies = ['USD', 'CAD', 'EUR', 'GBP']
+        return {'inst_id': inst_id, 'price': price, 'curr': random.choice(currencies)}
 
     def __generate_position_entity(self):
         # Possible types of a position
