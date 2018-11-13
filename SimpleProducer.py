@@ -10,15 +10,15 @@ import io
 import json
 from Counter import Counter
 from DataConfiguration import configuration
-from argparse import ArgumentParser
-from multiprocessing import Manager, Process, Queue
 from DataGenerator import DataGenerator
+from argparse import ArgumentParser
+from multiprocessing import Manager, Process, Queue, Value
 
 class Producer(object):
     def __init__(self, init_val=0, limit_val=0, ready_start_prod=False):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
-        self.ready_start_producing = ready_start_prod
+        self.ready_start_producing = Value('i', ready_start_prod)
 
 def serialize_val(val, serializer, schema=None):
     if serializer == "Avro":
