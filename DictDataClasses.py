@@ -14,13 +14,13 @@ class DictDataClasses:
             'asset_class': self.__get_asset_classes(),
             'COI': self.__get_COIs(),
             'price': self.__get_prices(),
-            'currency': self.__get_currencies(),
+            'curr': self.__get_currencies(),
             'qty': self.__get_quantities(),
             'type': self.__get_types(),
             'date': self.__get_dates(),
             'account': self.__get_accounts(),
             'inst': self.__get_insts(),
-            'directions': self.__get_directions()
+            'direction': self.__get_directions()
         }
 
     def __get_inst_ids(self):
@@ -59,7 +59,7 @@ class DictDataClasses:
         return [n * 100 for n in range(1, 21)]
 
     def __get_types(self):
-        return ['ED', 'SD']
+        return ['SD']
 
     def __get_prices(self):
         min = 10
