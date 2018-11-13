@@ -103,10 +103,10 @@ class RandomDataGenerator(DataGenerator):
         # Generate random inst id with the prefix of the bank (ABC) and a random string composed of numbers and letters
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
         # Possible instruments
-        instruments = ['Stock', 'Bond', 'Cash']
+        asset_classes = ['Stock', 'Bond', 'Cash']
         # Possible countries
         countries = ['USA', 'UK', 'Canada', 'France', 'Germany', 'Switzerland', 'Singapore', 'Japan']
-        return {'inst_id': inst_id, 'asset_class': random.choice(instruments), 'COI': random.choice(countries)}
+        return {'inst_id': inst_id, 'asset_class': random.choice(asset_classes), 'COI': random.choice(countries)}
 
     # Random date generator
     def __generate_date(self):
