@@ -1,19 +1,16 @@
 import random
-import string
 import datetime
 import argparse
 import csv
 import os
 from DataGenerator import DataGenerator
+from DictDataClasses import DictDataClasses
 
 class DictDataGenerator(DataGenerator):
 
-    def __init__(self, inst_ref):
+    def __init__(self):
         # Generate random inst ids with the prefix of the bank (ABC) and a random string composed of numbers and letters
-        self.inst_ids = ["ABC" + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)]) for _ in range (inst_ref)]
-        self.prices = []
-        self.positions = []
-        self.inst_refs = []
+        self.dict = DictDataClasses().get_dict()
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'Type': 'position'}
@@ -29,7 +26,7 @@ class DictDataGenerator(DataGenerator):
     @staticmethod
     def main():
         args = DictDataGenerator.__get_args()
-        dict_data_generator = DictDataGenerator(args.inst_ref)
+        dict_data_generator = DictDataGenerator()
         dict_data_generator .__generate_data_files(args)
 
     def __generate_data_files(self, args):
@@ -41,15 +38,15 @@ class DictDataGenerator(DataGenerator):
             self.__create_data_file('out/prices.csv', args.prices, self.__generate_price_entity)
         if args.positions > 0:
             self.__create_data_file('out/positions.csv', args.positions, self.__generate_position_entity)
-        if args.inst_ref > 0:
-            self.__create_data_file('out/inst-ref.csv', args.inst_ref, self.__generate_inst_ref_entity)
+        if args.inst_refs > 0:
+            self.__create_data_file('out/inst-ref.csv', args.inst_refs, self.__generate_inst_ref_entity)
 
     @staticmethod
     def __get_args():
         parser = argparse.ArgumentParser()
         parser.add_argument('--prices', nargs='?', type=int, default=0)
         parser.add_argument('--positions', nargs='?', type=int, default=0)
-        parser.add_argument('--inst-ref', nargs='?', type=int, default=0)
+        parser.add_argument('--inst-refs', nargs='?', type=int, default=0)
         return parser.parse_args()
 
     # file_name corresponds to the name of the CSV file the function will write to
@@ -69,53 +66,27 @@ class DictDataGenerator(DataGenerator):
                 writer.writerow(entity)
 
     def __generate_price_entity(self):
-        min = 100
-        max = 1000000
-        num_decimal_points = 2
-        # Generate random price between min and max with 2 decimal points
-        price = round(random.uniform(min, max), num_decimal_points)
-        # Possible currencies
-        currencies = ['USD', 'CAD', 'EUR', 'GBP']
-        return {'inst_id': random.choice(self.inst_ids), 'price': price, 'curr': random.choice(currencies)}
+        return {'inst_id': random.choice(self.dict['inst_id']),
+                'price': random.choice(self.dict['price']),
+                'curr': random.choice(self.dict['curr'])}
 
     def __generate_position_entity(self):
-        # Possible types of a position
-        types = ['SD']
-        type = random.choice(types)
-        # Possible instruments
-        instruments = ['IBM', 'APPL', 'TSLA']
-        # Possible position directions
-        directions = ['Credit', 'Debit']
-        # Here we represent account with 'ACC00' + random integers
-        account_types = ['ICP', 'ECP']
-        account = random.choice(account_types) + ''.join([random.choice(string.digits) for _ in range(4)])
-        # Random quantity between 100 and 10,000
-        qty = random.randint(100, 10000)
         # Assign random date to knowledge date
-        knowledge_date = self.__generate_date()
-        # Add 3 days to get the effective date
+        knowledge_date = random.choice(self.dict['date'])
+        # Add 3 days to get the effective date if type is SD
         effective_date = knowledge_date + datetime.timedelta(days=3) if type == 'SD' else knowledge_date
-        return {'type': type,
+        return {'type': random.choice(self.dict['type']),
                 'knowledge_date': str(knowledge_date),
                 'effective_date': str(effective_date),
-                'account': account,
-                'instrument': random.choice(instruments),
-                'direction': random.choice(directions),
-                'qty': qty}
+                'account': random.choice(self.dict['account']),
+                'instrument': random.choice(self.dict['inst']),
+                'direction': random.choice(self.dict['direction']),
+                'qty': random.choice(self.dict['qty'])}
 
     def __generate_inst_ref_entity(self):
-        # Possible instruments
-        instruments = ['Stock', 'Bond', 'Cash']
-        # Possible countries
-        countries = ['USA', 'UK', 'Canada', 'France', 'Germany', 'Switzerland', 'Singapore', 'Japan']
-        return {'inst_id': random.choice(self.inst_ids), 'asset_class': random.choice(instruments), 'COI': random.choice(countries)}
-
-    # Random date generator
-    def __generate_date(self):
-        year = random.randint(2016, 2017)
-        month = random.randint(1, 12)
-        day = random.randint(1, 28)
-        return datetime.datetime(year, month, day).date()
+        return {'inst_id': random.choice(self.dict['inst_id']),
+                'asset_class': random.choice(self.dict['asset_class']),
+                'COI': random.choice(self.dict['COI'])}
 
 if __name__ == '__main__':
     DictDataGenerator.main()
