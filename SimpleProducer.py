@@ -46,13 +46,17 @@ def process_val(val, args=None):
         return val
 
 
-def send(server_args, producer_counters, topic, shared_data_queue, avro_schema, serializer):
+def send(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer):
     producer = KafkaProducer(bootstrap_servers=[str(server_args.ip) +":"+ str(server_args.port)])
     atexit.register(cleanup_producer, producer=producer)
-    if avro_schema:
-        schema = avro.schema.Parse(open(avro_schema).read())
-    else:
-        schema = None
+    schema_keys = None
+    schema_values = None
+
+    if avro_schema_keys:
+        schema_keys = avro.schema.Parse(open(avro_schema_keys).read())
+    if avro_schema_values:
+        schema_values = avro.schema.Parse(open(avro_schema_values).read())
+        
     while not producer_counters.ready_start_producing:
         pass
     while True:
@@ -60,7 +64,7 @@ def send(server_args, producer_counters, topic, shared_data_queue, avro_schema, 
             val = shared_data_queue.get()
             if val is None:
                 break
-            producer.send(topic, serialize_val(val, serializer, schema)).add_callback(on_send_success, producer_counters).add_errback(on_send_error, producer_counters)
+            producer.send(topic, value=serialize_val(val["value"], serializer, schema_values), key=serialize_val(val["key"], serializer, schema_keys)).add_callback(on_send_success, producer_counters).add_errback(on_send_error, producer_counters)
 
 def on_send_success(producer_counters, _):
     producer_counters.received_counter.increment()
@@ -85,8 +89,20 @@ def reset_every_second(producer_counters, topic, time_interval, shared_dict, sha
             shared_dict[topic].append(result)
             prev_time = time.time()
 
+def split_key_and_value(data, keys=None):
+    keys_dict = {}
+    values_dict = {}
 
-def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_args):
+    for key in keys:
+        keys_dict[key] = data[key]
+
+    value_keys = list(set(data.keys()).difference(keys))
+    for value_key in value_keys:
+        values_dict[value_key] = data[value_key]
+        
+    return {"key": keys_dict, "value":values_dict}
+
+def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_args, keys):
     while True:
         if shared_data_queue.qsize() < max_queue_size:
             data = process_val(data_generator, data_args)
@@ -96,19 +112,19 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
                 break
             if isinstance(data, list):
                 for item in data:
-                     shared_data_queue.put(item)
+                     shared_data_queue.put(split_key_and_value(data=item, keys=keys))
             else:
-                shared_data_queue.put(data)
+                shared_data_queue.put(split_key_and_value(data=data, keys=keys))
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
-                  time_interval=1, avro_schema=None, serializer=None, max_data_pipe_size=100,
-                  data_args=None):
+                  time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
+                  data_args=None, keys=None):
     shared_dict[topic] = manager.list() 
     shared_data_queue = Queue()
 
-    procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, avro_schema, serializer)) for i in range(numb_prod_procs)]
+    procs = [Process(target=send, args=(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer)) for i in range(numb_prod_procs)]
     timer_proc = Process(target=reset_every_second, args=(producer_counters, topic, time_interval, shared_dict, shared_data_queue, max_data_pipe_size))
-    data_gen_procs = [Process(target=data_pipe_producer, args=(shared_data_queue, data_generator, max_data_pipe_size, data_args)) for i in range(numb_data_procs)]
+    data_gen_procs = [Process(target=data_pipe_producer, args=(shared_data_queue, data_generator, max_data_pipe_size, data_args, keys)) for i in range(numb_data_procs)]
 
     procs.append(timer_proc)
     procs+=data_gen_procs
@@ -164,10 +180,12 @@ def process_data_config(config, server_args):
                                 numb_prod_procs=config[topic]["Number of Processes"], 
                                 numb_data_procs=config[topic]["Number of Data Generation Processes"], 
                                 time_interval=config[topic]["Time Interval"], 
-                                avro_schema=config[topic]["Avro Schema"],
+                                avro_schema_keys=config[topic]["Avro Schema - Keys"],
+                                avro_schema_values=config[topic]["Avro Schema - Values"],
                                 serializer=config[topic]["Serializer"],
                                 max_data_pipe_size=config[topic]["Data Queue Max Size"],
-                                data_args=config[topic]['Data Args'])
+                                data_args=config[topic]['Data Args'],
+                                keys=config[topic]["Keys"])
         topics_procs.append(procs)
 
     return topics_procs, producer_list
