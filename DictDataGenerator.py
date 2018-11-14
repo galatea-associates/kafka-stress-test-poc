@@ -12,6 +12,7 @@ class DictDataGenerator(DataGenerator):
         # Generate random inst ids with the prefix of the bank (ABC) and a random string composed of numbers and letters
         self.__stock_inst_ids = {}
         self.__cash_inst_ids = {}
+        self.__stock_to_ids = {}
         self.__dict = DictDataClasses().get_dict()
 
     # In DataConfiguration.py, 'Data Args' field should look like:
@@ -108,15 +109,46 @@ class DictDataGenerator(DataGenerator):
 
     def __generate_inst_ref_entity(self):
         asset_class = random.choice(self.__dict['asset_class'])
+        coi = random.choice(self.__dict['COI'])
         if asset_class == 'Stock':
             inst_id = self.__generate_inst_id(asset_class, self.__stock_inst_ids)
+            ticker = self.__stock_inst_ids[inst_id]
+
+            if not ticker in self.__stock_to_ids:
+                cusip = random.choice(self.__dict['cusip'])
+                sedol = random.choice(self.__dict['sedol'])
+                self.__stock_to_ids[ticker] = {'cusip': cusip, 'sedol': sedol}
+            else:
+                cusip = self.__stock_to_ids[ticker]['cusip']
+                sedol = self.__stock_to_ids[ticker]['sedol']
+
+            isin = coi + cusip + '4'
+            ric = ticker + '.' + random.choice(self.__dict['exchange_code'])
+
         else:
             inst_id = self.__generate_inst_id(asset_class, self.__cash_inst_ids)
-        coi = random.choice(self.__dict['COI'])
+            cusip = None
+            isin = None
+            sedol = None
+            ticker = None
+            ric = None
 
-        return {'inst_id': inst_id,
-                'asset_class': asset_class,
-                'COI': coi}
+        inst_ref = {
+            'inst_id': inst_id,
+            'RIC': ric,
+            'ISIN': isin,
+            'SEDOL': sedol,
+            'Ticker': ticker,
+            'Cusip': cusip,
+            'asset_class': asset_class,
+            'COI': coi}
+
+        # Only save 4 out of the 5 identifiers
+        ids = ['RIC', 'ISIN', 'Ticker', 'SEDOL', 'Cusip']
+        to_ignore = random.choice(ids)
+        inst_ref[to_ignore] = None
+
+        return inst_ref
 
     def __generate_inst_id(self, asset_class, inst_ids):
         if asset_class == 'Stock':
