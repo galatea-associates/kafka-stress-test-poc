@@ -128,7 +128,6 @@ class GoogleDriveAccessor(DataGenerator):
                     }[self.__get_downloading_state()]
                 if set_action == SetActions.START_DOWNLOADING:
                     self.__set_downloading_state(FileState.DOWNLOADING)
-            time.sleep(1)
         return set_action
 
     def __get_data_loader(self):
