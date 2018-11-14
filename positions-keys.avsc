@@ -7,8 +7,6 @@
         {"name": "effective_date", "type": "string"},
         {"name": "type", "type": "string"},
         {"name": "account", "type": "string"},
-        {"name": "instrument", "type": "string"},
-        {"name": "direction", "type": "string"},
-        {"name": "qty", "type": "int"}
+        {"name": "instrument", "type": "string"}
     ]
 }
