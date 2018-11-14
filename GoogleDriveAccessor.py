@@ -31,15 +31,17 @@ class GoogleDriveAccessor(DataGenerator):
         self.__folder_ID = folder_id
         self.__output_folder = self.__process_path(path=output_folder)
         self.__service = None
-        self.__file_download_status = self.__check_download_status()
         self.__file_name = file_name
         self.__file_type = file_type
+        self.__file_download_status = self.__check_download_status()
         self.__lock = Lock()
         self.__data_loader = None
 
     def __check_download_status(self):
-        #TODO: Implement this download check
-        return FileState.NOT_STARTED
+        if os.path.isfile(self.__output_folder + self.__file_name):
+            return FileState.DOWNLOADED
+        else:
+            return FileState.NOT_STARTED
 
     def __auth_gdrive(self):
 
@@ -93,7 +95,6 @@ class GoogleDriveAccessor(DataGenerator):
         
         if "File Type" in args.keys():
             self.__file_type = args["File Type"]
-
 
     def __set_downloading_state(self, state):
         self.__file_download_status = state
@@ -155,10 +156,10 @@ class GoogleDriveAccessor(DataGenerator):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--folder_id', type=str, required=True, help="")
-    parser.add_argument('--output_folder', type=str, default="data", help="")
-    parser.add_argument('--file_name', type=str, help="")
-    parser.add_argument('--file_type', type=str, default="csv", help="")
+    parser.add_argument('--folder_id', type=str, required=True, help="The ID of the folder where the file is located on google drive.")
+    parser.add_argument('--output_folder', type=str, default="data", help="The folder where the data will be downloaded to")
+    parser.add_argument('--file_name', type=str, help="The name of the file to download")
+    parser.add_argument('--file_type', type=str, default="csv", help="The type of the file, eg csv")
     return parser.parse_args()
 
 def format_args(output_dir, folder_id, file_name, file_type):
