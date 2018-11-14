@@ -7,6 +7,7 @@ class DictDataClasses:
     def __init__(self, n_inst_ref=14000, n_values=500):
         self.__n_inst_ref = n_inst_ref
         self.__n_values = n_values
+        self.__stock_ticker = ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB']
 
     def get_dict(self):
         return {
@@ -22,7 +23,11 @@ class DictDataClasses:
             'account': self.__get_accounts(),
             'cash_inst': self.__get_cash_insts(),
             'stock_inst': self.__get_stock_insts(),
-            'direction': self.__get_directions()
+            'direction': self.__get_directions(),
+            'cusip': self.__get_cusips(),
+            'ticker': self.__get_tickers(),
+            'sedol': self.__get_sedols(),
+            'exchange_code': self.__get_exchange_codes()
         }
 
     def __get_inst_ids(self, prefix='ABC', n_chars=5):
@@ -33,7 +38,7 @@ class DictDataClasses:
         return ['Stock', 'Cash']
 
     def __get_COIs(self):
-        return ['USA', 'UK', 'Canada', 'France', 'Germany', 'Switzerland', 'Singapore', 'Japan']
+        return ['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP']
 
     def __get_directions(self):
         return ['Credit', 'Debit']
@@ -46,7 +51,7 @@ class DictDataClasses:
         return accounts
 
     def __get_stock_insts(self):
-        return ['IBM', 'APPL', 'TSLA']
+        return self.__stock_ticker
 
     def __get_cash_insts(self):
         return ['USD', 'CAD', 'EUR', 'GBP']
@@ -84,3 +89,16 @@ class DictDataClasses:
 
     def __get_currencies(self):
         return ['USD', 'CAD', 'EUR', 'GBP']
+
+    def __get_cusips(self, n_digits=9):
+        return [''.join([random.choice(string.digits) for _ in range(n_digits)]) for _ in range(self.__n_inst_ref)]
+
+    def __get_tickers(self):
+        return self.__stock_ticker
+
+    def __get_sedols(self, n_digits=7):
+        return [''.join([random.choice(string.digits) for _ in range(n_digits)]) for _ in range(self.__n_inst_ref)]
+
+    def __get_exchange_codes(self):
+        return ['L', 'N', 'OQ']
+
