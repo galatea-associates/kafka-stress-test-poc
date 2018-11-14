@@ -25,11 +25,12 @@ class SetActions(Enum):
     START_PROCESSING = 3
 
 class GoogleDriveAccessor(DataGenerator):
-    def __init__(self, folder_id=None, output_folder="out"):
+    def __init__(self, folder_id=None, output_folder="data", file_name=None):
         self.__folder_ID = folder_id
         self.__output_folder = self.__process_path(path=output_folder)
         self.__service = None
         self.__file_download_status = self.__check_download_status()
+        self.__file_name = file_name
         self.__lock = Lock()
 
     def __check_download_status(self):
@@ -56,11 +57,13 @@ class GoogleDriveAccessor(DataGenerator):
         else:
             print('Files:')
             for item in items:
-                file_id = item['id']
                 file_name = item['name']
+                if not file_name == self.__file_name:
+                    continue
+                file_id = item['id']
                 request = self.__service.files().get_media(fileId=file_id)
                 fh = io.FileIO(self.__output_folder + file_name, 'w')
-                downloader = MediaIoBaseDownload(fh, requests)
+                downloader = MediaIoBaseDownload(fh, request)
                 done = False
                 while not done:
                     status, done = downloader.next_chunk()
@@ -81,6 +84,9 @@ class GoogleDriveAccessor(DataGenerator):
         if "Output Directory" in args.keys():
             self.__output_folder = self.__process_path(path=args["Output Directory"])
 
+        if "File Name" in args.keys():
+            self.__file_name = args["File Name"]
+
     def __set_downloading_state(self, state):
         self.__file_download_status = state
 
@@ -95,6 +101,7 @@ class GoogleDriveAccessor(DataGenerator):
         self.__download_items(items=items)
 
     def __start_processing(self):
+        #TODO: Call the csv reader for the selected file
         pass
 
     def __get_current_action(self):
@@ -112,10 +119,11 @@ class GoogleDriveAccessor(DataGenerator):
         return set_action
 
     # In DataConfiguration.py, 'Data Args' field should look like:
-    # {"Output Directory": "out",
-    #  "Folder ID": "2342342341fsdfs342sdf"}
+    # {"Output Directory": "data",
+    #  "Folder ID": "2342342341fsdfs342sdf",
+    #  "File Name": "prices.csv"
+    # }
     def run(self, args=None):
-        data = None
         self.__process_args(args=args)
 
         set_action = self.__get_current_action()
@@ -125,26 +133,26 @@ class GoogleDriveAccessor(DataGenerator):
             with self.__lock:
                 self.__set_downloading_state(FileState.DOWNLOADED)
         
-        self.__start_processing()
-        
-        return data
+        return self.__start_processing()
 
 
 
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--folder_id', type=str, required=True, help="")
-    parser.add_argument('--output_folder', type=str, default="out", help="")
+    parser.add_argument('--output_folder', type=str, default="data", help="")
+    parser.add_argument('--file_name', type=str, help="")
     return parser.parse_args()
 
-def format_args(output_dir, folder_id):
+def format_args(output_dir, folder_id, file_name):
     return {
         "Output Directory": output_dir,
-        "Folder ID": folder_id
+        "Folder ID": folder_id,
+        "File Name": file_name
     }
 
 if __name__ == "__main__":
     args=get_args()
-    formatted_args = format_args(output_dir=args.output_folder, folder_id=args.folder_id)
+    formatted_args = format_args(output_dir=args.output_folder, folder_id=args.folder_id, file_name=args.file_name)
     GoogleDriveAccessor().run(args=formatted_args)
     
