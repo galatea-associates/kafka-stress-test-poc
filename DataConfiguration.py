@@ -9,7 +9,8 @@ configuration = {
             "init_val": 0,
             "limit_val": 40000
         },
-        "Avro Schema": "prices.avsc",
+        "Avro Schema - Keys": "prices-keys.avsc",
+        "Avro Schema - Values": "prices-values.avsc",
         "Serializer": "Avro",
         "Data": ReadFromFile(),
         "Data Args": {
@@ -19,6 +20,7 @@ configuration = {
             'Loop on end': True
         },
         "Data Queue Max Size": 40,
+        "Keys": ["inst_id"],
         "Load data first": True,
         "Number of Processes": 11,
         "Number of Data Generation Processes": 1,
@@ -29,7 +31,8 @@ configuration = {
             "init_val": 0,
             "limit_val": 20000
         },
-        "Avro Schema": "positions.avsc",
+        "Avro Schema - Keys": "positions-keys.avsc",
+        "Avro Schema - Values": "positions-values.avsc",
         "Serializer": "Avro",
         "Data": ReadFromFile(),
         "Data Args": {
@@ -39,6 +42,7 @@ configuration = {
             'Loop on end': True
         },
         "Data Queue Max Size": 20,
+        "Keys": ["type", "knowledge_date", "effective_date", "account", "instrument"],
         "Load data first": True,
         "Number of Processes": 4,
         "Number of Data Generation Processes": 1,
@@ -49,7 +53,8 @@ configuration = {
             "init_val": 0,
             "limit_val": 100
         },
-        "Avro Schema": "instrument_reference_data.avsc",
+        "Avro Schema - Keys": "instrument_reference_data-keys.avsc",
+        "Avro Schema - Values": "instrument_reference_data-values.avsc",
         "Serializer": "Avro",
         "Data": ReadFromFile(),
         "Data Args": {
@@ -59,6 +64,7 @@ configuration = {
             'Loop on end': True
         },
         "Data Queue Max Size": 5,
+        "Keys": ["inst_id"],
         "Load data first": True,
         "Number of Processes": 1,
         "Number of Data Generation Processes": 1,

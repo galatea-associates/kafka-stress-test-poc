@@ -3,7 +3,6 @@
     "type": "record",
     "name": "prices",
     "fields": [
-        {"name": "inst_id", "type": "string"},
         {"name": "price", "type": "double"}
     ]
 }

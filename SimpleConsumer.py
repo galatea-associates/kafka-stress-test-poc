@@ -93,7 +93,7 @@ def process_data_config(config, server_args):
                                 topic=topic,         
                                 numb_procs=config[topic]["Number of Processes"], 
                                 time_interval=config[topic]["Time Interval"], 
-                                avro_schema=config[topic]["Avro Schema"],
+                                avro_schema=config[topic]["Avro Schema - Values"],
                                 serializer=config[topic]["Serializer"])
         topics_procs.append(procs)
 
