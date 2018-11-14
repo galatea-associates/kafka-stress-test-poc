@@ -27,13 +27,13 @@ class SetActions(Enum):
 
 
 class GoogleDriveAccessor(DataGenerator):
-    def __init__(self, folder_id=None, output_folder="data", file_name=None, file_type="csv"):
+    def __init__(self, folder_id=None, output_folder="data", file_name=None, file_type="CSV"):
         self.__folder_ID = folder_id
         self.__output_folder = self.__process_path(path=output_folder)
         self.__service = None
         self.__file_name = file_name
         self.__file_type = file_type
-        self.__file_download_status = self.__check_download_status()
+        self.__file_download_status = None
         self.__lock = Lock()
         self.__data_loader = None
 
@@ -78,6 +78,8 @@ class GoogleDriveAccessor(DataGenerator):
     def __process_path(self, path):
         if not path.endswith(os.path.sep):
             path += os.path.sep
+        if not os.path.exists(path):
+            os.makedirs(path)
         return path
 
     def __process_args(self, args):
@@ -96,6 +98,9 @@ class GoogleDriveAccessor(DataGenerator):
         if "File Type" in args.keys():
             self.__file_type = args["File Type"]
 
+        if self.__file_download_status is None:
+            self.__file_download_status = self.__check_download_status()
+
     def __set_downloading_state(self, state):
         self.__file_download_status = state
 
@@ -109,9 +114,8 @@ class GoogleDriveAccessor(DataGenerator):
 
         self.__download_items(items=items)
 
-    def __process_data(self):
-        #TODO: Run the data loader
-        return None, None
+    def __process_data(self, args):
+        return self.__data_loader.run(args)
 
     def __get_current_action(self):
         set_action = None
@@ -129,18 +133,24 @@ class GoogleDriveAccessor(DataGenerator):
 
     def __get_data_loader(self):
         return {
-            "csv": CSVReader()
+            "CSV": CSVReader()
         }[self.__file_type]
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {"Output Directory": "data",
     #  "Folder ID": "2342342341fsdfs342sdf",
     #  "File Name": "prices.csv",
-    #  "File Type": CSV
+    #  "File Type": "CSV",
+    #  "Data Loader Config": {
+    #                           "File": "data/prices.csv",
+    #                           "Format": "CSV",
+    #                           "Chunk Size": 1,
+    #                           "Loop on end": True
+    #                           }
     # }
     def run(self, args=None):
         if not self.__data_loader == None:
-            return self.__process_data()
+            return self.__process_data(args["Data Loader Config"])
 
         self.__process_args(args=args)
 
@@ -148,18 +158,20 @@ class GoogleDriveAccessor(DataGenerator):
         
         if set_action == SetActions.START_DOWNLOADING:
             self.__download_from_gdrive()
-            with self.__lock:
+            self.__set_downloading_state(FileState.DOWNLOADED)
+
+        with self.__lock:
+            if self.__data_loader is None:
                 self.__data_loader = self.__get_data_loader()
-                self.__set_downloading_state(FileState.DOWNLOADED)
-        
-        return self.__process_data()
+
+        return self.__process_data(args["Data Loader Config"])
 
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--folder_id', type=str, required=True, help="The ID of the folder where the file is located on google drive.")
     parser.add_argument('--output_folder', type=str, default="data", help="The folder where the data will be downloaded to")
     parser.add_argument('--file_name', type=str, help="The name of the file to download")
-    parser.add_argument('--file_type', type=str, default="csv", help="The type of the file, eg csv")
+    parser.add_argument('--file_type', type=str, default="CSV", help="The type of the file, eg CSV")
     return parser.parse_args()
 
 def format_args(output_dir, folder_id, file_name, file_type):
@@ -167,7 +179,13 @@ def format_args(output_dir, folder_id, file_name, file_type):
         "Output Directory": output_dir,
         "Folder ID": folder_id,
         "File Name": file_name,
-        "File Type": file_type
+        "File Type": file_type,
+        "Data Loader Config": {
+                                "File": output_dir + "/" + file_name,
+                                "Format": file_type,
+                                "Chunk Size": 1,
+                                "Loop on end": True
+                                }
     }
 
 if __name__ == "__main__":
@@ -176,5 +194,5 @@ if __name__ == "__main__":
                                  folder_id=args.folder_id,
                                  file_name=args.file_name,
                                  file_type=args.file_type)
-    GoogleDriveAccessor().run(args=formatted_args)
+    print(GoogleDriveAccessor().run(args=formatted_args))
     
