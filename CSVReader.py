@@ -8,7 +8,7 @@ import csv
 from multiprocessing import Lock
 
 
-class ReadFromFile(DataGenerator):
+class CSVReader(DataGenerator):
     def __init__(self):
         self.__file_reader = None
         self.__lock = Lock()
