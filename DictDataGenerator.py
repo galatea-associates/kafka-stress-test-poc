@@ -91,6 +91,7 @@ class DictDataGenerator(DataGenerator):
         direction = random.choice(self.__dict['direction'])
         qty = random.choice(self.__dict['qty'])
         asset_class = random.choice(self.__dict['asset_class'])
+        purpose = random.choice(self.__dict['purpose'])
         if asset_class == 'Stock':
             inst_id = random.choice(list(self.__stock_inst_ids))
         else:
@@ -102,6 +103,7 @@ class DictDataGenerator(DataGenerator):
                 'account': account,
                 'direction': direction,
                 'qty': qty,
+                'purpose': purpose,
                 'inst_id': inst_id}
 
     def __generate_inst_ref_entity(self):

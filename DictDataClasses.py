@@ -27,7 +27,8 @@ class DictDataClasses:
             'cusip': self.__get_cusips(),
             'ticker': self.__get_tickers(),
             'sedol': self.__get_sedols(),
-            'exchange_code': self.__get_exchange_codes()
+            'exchange_code': self.__get_exchange_codes(),
+            'purpose': self.__get_purpose()
         }
 
     def __get_inst_ids(self, prefix='ABC', n_chars=5):
@@ -101,4 +102,7 @@ class DictDataClasses:
 
     def __get_exchange_codes(self):
         return ['L', 'N', 'OQ']
+
+    def __get_purpose(self):
+        return ['Outright']
 
