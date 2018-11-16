@@ -1,7 +1,7 @@
 {
     "namespace": "kafka.poc",
     "type": "record",
-    "name": "instrument_reference_data",
+    "name": "position_data",
     "fields": [
         {"name": "direction", "type": "string"},
         {"name": "qty", "type": "int"}

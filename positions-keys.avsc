@@ -1,12 +1,13 @@
 {
     "namespace": "kafka.poc",
     "type": "record",
-    "name": "instrument_reference_data",
+    "name": "position_data",
     "fields": [
         {"name": "knowledge_date", "type": "string"},
         {"name": "effective_date", "type": "string"},
         {"name": "type", "type": "string"},
         {"name": "account", "type": "string"},
+        {"name": "inst_id", "type": "string"},
         {"name": "purpose", "type": "string"}
     ]
 }
