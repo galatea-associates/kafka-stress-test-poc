@@ -18,6 +18,7 @@ pipeline {
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     python3 -m pip install -r requirements.txt
+                    make clean
                 """
             }
         }
