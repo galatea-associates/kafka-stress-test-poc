@@ -65,6 +65,17 @@ data_template = {
         'termination_date': {'func': ddc.generate_termination_date},
         'account': {'func': ddc.generate_account},
         'is_callable': {'func': ddc.generate_is_callable}
+    },
+    'swap trade': {
+        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'contract_id': {'func': ddc.generate_contract_id},
+        'type': {'func': ddc.generate_type},
+        'knowledge_date': {'func': ddc.generate_knowledge_date},
+        'effective_date': {'func': partial(ddc.generate_effective_date, n_days_to_add=3), 'args': ['knowledge_date']},
+        'account': {'func': ddc.generate_account},
+        'direction': {'func': ddc.generate_direction},
+        'qty': {'func': ddc.generate_qty},
+        'purpose': {'func': partial(ddc.generate_purpose, data_type='ST')},
     }
 }
 

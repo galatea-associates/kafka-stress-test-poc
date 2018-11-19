@@ -181,7 +181,7 @@ class DataGenerator:
         return random.choice([n * 100 for n in range(min_qty, max_qty)])
 
     def generate_purpose(self, data_type=None):
-        if data_type == 'FOP' or data_type == 'BOP':
+        if data_type == 'FOP' or data_type == 'BOP' or data_type == 'ST':
             choices = ['Outright']
         elif data_type == 'DP':
             choices = ['Holdings', 'Seg']
@@ -236,3 +236,6 @@ class DataGenerator:
             return '5.75%'
         else:
             return ''
+
+    def generate_contract_id(self, n_digits=8):
+        return ''.join([random.choice(string.digits) for _ in range(n_digits)])
