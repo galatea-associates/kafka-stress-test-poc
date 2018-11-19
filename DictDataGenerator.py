@@ -23,6 +23,16 @@ data_template = {
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
         'curr': {'func': ddc.generate_currency},
     },
+    'front_office_position': {
+        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'type': {'func': ddc.generate_inst_id},
+        'knowledge_date': {'func': ddc.generate_knowledge_date},
+        'effective_date': {'func': ddc.generate_effective_date, 'args': ['knowledge_date']},
+        'account': {'func': ddc.generate_account, 'args': ['asset_class']},
+        'direction': {'func': ddc.generate_direction, 'args': ['asset_class']},
+        'qty': {'func': ddc.generate_qty, 'args': ['asset_class']},
+        'purpose': {'func': ddc.generate_purpose, 'args': ['asset_class']},
+    }
 }
 
 class DictDataGenerator(DataGenerator):
@@ -58,8 +68,8 @@ class DictDataGenerator(DataGenerator):
             self.__create_data_file('out/inst-ref.csv', args.inst_refs, 'inst-ref')
         if args.prices > 0:
             self.__create_data_file('out/prices.csv', args.prices, 'price')
-        # if args.front_office_positions > 0:
-        #     self.__create_data_file('out/positions.csv', args.positions, 'front_office_position')
+        if args.front_office_positions > 0:
+            self.__create_data_file('out/positions.csv', args.positions, 'front_office_position')
 
     @staticmethod
     def __get_args():
