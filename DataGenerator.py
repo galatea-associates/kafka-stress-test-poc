@@ -44,9 +44,14 @@ class DataGenerator:
             self.__cash_inst_ids[inst_id] = {}
         return inst_id
 
-    def generate_inst_id(self, asset_class=None):
-        if asset_class is None:
-            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+    def generate_inst_id(self, only=None, asset_class=None):
+        if only is None:
+            if asset_class is None:
+                asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+        elif only == 'S':
+            asset_class = 'Stock'
+        else:
+            asset_class = 'Cash'
 
         if asset_class == 'Stock':
             return random.choice(list(self.__stock_inst_ids))
@@ -152,24 +157,19 @@ class DataGenerator:
     def generate_type(self):
         return random.choice(['SD'])
 
-    def generate_knowledge_date(self):
-        from_year = 2016
-        to_year = 2017
-        from_month = 1
-        to_month = 12
-        from_day = 1
-        to_day = 28
+    def generate_knowledge_date(self, from_year=2016, to_year=2017, from_month=1, to_month=12, from_day=1, to_day=28):
         year = random.randint(from_year, to_year)
         month = random.randint(from_month, to_month)
         day = random.randint(from_day, to_day)
         return datetime.datetime(year, month, day).date()
 
-    def generate_effective_date(self, knowledge_date=None):
+    def generate_effective_date(self, n_days_to_add=3, knowledge_date=None):
         if knowledge_date is None:
             knowledge_date = self.__get_preemptive_generation('knowledge_date', self.generate_knowledge_date())
 
-        return knowledge_date + datetime.timedelta(days=3)
+        return knowledge_date + datetime.timedelta(days=n_days_to_add)
 
+    # TODO: see if you have to merge the account and account number fields
     def generate_account(self, n_digits=4):
         account_types = ['ICP', 'ECP']
         return random.choice(account_types) + ''.join([random.choice(string.digits) for _ in range(n_digits)])
@@ -180,8 +180,17 @@ class DataGenerator:
     def generate_qty(self, min_qty=1, max_qty=21):
         return random.choice([n * 100 for n in range(min_qty, max_qty)])
 
-    def generate_front_office_purpose(self):
-        return random.choice(['Outright'])
+    def generate_purpose(self, data_type=None):
+        if data_type == 'FOP' or data_type == 'BOP':
+            choices = ['Outright']
+        elif data_type == 'DP':
+            choices = ['Holdings', 'Seg']
+        elif data_type == 'SL':
+            choices = ['Borrow', 'Loan']
+        else:
+            choices = ['']
+
+        return random.choice(choices)
 
     def generate_depot_id(self, n_digits=5):
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
@@ -200,3 +209,30 @@ class DataGenerator:
 
     def generate_agent_id(self, n_digits=7):
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
+
+    def generate_haircut(self):
+        return '2.00%'
+
+    def generate_collateral_type(self):
+        return random.choice(['Cash', 'Non Cash'])
+
+    def generate_is_callable(self):
+        return random.choice(['Yes', 'No'])
+
+    # TODO: change knowledge date function name
+    def generate_termination_date(self):
+        does_exist = random.choice([True, False])
+        if not does_exist:
+            return ''
+        else:
+            return self.generate_knowledge_date(from_year=2019, to_year=2020)
+
+    # TODO: generate percentages, not just hard code
+    def generate_rebate_rate(self, collateral_type=None):
+        if collateral_type is None:
+            collateral_type = self.__get_preemptive_generation('collateral_type', self.generate_collateral_type())
+
+        if collateral_type == 'Cash':
+            return '5.75%'
+        else:
+            return ''

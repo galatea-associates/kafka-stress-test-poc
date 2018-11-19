@@ -1,6 +1,7 @@
 import argparse
 import csv
 import os
+from functools import partial
 from Runnable import Runnable
 from DataGenerator import DataGenerator
 
@@ -25,11 +26,11 @@ data_template = {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
         'type': {'func': ddc.generate_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {'func': ddc.generate_effective_date, 'args': ['knowledge_date']},
+        'effective_date': {'func': partial(ddc.generate_effective_date, n_days_to_add=3), 'args': ['knowledge_date']},
         'account': {'func': ddc.generate_account},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
-        'purpose': {'func': ddc.generate_front_office_purpose},
+        'purpose': {'func': partial(ddc.generate_purpose, data_type='FOP')},
     },
     'depot_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
@@ -39,7 +40,7 @@ data_template = {
         'account': {'func': ddc.generate_account},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
-        'purpose': {'func': ddc.generate_front_office_purpose},
+        'purpose': {'func': partial(ddc.generate_purpose, data_type='DP')},
         'depot_id': {'func': ddc.generate_depot_id}
     },
     'order_execution': {
@@ -51,6 +52,19 @@ data_template = {
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
         'qty': {'func': ddc.generate_qty}
+    },
+    'stock_loan': {
+        'inst_id': {'func': partial(ddc.generate_inst_id, only='S'), 'args': ['asset_class']},
+        'knowledge_date': {'func': ddc.generate_knowledge_date},
+        'effective_date': {'func': ddc.generate_effective_date, 'args': ['knowledge_date']},
+        'purpose': {'func': partial(ddc.generate_purpose, data_type='SL')},
+        'qty': {'func': ddc.generate_qty},
+        'collateral_type': {'func': ddc.generate_collateral_type},
+        'haircut': {'func': ddc.generate_haircut},
+        'rebate_rate': {'func': ddc.generate_rebate_rate, 'args': ['collateral_type']},
+        'termination_date': {'func': ddc.generate_termination_date},
+        'account': {'func': ddc.generate_account},
+        'is_callable': {'func': ddc.generate_is_callable}
     }
 }
 
