@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    environment {
-      PATH="/home/ubuntu/.local/bin:$PATH"
-    }
     stages {
         stage('Build'){
             steps{
@@ -17,8 +14,7 @@ pipeline {
                 sh  ''' pylint3 --disable=C . || true
                     '''
                 echo "Code Coverage"
-                sh ''' coverage run SimpleProducer.py 1 1 2 3
-                       python -m coverage xml -o ./reports/coverage.xml'''
+                sh '''python -m coverage xml -o ./reports/coverage.xml'''
             }
             post{
                 always{
