@@ -16,3 +16,6 @@ out/*
 credentials.json
 token.json
 .mypy_cache
+data/*
+Kafka-Python/out/*
+Kafka-Python/data/*
