@@ -41,6 +41,16 @@ data_template = {
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': ddc.generate_front_office_purpose},
         'depot_id': {'func': ddc.generate_depot_id}
+    },
+    'order_execution': {
+        'order_id': {'func': ddc.generate_order_id, 'args': ['asset_class']},
+        'customer_id': {'func': ddc.generate_customer_id, 'args': ['asset_class']},
+        'direction': {'func': ddc.generate_direction},
+        'sto_id': {'func': ddc.generate_sto_id, 'args': ['asset_class']},
+        'agent_id': {'func': ddc.generate_agent_id, 'args': ['asset_class']},
+        'price': {'func': ddc.generate_price, 'args': ['inst_id']},
+        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'qty': {'func': ddc.generate_qty}
     }
 }
 
@@ -69,6 +79,8 @@ class DictRunnable(Runnable):
             self.__create_data_file('out/front_office_positions.csv', args.front_office_positions, 'front_office_position')
         if args.depot_positions > 0:
             self.__create_data_file('out/depot_positions.csv', args.depot_positions, 'depot_position')
+        if args.order_executions > 0:
+            self.__create_data_file('out/order_executions.csv', args.order_executions, 'order_execution')
 
     # file_name corresponds to the name of the CSV file the function will write to
     # n is the number of data entities to write to the CSV file
@@ -113,6 +125,7 @@ def get_args():
     parser.add_argument('--front-office-positions', nargs='?', type=int, default=0)
     parser.add_argument('--inst-refs', nargs='?', type=int, default=0)
     parser.add_argument('--depot-positions', nargs='?', type=int, default=0)
+    parser.add_argument('--order-executions', nargs='?', type=int, default=0)
     return parser.parse_args()
 
 if __name__ == '__main__':

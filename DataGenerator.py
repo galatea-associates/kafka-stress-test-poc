@@ -189,3 +189,14 @@ class DataGenerator:
     def generate_account_number(self, n_digits=8):
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
+    def generate_order_id(self, n_digits=8):
+        return ''.join([random.choice(string.digits) for _ in range(n_digits)])
+
+    def generate_customer_id(self, n_digits=8):
+        return ''.join([random.choice(string.digits) for _ in range(n_digits)])
+
+    def generate_sto_id(self, n_digits=7):
+        return ''.join([random.choice(string.digits) for _ in range(n_digits)])
+
+    def generate_agent_id(self, n_digits=7):
+        return ''.join([random.choice(string.digits) for _ in range(n_digits)])
