@@ -1,4 +1,4 @@
-from DataGenerator import DataGenerator
+from Runnable import Runnable
 
 from googleapiclient.http import MediaIoBaseDownload
 from googleapiclient.discovery import build
@@ -26,7 +26,7 @@ class SetActions(Enum):
     START_PROCESSING = 3
 
 
-class GoogleDriveAccessor(DataGenerator):
+class GoogleDriveAccessor(Runnable):
     def __init__(self, folder_id=None, output_folder="data", file_name=None, file_type="CSV"):
         self.__folder_ID = folder_id
         self.__output_folder = self.__process_path(path=output_folder)

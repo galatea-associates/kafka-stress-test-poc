@@ -1,12 +1,10 @@
-import random
-import datetime
 import argparse
 import csv
 import os
+from Runnable import Runnable
 from DataGenerator import DataGenerator
-from DictDataClasses import DictDataClasses
 
-ddc = DictDataClasses()
+ddc = DataGenerator()
 data_template = {
     'inst-ref': {
         'inst_id': {'func': ddc.generate_new_inst_id, 'args': ['asset_class']},
@@ -25,39 +23,38 @@ data_template = {
     },
     'front_office_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
-        'type': {'func': ddc.generate_inst_id},
+        'type': {'func': ddc.generate_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': ddc.generate_effective_date, 'args': ['knowledge_date']},
-        'account': {'func': ddc.generate_account, 'args': ['asset_class']},
-        'direction': {'func': ddc.generate_direction, 'args': ['asset_class']},
-        'qty': {'func': ddc.generate_qty, 'args': ['asset_class']},
-        'purpose': {'func': ddc.generate_purpose, 'args': ['asset_class']},
+        'account': {'func': ddc.generate_account},
+        'direction': {'func': ddc.generate_direction},
+        'qty': {'func': ddc.generate_qty},
+        'purpose': {'func': ddc.generate_front_office_purpose},
+    },
+    'depot_position': {
+        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'type': {'func': ddc.generate_type},
+        'knowledge_date': {'func': ddc.generate_knowledge_date},
+        'effective_date': {'func': ddc.generate_effective_date, 'args': ['knowledge_date']},
+        'account': {'func': ddc.generate_account},
+        'direction': {'func': ddc.generate_direction},
+        'qty': {'func': ddc.generate_qty},
+        'purpose': {'func': ddc.generate_front_office_purpose},
+        'depot_id': {'func': ddc.generate_depot_id}
     }
 }
 
-class DictDataGenerator(DataGenerator):
-
-    def __init__(self):
-        # Generate random inst ids with the prefix of the bank (ABC) and a random string composed of numbers and letters
-        self.__stock_to_ids = {}
-        self.__dict = ddc.get_dict()
+class DictRunnable(Runnable):
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'Type': 'position'}
     def run(self, args):
-        # type = args["Type"]
-        # if type == 'price':
-        #     return self.__generate_price_entity()
-        # elif type == 'position':
-        #     return self.__generate_position_entity()
-        # elif type == 'inst-ref':
-        #     return self.__generate_inst_ref_entity()
         pass
 
     @staticmethod
     def main():
-        args = DictDataGenerator.__get_args()
-        dict_data_generator = DictDataGenerator()
+        args = get_args()
+        dict_data_generator = DictRunnable()
         dict_data_generator .__generate_data_files(args)
 
     def __generate_data_files(self, args):
@@ -65,19 +62,13 @@ class DictDataGenerator(DataGenerator):
         if not os.path.exists('out'):
             os.makedirs('out')
         if args.inst_refs > 0:
-            self.__create_data_file('out/inst-ref.csv', args.inst_refs, 'inst-ref')
+            self.__create_data_file('out/inst-refs.csv', args.inst_refs, 'inst-ref')
         if args.prices > 0:
             self.__create_data_file('out/prices.csv', args.prices, 'price')
         if args.front_office_positions > 0:
-            self.__create_data_file('out/positions.csv', args.positions, 'front_office_position')
-
-    @staticmethod
-    def __get_args():
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--prices', nargs='?', type=int, default=0)
-        # parser.add_argument('--front-office-positions', nargs='?', type=int, default=0)
-        parser.add_argument('--inst-refs', nargs='?', type=int, default=0)
-        return parser.parse_args()
+            self.__create_data_file('out/front_office_positions.csv', args.front_office_positions, 'front_office_position')
+        if args.depot_positions > 0:
+            self.__create_data_file('out/depot_positions.csv', args.depot_positions, 'depot_position')
 
     # file_name corresponds to the name of the CSV file the function will write to
     # n is the number of data entities to write to the CSV file
@@ -94,7 +85,6 @@ class DictDataGenerator(DataGenerator):
             for _ in range(n - 1):
                 entity = self.__generate_data(data_template[data_type])
                 writer.writerow(entity)
-
 
     def __generate_data(self, template):
         data = {}
@@ -117,5 +107,13 @@ class DictDataGenerator(DataGenerator):
         return data
 
 
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--prices', nargs='?', type=int, default=0)
+    parser.add_argument('--front-office-positions', nargs='?', type=int, default=0)
+    parser.add_argument('--inst-refs', nargs='?', type=int, default=0)
+    parser.add_argument('--depot-positions', nargs='?', type=int, default=0)
+    return parser.parse_args()
+
 if __name__ == '__main__':
-    DictDataGenerator.main()
+    DictRunnable.main()

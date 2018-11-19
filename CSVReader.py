@@ -2,13 +2,13 @@ import os
 from builtins import StopIteration
 
 import pandas as pd
-from DataGenerator import DataGenerator
+from Runnable import Runnable
 
 import csv
 from multiprocessing import Lock
 
 
-class CSVReader(DataGenerator):
+class CSVReader(Runnable):
     def __init__(self):
         self.__file_reader = None
         self.__lock = Lock()

@@ -10,7 +10,7 @@ import io
 import json
 from Counter import Counter
 from DataConfiguration import configuration
-from DataGenerator import DataGenerator
+from Runnable import Runnable
 from argparse import ArgumentParser
 from multiprocessing import Manager, Process, Queue, Value
 
@@ -40,7 +40,7 @@ def serialize_val(val, serializer, schema=None):
 def process_val(val, args=None):
     if callable(val):
         return process_val(val())
-    elif isinstance(val, DataGenerator):
+    elif isinstance(val, Runnable):
         return process_val(val.run(args))
     else:
         return val

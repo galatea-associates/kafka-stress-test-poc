@@ -4,9 +4,9 @@ import datetime
 import argparse
 import csv
 import os
-from DataGenerator import DataGenerator
+from Runnable import Runnable
 
-class RandomDataGenerator(DataGenerator):
+class RandomRunnable(Runnable):
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'Type': 'position'}
@@ -21,7 +21,7 @@ class RandomDataGenerator(DataGenerator):
 
     @staticmethod
     def main():
-        rdm_data_generator = RandomDataGenerator()
+        rdm_data_generator = RandomRunnable()
         args = rdm_data_generator.__get_args()
         rdm_data_generator.__generate_data_files(args)
 
@@ -117,4 +117,4 @@ class RandomDataGenerator(DataGenerator):
         return datetime.datetime(year, month, day).date()
 
 if __name__ == '__main__':
-    RandomDataGenerator.main()
+    RandomRunnable.main()
