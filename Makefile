@@ -9,8 +9,6 @@
 #	make coverage_report -- code coverage report
 #	make flake8 -- flake8 checks
 #	make pylint -- source code checks
-#	make rpm -- build RPM package
-#	make sdist -- build python source distribution
 #	make systest -- runs the system tests
 #	make tests -- run all of the tests
 #	make unittest -- runs the unit tests
@@ -20,7 +18,7 @@
 ########################################################
 # variable section
 
-NAME = "python_jenkinsfile_testing"
+NAME = "Kafka-Python"
 
 PYTHON=python
 COVERAGE=coverage
@@ -53,9 +51,6 @@ clean:
 	rm -rf docs/client_modules
 	@echo "Cleaning up test reports"
 	rm -rf report/*
-
-sdist: clean
-	$(PYTHON) setup.py sdist
 
 tests: unittest systest coverage_report
 
