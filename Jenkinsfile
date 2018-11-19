@@ -4,7 +4,8 @@ pipeline {
         stage('Build'){
             steps{
                 echo 'hello world'
-                sh ''' which python
+                sh ''' sudo apt-get install python3 -y
+                       which python
                        python --version
                        which pip 
                        which python3
