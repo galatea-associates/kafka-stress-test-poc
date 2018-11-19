@@ -12,7 +12,7 @@ pipeline {
             steps{
                 echo "Cover Coverage"
                 sh ''' source active ${BUILD_TAG}
-                       coverage run '''
+                       py.test --cov=Kafka-Python test/'''
             }
         }
     }
