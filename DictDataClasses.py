@@ -7,29 +7,140 @@ class DictDataClasses:
     def __init__(self, n_inst_ref=14000, n_values=500):
         self.__n_inst_ref = n_inst_ref
         self.__n_values = n_values
-        self.__stock_ticker = ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB']
+        self.__stock_inst_ids = {}
+        self.__cash_inst_ids = {}
+        self.__stock_to_cusip = {}
+        self.__stock_to_sedol = {}
+        self.__state = {}
 
     def get_dict(self):
         return {
-            'inst_id_stock': self.__get_inst_ids(prefix='ABC'),
-            'inst_id_cash': self.__get_inst_ids(prefix='BCD'),
-            'asset_class': self.__get_asset_classes(),
-            'COI': self.__get_COIs(),
-            'price': self.__get_prices(),
-            'curr': self.__get_currencies(),
-            'qty': self.__get_quantities(),
-            'type': self.__get_types(),
-            'date': self.__get_dates(),
-            'account': self.__get_accounts(),
-            'cash_inst': self.__get_cash_insts(),
-            'stock_inst': self.__get_stock_insts(),
-            'direction': self.__get_directions(),
-            'cusip': self.__get_cusips(),
-            'ticker': self.__get_tickers(),
-            'sedol': self.__get_sedols(),
-            'exchange_code': self.__get_exchange_codes(),
-            'purpose': self.__get_purpose()
+            # 'inst_id_stock': self.__get_inst_ids(prefix='ABC'),
+            # 'inst_id_cash': self.__get_inst_ids(prefix='BCD'),
+            # 'asset_class': self.__get_asset_classes(),
+            # 'COI': self.__get_COIs(),
+            # 'price': self.__get_prices(),
+            # 'curr': self.__get_currencies(),
+            # 'qty': self.__get_quantities(),
+            # 'type': self.__get_types(),
+            # 'date': self.__get_dates(),
+            # 'account': self.__get_accounts(),
+            # 'cash_inst': self.__get_cash_insts(),
+            # 'stock_inst': self.__get_stock_insts(),
+            # 'direction': self.__get_directions(),
+            # 'cusip': self.__get_cusips(),
+            # 'ticker': self.__get_tickers(),
+            # 'sedol': self.__get_sedols(),
+            # 'exchange_code': self.__get_exchange_codes(),
+            # 'purpose': self.__get_purposes(),
+            # 'depot_id': self.__get_depot_ids(),
+            # 'account_number': self.__get_account_numbers()
         }
+
+    def clear_state(self):
+        self.__state = {}
+
+    def __get_preemptive_generation(self, field_name, field_value):
+        if field_name not in self.__state:
+            asset_class = field_value
+            self.__state[field_name] = field_value
+        else:
+            asset_class = self.__state[field_name]
+        return asset_class
+
+    def generate_inst_id(self, n_chars=5, asset_class=None):
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+
+        possible_chars = string.ascii_uppercase + string.digits
+        if asset_class == 'Stock':
+            inst_id = 'ABC' + ''.join([random.choice(possible_chars) for _ in range(n_chars)])
+            self.__stock_inst_ids[inst_id] = {}
+        else:
+            inst_id = 'BCD' + ''.join([random.choice(possible_chars) for _ in range(n_chars)])
+            self.__cash_inst_ids[inst_id] = {}
+        return inst_id
+
+    def generate_cusip(self,  n_digits=9, ticker=None, asset_class=None):
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+
+        if asset_class is 'Cash':
+            return ''
+
+        if ticker is None:
+            ticker = self.__get_preemptive_generation('ticker', self.generate_ticker(asset_class))
+
+        if ticker in self.__stock_inst_ids:
+            cusip = self.__stock_to_cusip[ticker]
+        else:
+            cusip = ''.join([random.choice(string.digits) for _ in range(n_digits)])
+            self.__stock_to_cusip[ticker] = cusip
+
+        return cusip
+
+    def generate_sedol(self, n_digits=7, asset_class=None, ticker=None):
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+
+        if asset_class == 'Cash':
+            return ''
+
+        if ticker is None:
+            ticker = self.__get_preemptive_generation('ticker', self.generate_ticker(asset_class))
+
+        if ticker in self.__stock_inst_ids:
+            sedol = self.__stock_to_sedol[ticker]
+        else:
+            sedol = ''.join([random.choice(string.digits) for _ in range(n_digits)])
+            self.__stock_to_sedol[ticker] = sedol
+
+        return sedol
+
+    def generate_isin(self, coi=None, cusip=None, asset_class=None):
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+
+        if asset_class == 'Cash':
+            return ''
+
+        if coi is None:
+            coi = self.generate_coi()
+            self.__state['coi'] = coi
+
+        if cusip is None:
+            cusip = self.generate_cusip()
+            self.__state['cusip'] = cusip
+
+        return coi + cusip + '4'
+
+    def generate_ric(self, ticker=None, asset_class=None):
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+
+        if asset_class is 'Cash':
+            return ''
+
+        if ticker is None:
+            ticker = self.__get_preemptive_generation('ticker', self.generate_ticker(asset_class))
+
+        return ticker + '.' + random.choice(['L', 'N', 'OQ'])
+
+    def generate_ticker(self, asset_class=None):
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+
+        if asset_class == 'Stock':
+            return random.choice(['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB'])
+        else:
+            return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
+
+    def generate_asset_class(self):
+        return random.choice(['Stock', 'Cash'])
+
+    def generate_coi(self):
+        return random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
+
 
     def __get_inst_ids(self, prefix='ABC', n_chars=5):
         possible_chars = string.ascii_uppercase + string.digits
@@ -103,6 +214,17 @@ class DictDataClasses:
     def __get_exchange_codes(self):
         return ['L', 'N', 'OQ']
 
-    def __get_purpose(self):
-        return ['Outright']
+    def __get_purposes(self):
+        return ['Outright', '']
 
+    def __get_depot_ids(self, n_digits=5):
+        return [''.join([random.choice(string.digits) for _ in range(n_digits)]) for _ in range(self.__n_inst_ref)]
+
+    def __get_account_numbers(self, n_digits=8):
+        return [''.join([random.choice(string.digits) for _ in range(n_digits)]) for _ in range(self.__n_inst_ref)]
+
+    def state_contains_field(self, field_to_generate):
+        return field_to_generate in self.__state
+
+    def get_state_value(self, field_to_generate):
+        return self.__state[field_to_generate]

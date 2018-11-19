@@ -6,25 +6,38 @@ import os
 from DataGenerator import DataGenerator
 from DictDataClasses import DictDataClasses
 
+ddc = DictDataClasses()
+data_template = {
+    'inst-ref': {
+        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'ric': {'func': ddc.generate_ric, 'args': ['ticker', 'asset_class']},
+        'isin': {'func': ddc.generate_isin, 'args': ['coi', 'cusip', 'asset_class']},
+        'sedol': {'func': ddc.generate_sedol, 'args': ['ticker', 'asset_class']},
+        'ticker': {'func': ddc.generate_ticker, 'args': ['asset_class']},
+        'cusip': {'func': ddc.generate_cusip, 'args': ['ticker', 'asset_class']},
+        'asset_class': {'func': ddc.generate_asset_class},
+        'coi': {'func': ddc.generate_coi}
+    },
+}
+
 class DictDataGenerator(DataGenerator):
 
     def __init__(self):
         # Generate random inst ids with the prefix of the bank (ABC) and a random string composed of numbers and letters
-        self.__stock_inst_ids = {}
-        self.__cash_inst_ids = {}
         self.__stock_to_ids = {}
-        self.__dict = DictDataClasses().get_dict()
+        self.__dict = ddc.get_dict()
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'Type': 'position'}
     def run(self, args):
-        type = args["Type"]
-        if type == 'price':
-            return self.__generate_price_entity()
-        elif type == 'position':
-            return self.__generate_position_entity()
-        elif type == 'inst-ref':
-            return self.__generate_inst_ref_entity()
+        # type = args["Type"]
+        # if type == 'price':
+        #     return self.__generate_price_entity()
+        # elif type == 'position':
+        #     return self.__generate_position_entity()
+        # elif type == 'inst-ref':
+        #     return self.__generate_inst_ref_entity()
+        pass
 
     @staticmethod
     def main():
@@ -37,132 +50,57 @@ class DictDataGenerator(DataGenerator):
         if not os.path.exists('out'):
             os.makedirs('out')
         if args.inst_refs > 0:
-            self.__create_data_file('out/inst-ref.csv', args.inst_refs, self.__generate_inst_ref_entity)
-        if args.prices > 0:
-            self.__create_data_file('out/prices.csv', args.prices, self.__generate_price_entity)
-        if args.positions > 0:
-            self.__create_data_file('out/positions.csv', args.positions, self.__generate_position_entity)
+            self.__create_data_file('out/inst-ref.csv', args.inst_refs, 'inst-ref')
+        # if args.prices > 0:
+        #     self.__create_data_file('out/prices.csv', args.prices, 'price')
+        # if args.front_office_positions > 0:
+        #     self.__create_data_file('out/positions.csv', args.positions, 'front_office_position')
 
     @staticmethod
     def __get_args():
         parser = argparse.ArgumentParser()
-        parser.add_argument('--prices', nargs='?', type=int, default=0)
-        parser.add_argument('--positions', nargs='?', type=int, default=0)
+        # parser.add_argument('--prices', nargs='?', type=int, default=0)
+        # parser.add_argument('--front-office-positions', nargs='?', type=int, default=0)
         parser.add_argument('--inst-refs', nargs='?', type=int, default=0)
         return parser.parse_args()
 
     # file_name corresponds to the name of the CSV file the function will write to
     # n is the number of data entities to write to the CSV file
     # data_generator is the function reference that generates the data entity of interest
-    def __create_data_file(self, file_name, n, data_generator):
+    def __create_data_file(self, file_name, n, data_type):
         # w+ means create file first if it does not already exist
         with open(file_name, mode='w+', newline='') as file:
-            entity = data_generator()
-            writer = csv.DictWriter(file, fieldnames=list(entity))
+            data = self.__generate_data(data_template[data_type])
+            writer = csv.DictWriter(file, fieldnames=list(data))
             writer.writeheader()
-            writer.writerow(entity)
+            writer.writerow(data)
             # n - 1 because we already wrote to the file once with the entity variable
             # We do this to get the keys of the dictionary in order to get the field names of the CSV file
             for _ in range(n - 1):
-                entity = data_generator()
+                entity = self.__generate_data(data_template[data_type])
                 writer.writerow(entity)
 
-    def __generate_price_entity(self):
-        asset_class = random.choice(self.__dict['asset_class'])
-        if asset_class == 'Stock':
-            inst_id = random.choice(list(self.__stock_inst_ids))
-            price = random.choice(self.__dict['price'])
-        else:
-            inst_id = random.choice(list(self.__cash_inst_ids))
-            price = 1.00
-        curr = random.choice(self.__dict['curr'])
 
-        return {'inst_id': inst_id,
-                'price': price,
-                'curr': curr}
+    def __generate_data(self, template):
+        data = {}
+        for field_to_generate, generator_function in template.items():
+            if field_to_generate not in data:
+                if ddc.state_contains_field(field_to_generate):
+                    data[field_to_generate] = ddc.get_state_value(field_to_generate)
+                elif 'args' in generator_function:
+                    args = {}
+                    for arg in generator_function['args']:
+                        if arg in data:
+                            args[arg] = data[arg]
+                        elif ddc.state_contains_field(arg):
+                            args[arg] = ddc.get_state_value(arg)
+                    data[field_to_generate] = generator_function['func'](**args)
+                else:
+                    data[field_to_generate] = generator_function['func']()
+        ddc.clear_state()
 
-    def __generate_position_entity(self):
-        type = random.choice(self.__dict['type'])
-        # Assign random date to knowledge date
-        knowledge_date = random.choice(self.__dict['date'])
-        # Add 3 days to get the effective date if type is SD
-        effective_date = knowledge_date + datetime.timedelta(days=3) if type == 'SD' else knowledge_date
-        account = random.choice(self.__dict['account'])
-        direction = random.choice(self.__dict['direction'])
-        qty = random.choice(self.__dict['qty'])
-        asset_class = random.choice(self.__dict['asset_class'])
-        purpose = random.choice(self.__dict['purpose'])
-        if asset_class == 'Stock':
-            inst_id = random.choice(list(self.__stock_inst_ids))
-        else:
-            inst_id = random.choice(list(self.__cash_inst_ids))
+        return data
 
-        return {'type': type,
-                'knowledge_date': str(knowledge_date),
-                'effective_date': str(effective_date),
-                'account': account,
-                'direction': direction,
-                'qty': qty,
-                'purpose': purpose,
-                'inst_id': inst_id}
-
-    def __generate_inst_ref_entity(self):
-        asset_class = random.choice(self.__dict['asset_class'])
-        coi = random.choice(self.__dict['COI'])
-        if asset_class == 'Stock':
-            inst_id = self.__generate_inst_id(asset_class, self.__stock_inst_ids)
-            ticker = self.__stock_inst_ids[inst_id]
-
-            if not ticker in self.__stock_to_ids:
-                cusip = random.choice(self.__dict['cusip'])
-                sedol = random.choice(self.__dict['sedol'])
-                self.__stock_to_ids[ticker] = {'cusip': cusip, 'sedol': sedol}
-            else:
-                cusip = self.__stock_to_ids[ticker]['cusip']
-                sedol = self.__stock_to_ids[ticker]['sedol']
-
-            isin = coi + cusip + '4'
-            ric = ticker + '.' + random.choice(self.__dict['exchange_code'])
-
-        else:
-            inst_id = self.__generate_inst_id(asset_class, self.__cash_inst_ids)
-            cusip = None
-            isin = None
-            sedol = None
-            ticker = None
-            ric = None
-
-        inst_ref = {
-            'inst_id': inst_id,
-            'RIC': ric,
-            'ISIN': isin,
-            'SEDOL': sedol,
-            'Ticker': ticker,
-            'Cusip': cusip,
-            'asset_class': asset_class,
-            'COI': coi}
-
-        # Only save 4 out of the 5 identifiers
-        ids = ['RIC', 'ISIN', 'Ticker', 'SEDOL', 'Cusip']
-        to_ignore = random.choice(ids)
-        inst_ref[to_ignore] = None
-
-        return inst_ref
-
-    def __generate_inst_id(self, asset_class, inst_ids):
-        if asset_class == 'Stock':
-            inst_id = random.choice(self.__dict['inst_id_stock'])
-            inst = random.choice(self.__dict['stock_inst'])
-        else:
-            inst_id = random.choice(self.__dict['inst_id_cash'])
-            inst = random.choice(self.__dict['cash_inst'])
-
-        while inst_id in inst_ids:
-            inst_id = random.choice(self.__dict['inst_id_stock']) if asset_class == 'Stock' else random.choice(
-                self.__dict['inst_id_cash'])
-        inst_ids[inst_id] = inst
-
-        return inst_id
 
 if __name__ == '__main__':
     DictDataGenerator.main()
