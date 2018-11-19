@@ -17,7 +17,6 @@ pipeline {
                     virtualenv venv --python=python3.5
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    pip3 install --upgrade pip
                     pip3 install -r requirements.txt -r dev-requirements.txt
                     make clean
                 """
@@ -39,7 +38,7 @@ pipeline {
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     make pylint | tee report/pylint.log || true
                 """
-                step([$class: 'WarningsPublisher', 
+                step([$class: 'WarningsPublisher',
                   parserConfigurations: [[
                     parserName: 'Pep8',
                     pattern: 'report/flake8.log'
