@@ -41,7 +41,6 @@ pipeline {
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     make pylint | tee report/pylint.log || true
                 """
-
             }
         }
 
@@ -54,16 +53,6 @@ pipeline {
                 """
             }
 
-            post {
-                always {
-                    junit keepLongStdio: true, testResults: 'report/nosetests.xml'
-                    publishHTML target: [
-                        reportDir: 'report/coverage',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report - Unit Test'
-                    ]
-                }
-            }
         }
 
         stage ('System Tests') {
@@ -77,16 +66,6 @@ pipeline {
                 """
             }
 
-            post {
-                always {
-                    junit keepLongStdio: true, testResults: 'report/nosetests.xml'
-                    publishHTML target: [
-                        reportDir: 'report/coverage',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report - System Test'
-                    ]
-                }
-            }
         }
 
         stage ('Docs') {
@@ -96,16 +75,6 @@ pipeline {
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
                 """
-            }
-
-            post {
-                always {
-                    publishHTML target: [
-                        reportDir: 'docs/*',
-                        reportFiles: 'index.html',
-                        reportName: 'Module Documentation'
-                    ]
-                }
             }
         }
 
