@@ -33,6 +33,7 @@ flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/
 
 pylint:
+    find . ./tests -name \*.py -not -path "./venv/*"
 	find . ./tests -name \*.py -not -path "./venv/*"| xargs pylint3 --rcfile .pylintrc
 
 clean:
