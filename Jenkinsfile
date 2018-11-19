@@ -14,7 +14,7 @@ pipeline {
                 sh  ''' pylint3 --disable=C . || true
                     '''
                 echo "Code Coverage"
-                sh '''python -m coverage xml -o ./reports/coverage.xml'''
+                sh '''python3 -m coverage xml -o ./reports/coverage.xml'''
             }
             post{
                 always{
