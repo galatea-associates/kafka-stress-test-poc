@@ -41,32 +41,10 @@ pipeline {
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     make pylint | tee report/pylint.log || true
                 """
+              
             }
         }
 
-         stage ('Unit Tests') {
-            steps {
-                sh """
-                    #. venv/bin/activate
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make unittest || true
-                """
-            }
-
-        }
-
-        stage ('System Tests') {
-            steps {
-                sh """
-                    #. venv/bin/activate
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    // Write file containing test node connection information if needed.
-                    // writeFile file: "test/fixtures/nodes.yaml", text: "---\n- node: <some-ip>\n"
-                    make systest || true
-                """
-            }
-
-        }
 
         stage ('Docs') {
             steps {
@@ -75,6 +53,16 @@ pipeline {
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
                 """
+            }
+
+            post {
+                always {
+                    publishHTML target: [
+                        reportDir: 'docs/*',
+                        reportFiles: 'index.html',
+                        reportName: 'Module Documentation'
+                    ]
+                }
             }
         }
 
