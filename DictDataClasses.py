@@ -2,6 +2,9 @@ import random
 import string
 import datetime
 
+# TODO: merge sedol and cusip dictionaries
+# TODO: check inst_id is unique
+
 class DictDataClasses:
 
     def __init__(self, n_inst_ref=14000, n_values=500):
@@ -48,7 +51,7 @@ class DictDataClasses:
             asset_class = self.__state[field_name]
         return asset_class
 
-    def generate_inst_id(self, n_chars=5, asset_class=None):
+    def generate_new_inst_id(self, n_chars=5, asset_class=None):
         if asset_class is None:
             asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
 
@@ -61,6 +64,15 @@ class DictDataClasses:
             self.__cash_inst_ids[inst_id] = {}
         return inst_id
 
+    def generate_inst_id(self, asset_class=None):
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
+
+        if asset_class == 'Stock':
+            return random.choice(list(self.__stock_inst_ids))
+        else:
+            return random.choice(list(self.__cash_inst_ids))
+
     def generate_cusip(self,  n_digits=9, ticker=None, asset_class=None):
         if asset_class is None:
             asset_class = self.__get_preemptive_generation('asset_class', self.generate_asset_class())
@@ -71,7 +83,7 @@ class DictDataClasses:
         if ticker is None:
             ticker = self.__get_preemptive_generation('ticker', self.generate_ticker(asset_class))
 
-        if ticker in self.__stock_inst_ids:
+        if ticker in self.__stock_to_cusip:
             cusip = self.__stock_to_cusip[ticker]
         else:
             cusip = ''.join([random.choice(string.digits) for _ in range(n_digits)])
@@ -89,7 +101,7 @@ class DictDataClasses:
         if ticker is None:
             ticker = self.__get_preemptive_generation('ticker', self.generate_ticker(asset_class))
 
-        if ticker in self.__stock_inst_ids:
+        if ticker in self.__stock_to_sedol:
             sedol = self.__stock_to_sedol[ticker]
         else:
             sedol = ''.join([random.choice(string.digits) for _ in range(n_digits)])
@@ -136,10 +148,26 @@ class DictDataClasses:
             return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
 
     def generate_asset_class(self):
+
         return random.choice(['Stock', 'Cash'])
 
     def generate_coi(self):
         return random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
+
+    def generate_price(self, inst_id=None):
+        if inst_id is None:
+            inst_id = self.__get_preemptive_generation('inst_id', self.generate_inst_id())
+
+        if inst_id.startswith('ABC'):
+            min = 10
+            max = 10000
+            num_decimal_points = 2
+            return round(random.uniform(min, max), num_decimal_points)
+        else:
+            return 1.00
+
+    def generate_currency(self):
+        return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
 
 
     def __get_inst_ids(self, prefix='ABC', n_chars=5):

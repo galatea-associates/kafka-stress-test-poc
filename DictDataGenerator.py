@@ -9,7 +9,7 @@ from DictDataClasses import DictDataClasses
 ddc = DictDataClasses()
 data_template = {
     'inst-ref': {
-        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'inst_id': {'func': ddc.generate_new_inst_id, 'args': ['asset_class']},
         'ric': {'func': ddc.generate_ric, 'args': ['ticker', 'asset_class']},
         'isin': {'func': ddc.generate_isin, 'args': ['coi', 'cusip', 'asset_class']},
         'sedol': {'func': ddc.generate_sedol, 'args': ['ticker', 'asset_class']},
@@ -17,6 +17,11 @@ data_template = {
         'cusip': {'func': ddc.generate_cusip, 'args': ['ticker', 'asset_class']},
         'asset_class': {'func': ddc.generate_asset_class},
         'coi': {'func': ddc.generate_coi}
+    },
+    'price': {
+        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'price': {'func': ddc.generate_price, 'args': ['inst_id']},
+        'curr': {'func': ddc.generate_currency},
     },
 }
 
@@ -51,15 +56,15 @@ class DictDataGenerator(DataGenerator):
             os.makedirs('out')
         if args.inst_refs > 0:
             self.__create_data_file('out/inst-ref.csv', args.inst_refs, 'inst-ref')
-        # if args.prices > 0:
-        #     self.__create_data_file('out/prices.csv', args.prices, 'price')
+        if args.prices > 0:
+            self.__create_data_file('out/prices.csv', args.prices, 'price')
         # if args.front_office_positions > 0:
         #     self.__create_data_file('out/positions.csv', args.positions, 'front_office_position')
 
     @staticmethod
     def __get_args():
         parser = argparse.ArgumentParser()
-        # parser.add_argument('--prices', nargs='?', type=int, default=0)
+        parser.add_argument('--prices', nargs='?', type=int, default=0)
         # parser.add_argument('--front-office-positions', nargs='?', type=int, default=0)
         parser.add_argument('--inst-refs', nargs='?', type=int, default=0)
         return parser.parse_args()
