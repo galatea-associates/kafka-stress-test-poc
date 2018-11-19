@@ -18,8 +18,6 @@
 ########################################################
 # variable section
 
-NAME = "Kafka-Python"
-
 PYTHON=python
 COVERAGE=coverage
 NOSE_OPTS = --with-coverage --cover-package=$(NAME)
@@ -35,7 +33,7 @@ flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/
 
 pylint:
-	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc
+	find . ./tests -name \*.py | xargs pylint --rcfile .pylintrc
 
 clean:
 	@echo "Cleaning up distutils stuff"
