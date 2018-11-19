@@ -53,7 +53,7 @@ clean:
 tests: unittest systest coverage_report
 
 unittest: clean
-	nosetests $(NOSE_OPTS) tests/unit/*
+	nosetests $(NOSE_OPTS) tests/unit/* 
 
 systest: clean
 	nosetests $(NOSE_OPTS) tests/system/*
