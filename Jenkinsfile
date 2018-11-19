@@ -13,8 +13,9 @@ pipeline {
                 echo "PEP8 style check"
                 sh  ''' pylint3 --disable=C . || true
                     '''
-                echo "Cover Coverage"
-                sh ''' py.test --cov=Kafka-Python test/'''
+                echo "Code Coverage"
+                sh ''' coverage run --cov=SimpleProducer.py 1 1 2 3
+                       python -m coverage xml -o ./reports/coverage.xml'''
             }
         }
     }
