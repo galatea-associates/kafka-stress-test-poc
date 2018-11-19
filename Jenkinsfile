@@ -5,10 +5,10 @@ pipeline {
             steps{
                 echo 'hello world'
                 sh ''' which python
-                       pyhton --version
+                       python --version
                        which pip 
                        which python3
-                       pyhton3 --version'''
+                       python3 --version'''
             }
         }
         stage('Static code metrics'){
