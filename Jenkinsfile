@@ -41,30 +41,10 @@ pipeline {
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     make pylint | tee report/pylint.log || true
                 """
-              
             }
         }
 
 
-        stage ('Docs') {
-            steps {
-                sh """
-                    #. venv/bin/activate
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
-                """
-            }
-
-            post {
-                always {
-                    publishHTML target: [
-                        reportDir: 'docs/*',
-                        reportFiles: 'index.html',
-                        reportName: 'Module Documentation'
-                    ]
-                }
-            }
-        }
 
         stage ('Cleanup') {
             steps {
