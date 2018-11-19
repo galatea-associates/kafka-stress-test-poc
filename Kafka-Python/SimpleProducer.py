@@ -32,22 +32,22 @@ def serialize_val(val, serializer, schema=None):
         bytes_writer = io.BytesIO()
         encoder = avro.io.BinaryEncoder(bytes_writer)
         writer.write(val, encoder)
-        returnVal = bytes_writer.getvalue()
+        return_val = bytes_writer.getvalue()
     elif serializer == "JSON":
-        returnVal = json.dumps(val)
+        return_val = json.dumps(val)
     else:
-        returnVal = val
-    return returnVal
+        return_val = val
+    return return_val
 
 
 def process_val(val, args=None):
     if callable(val):
-        returnVal = process_val(val())
+        return_val = process_val(val())
     elif isinstance(val, DataGenerator):
-        returnVal = process_val(val.run(args))
+        return_val = process_val(val.run(args))
     else:
-        returnVal = val
-    return returnVal
+        return_val = val
+    return return_val
 
 
 def send(server_args, producer_counters, topic, shared_data_queue,
@@ -78,9 +78,8 @@ def send(server_args, producer_counters, topic, shared_data_queue,
                                             serializer,
                                             schema_keys)
                           ).add_callback(on_send_success,
-                                         producer_counters
-                                        ).add_errback(on_send_error,
-                                                      producer_counters)
+                                         producer_counters).add_errback(on_send_error,
+                                                                        producer_counters)
 
 
 def on_send_success(producer_counters, _):
