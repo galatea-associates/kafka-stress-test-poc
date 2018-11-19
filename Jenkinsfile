@@ -1,5 +1,13 @@
 pipeline {
     agent any
+    options {
+        buildDiscarder(
+            // Only keep the 10 most recent builds
+            logRotator(numToKeepStr:'10'))
+    }
+    environment {
+        VIRTUAL_ENV = "${env.WORKSPACE}/venv"
+    }
     stages {
         stage('Install Requirements'){
             steps {
