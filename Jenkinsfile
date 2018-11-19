@@ -28,7 +28,6 @@ pipeline {
                     #. venv/bin/activate
                     [ -d report ] || mkdir report
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make check || true
                 """
                 sh """
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
