@@ -1,30 +1,13 @@
 #!/usr/bin/make
-# WARN: gmake syntax
-########################################################
-# Makefile for $(NAME)
-#
-# useful targets:
-#	make check -- manifest checks
-#	make clean -- clean distutils
-#	make coverage_report -- code coverage report
-#	make flake8 -- flake8 checks
-#	make pylint -- source code checks
-#	make systest -- runs the system tests
-#	make tests -- run all of the tests
-#	make unittest -- runs the unit tests
-#
-# Notes:
-# 1) flake8 is a wrapper around pep8, pyflakes, and McCabe.
-########################################################
-# variable section
+
+NAME = "."
+
 
 PYTHON=python
 COVERAGE=coverage
-NOSE_OPTS = --with-coverage --cover-package=$(NAME)
+PYTEST_OPTS = --cov=$(NAME)
 
 FLAKE8_IGNORE = E302,E203,E261
-
-########################################################
 
 all: clean check flake8 pylint tests
 
@@ -54,10 +37,10 @@ clean:
 tests: unittest systest coverage_report
 
 unittest: clean
-	nosetests $(NOSE_OPTS) tests/unit/* 
+	py.test $(PYTEST_OPTS) tests/unit/* 
 
 systest: clean
-	nosetests $(NOSE_OPTS) tests/system/*
+	py.test $(PYTEST_OPTS) tests/system/*
 
 coverage_report:
 	$(COVERAGE) report --rcfile=".coveragerc"
