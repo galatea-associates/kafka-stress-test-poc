@@ -1,3 +1,6 @@
+#!/usr/bin/env groovy
+
+// Based on https://github.com/jerearista/python-jenkinsfile-testing/blob/master/Jenkinsfile
 pipeline {
     agent any
     options {
@@ -15,17 +18,18 @@ pipeline {
                     echo ${SHELL}
                     [ -d venv ] && rm -rf venv
                     virtualenv venv --python=python3.5
-                    #. venv/bin/activate
+                    venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     python3 -m pip install -r requirements.txt
                     make clean
                 """
             }
         }
+
         stage ('Check_style') {
             steps {
                 sh """
-                    #. venv/bin/activate
+                    venv/bin/activate
                     [ -d report ] || mkdir report
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                 """
@@ -51,6 +55,8 @@ pipeline {
                 ])
             }
         }
+
+
         stage ('Cleanup') {
             steps {
                 sh 'rm -rf venv'
