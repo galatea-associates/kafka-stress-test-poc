@@ -18,7 +18,7 @@ pipeline {
                     echo ${SHELL}
                     [ -d venv ] && rm -rf venv
                     virtualenv venv --python=python3.5
-                    venv/bin/activate
+                    #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                     python3 -m pip install -r requirements.txt
                     make clean
@@ -29,7 +29,7 @@ pipeline {
         stage ('Check_style') {
             steps {
                 sh """
-                    venv/bin/activate
+                    #. venv/bin/activate
                     [ -d report ] || mkdir report
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
                 """
@@ -56,6 +56,69 @@ pipeline {
             }
         }
 
+         stage ('Unit Tests') {
+            steps {
+                sh """
+                    #. venv/bin/activate
+                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
+                    make unittest || true
+                """
+            }
+
+            post {
+                always {
+                    junit keepLongStdio: true, testResults: 'report/nosetests.xml'
+                    publishHTML target: [
+                        reportDir: 'report/coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report - Unit Test'
+                    ]
+                }
+            }
+        }
+
+        stage ('System Tests') {
+            steps {
+                sh """
+                    #. venv/bin/activate
+                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
+                    // Write file containing test node connection information if needed.
+                    // writeFile file: "test/fixtures/nodes.yaml", text: "---\n- node: <some-ip>\n"
+                    make systest || true
+                """
+            }
+
+            post {
+                always {
+                    junit keepLongStdio: true, testResults: 'report/nosetests.xml'
+                    publishHTML target: [
+                        reportDir: 'report/coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report - System Test'
+                    ]
+                }
+            }
+        }
+
+        stage ('Docs') {
+            steps {
+                sh """
+                    #. venv/bin/activate
+                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
+                    PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
+                """
+            }
+
+            post {
+                always {
+                    publishHTML target: [
+                        reportDir: 'docs/*',
+                        reportFiles: 'index.html',
+                        reportName: 'Module Documentation'
+                    ]
+                }
+            }
+        }
 
         stage ('Cleanup') {
             steps {
