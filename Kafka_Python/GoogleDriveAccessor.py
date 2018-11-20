@@ -15,10 +15,12 @@ from multiprocessing import Lock
 
 SCOPES = 'https://www.googleapis.com/auth/drive'
 
+
 class FileState(Enum):
     NOT_STARTED = 1
     DOWNLOADING = 2
     DOWNLOADED = 3
+
 
 class SetActions(Enum):
     START_DOWNLOADING = 1
@@ -27,7 +29,8 @@ class SetActions(Enum):
 
 
 class GoogleDriveAccessor(DataGenerator):
-    def __init__(self, folder_id=None, output_folder="data", file_name=None, file_type="CSV"):
+    def __init__(self, folder_id=None, output_folder="data",
+                 file_name=None, file_type="CSV"):
         self.__folder_ID = folder_id
         self.__output_folder = self.__process_path(path=output_folder)
         self.__service = None
@@ -54,7 +57,7 @@ class GoogleDriveAccessor(DataGenerator):
 
     def __get_files_in_folder(self, folder):
         results = self.__service.files().list(
-            q=' "'+folder+'" in parents',fields="files(*)").execute()
+            q=' "'+folder+'" in parents', fields="files(*)").execute()
         return(results.get('files', []))
 
     def __download_items(self, items):
@@ -122,7 +125,7 @@ class GoogleDriveAccessor(DataGenerator):
         while set_action in [SetActions.WAIT_FOR_DOWNLOAD, None]:
             with self.__lock:
                 set_action = {
-                    FileState.DOWNLOADED : SetActions.START_PROCESSING,
+                    FileState.DOWNLOADED: SetActions.START_PROCESSING,
                     FileState.DOWNLOADING: SetActions.WAIT_FOR_DOWNLOAD,
                     FileState.NOT_STARTED: SetActions.START_DOWNLOADING
                     }[self.__get_downloading_state()]
@@ -148,7 +151,7 @@ class GoogleDriveAccessor(DataGenerator):
     #                           }
     # }
     def run(self, args=None):
-        if not self.__data_loader == None:
+        if self.__data_loader is not None:
             return self.__process_data(args["Data Loader Config"])
 
         self.__process_args(args=args)

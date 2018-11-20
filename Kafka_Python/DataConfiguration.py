@@ -15,7 +15,7 @@ configuration = {
         "Data": CSVReader(),
         "Data Args": {
             'File': 'out/prices.csv',
-            'Format' : 'CSV',
+            'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
         },
@@ -24,7 +24,7 @@ configuration = {
         "Load data first": True,
         "Number of Processes": 11,
         "Number of Data Generation Processes": 1,
-        "Time Interval" : 1.0      
+        "Time Interval": 1.0      
     },
     "positions": {
         "Counter": {
@@ -37,7 +37,7 @@ configuration = {
         "Data": CSVReader(),
         "Data Args": {
             'File': 'out/positions.csv',
-            'Format' : 'CSV',
+            'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
         },
@@ -59,7 +59,7 @@ configuration = {
         "Data": CSVReader(),
         "Data Args": {
             'File': 'out/inst-ref.csv',
-            'Format' : 'CSV',
+            'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
         },

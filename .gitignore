@@ -15,3 +15,10 @@ SimpleConsumer
 out/*
 credentials.json
 token.json
+.mypy_cache
+data/*
+Kafka_Python/out/*
+Kafka_Python/data/*
+.coverage
+report/*
+docs/*
