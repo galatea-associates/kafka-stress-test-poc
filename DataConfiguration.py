@@ -5,8 +5,8 @@ from ReadFromFile import ReadFromFile
 configuration = {
     "prices": {
         "Counter": {
-            "Initial Value" : 0,
-            "Limit Value" : 40000
+            "Initial Value": 0,
+            "Limit Value": 40000
         },
         "Avro Schema - Keys": "prices-keys.avsc",
         "Avro Schema - Values": "prices-values.avsc",

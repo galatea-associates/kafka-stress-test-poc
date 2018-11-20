@@ -5,6 +5,7 @@ import datetime
 # TODO: merge sedol and cusip dictionaries
 # TODO: check inst_id is unique
 
+
 class DataGenerator:
 
     def __init__(self):
