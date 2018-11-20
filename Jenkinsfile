@@ -104,7 +104,7 @@ pipeline {
                 sh """
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
+                    PYTHONPATH=. pdoc --html --html-dir docs --overwrite ${env.projectName}
                 """
             }
 
