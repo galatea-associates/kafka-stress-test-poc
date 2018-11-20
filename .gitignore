@@ -21,3 +21,4 @@ Kafka_Python/out/*
 Kafka_Python/data/*
 .coverage
 report/*
+docs/*

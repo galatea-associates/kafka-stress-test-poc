@@ -111,7 +111,7 @@ pipeline {
             post {
                 always {
                     publishHTML target: [
-                        reportDir: 'docs/*',
+                        reportDir: 'docs/Kafka_Python',
                         reportFiles: 'index.html',
                         reportName: 'Module Documentation'
                     ]
