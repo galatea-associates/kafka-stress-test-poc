@@ -1,5 +1,6 @@
 import abc
 
+
 class Runnable(abc.ABC):
 
     @abc.abstractmethod
