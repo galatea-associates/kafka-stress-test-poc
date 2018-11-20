@@ -7,7 +7,7 @@ from DataGenerator import DataGenerator
 
 ddc = DataGenerator()
 data_template = {
-    'inst-ref': {
+    'inst_ref': {
         'inst_id': {'func': ddc.generate_new_inst_id, 'args': ['asset_class']},
         'ric': {'func': ddc.generate_ric, 'args': ['ticker', 'asset_class']},
         'isin': {'func': ddc.generate_isin, 'args': ['coi', 'cusip', 'asset_class']},
@@ -24,7 +24,7 @@ data_template = {
     },
     'front_office_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
-        'type': {'func': ddc.generate_type},
+        'position_type': {'func': ddc.generate_position_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': partial(ddc.generate_effective_date, n_days_to_add=3), 'args': ['knowledge_date']},
         'account': {'func': ddc.generate_account},
@@ -34,7 +34,7 @@ data_template = {
     },
     'depot_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
-        'type': {'func': ddc.generate_type},
+        'position_type': {'func': ddc.generate_position_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': ddc.generate_effective_date, 'args': ['knowledge_date']},
         'account': {'func': ddc.generate_account},
@@ -66,17 +66,25 @@ data_template = {
         'account': {'func': ddc.generate_account},
         'is_callable': {'func': ddc.generate_is_callable}
     },
-    'swap trade': {
+    'swap_contract': {
+        'swap_contract_id': {'func': ddc.generate_new_swap_contract_id},
+        'status': {'func': ddc.generate_status},
+        'start_date': {'func': ddc.generate_swap_start_date},
+        'end_date': {'func': ddc.generate_swap_end_date, 'args': ['status', 'start_date']},
+        'swap_type': {'func': ddc.generate_swap_type},
+        'reference_rate': {'func': ddc.generate_reference_rate}
+    },
+    'swap_trade': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
-        'contract_id': {'func': ddc.generate_contract_id},
-        'type': {'func': ddc.generate_type},
+        'swap_contract_id': {'func': ddc.generate_swap_contract_id},
+        'position_type': {'func': ddc.generate_position_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': partial(ddc.generate_effective_date, n_days_to_add=3), 'args': ['knowledge_date']},
         'account': {'func': ddc.generate_account},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='ST')},
-    }
+    },
 }
 
 class DictRunnable(Runnable):
@@ -97,7 +105,7 @@ class DictRunnable(Runnable):
         if not os.path.exists('out'):
             os.makedirs('out')
         if args.inst_refs > 0:
-            self.__create_data_file('out/inst-refs.csv', args.inst_refs, 'inst-ref')
+            self.__create_data_file('out/inst-refs.csv', args.inst_refs, 'inst_ref')
         if args.prices > 0:
             self.__create_data_file('out/prices.csv', args.prices, 'price')
         if args.front_office_positions > 0:
@@ -106,6 +114,12 @@ class DictRunnable(Runnable):
             self.__create_data_file('out/depot_positions.csv', args.depot_positions, 'depot_position')
         if args.order_executions > 0:
             self.__create_data_file('out/order_executions.csv', args.order_executions, 'order_execution')
+        if args.stock_loans > 0:
+            self.__create_data_file('out/stock_loans.csv', args.stock_loans, 'stock_loan')
+        if args.swap_contracts > 0:
+            self.__create_data_file('out/swap_contracts.csv', args.swap_contracts, 'swap_contract')
+        if args.swap_trades > 0:
+            self.__create_data_file('out/swap_trades.csv', args.swap_trades, 'swap_trade')
 
     # file_name corresponds to the name of the CSV file the function will write to
     # n is the number of data entities to write to the CSV file
@@ -151,6 +165,9 @@ def get_args():
     parser.add_argument('--inst-refs', nargs='?', type=int, default=0)
     parser.add_argument('--depot-positions', nargs='?', type=int, default=0)
     parser.add_argument('--order-executions', nargs='?', type=int, default=0)
+    parser.add_argument('--stock-loans', nargs='?', type=int, default=0)
+    parser.add_argument('--swap-trades', nargs='?', type=int, default=0)
+    parser.add_argument('--swap-contracts', nargs='?', type=int, default=0)
     return parser.parse_args()
 
 if __name__ == '__main__':

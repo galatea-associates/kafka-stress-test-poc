@@ -8,6 +8,7 @@ import datetime
 class DataGenerator:
 
     def __init__(self):
+        self.__swap_contract_ids = []
         self.__stock_inst_ids = {}
         self.__cash_inst_ids = {}
         self.__stock_to_cusip = {}
@@ -154,7 +155,7 @@ class DataGenerator:
     def generate_currency(self):
         return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
 
-    def generate_type(self):
+    def generate_position_type(self):
         return random.choice(['SD'])
 
     def generate_knowledge_date(self, from_year=2016, to_year=2017, from_month=1, to_month=12, from_day=1, to_day=28):
@@ -237,5 +238,39 @@ class DataGenerator:
         else:
             return ''
 
-    def generate_contract_id(self, n_digits=8):
-        return ''.join([random.choice(string.digits) for _ in range(n_digits)])
+    def generate_new_swap_contract_id(self, n_digits=8):
+        id = ''.join([random.choice(string.digits) for _ in range(n_digits)])
+        self.__swap_contract_ids.append(id)
+        return id
+
+    # TODO: what happens if __swap_contract_ids is empty?
+    def generate_swap_contract_id(self):
+        return random.choice(self.__swap_contract_ids)
+
+    def generate_status(self):
+        return random.choice(['Live', 'Dead'])
+
+    # TODO: merge knowledge_date with swap_start_date maybe even effective_date and swap_end_date
+    def generate_swap_start_date(self, from_year=2016, to_year=2017, from_month=1, to_month=12, from_day=1, to_day=28):
+        year = random.randint(from_year, to_year)
+        month = random.randint(from_month, to_month)
+        day = random.randint(from_day, to_day)
+        return datetime.datetime(year, month, day).date()
+
+    def generate_swap_end_date(self, n_years_to_add=5, start_date=None, status=None):
+        if status is None:
+            status = self.__get_preemptive_generation('status', self.generate_status())
+
+        if status == 'Live':
+            return ''
+        else:
+            if start_date is None:
+                start_date = self.__get_preemptive_generation('start_date', self.generate_swap_start_date())
+
+            return start_date + datetime.timedelta(days=365*n_years_to_add)
+
+    def generate_swap_type(self):
+        return random.choice(['Equity', 'Portfolio'])
+
+    def generate_reference_rate(self):
+        return random.choice(['LIBOR'])
