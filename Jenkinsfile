@@ -56,7 +56,67 @@ pipeline {
             }
         }
 
-         
+         stage ('Unit Tests') {
+            steps {
+                sh """
+                    #. venv/bin/activate
+                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
+                    make unittest || true
+                """
+            }
+
+            post {
+                always {
+                    junit keepLongStdio: true, testResults: 'report/pytest.xml'
+                    publishHTML target: [
+                        reportDir: 'report/coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report - Unit Test'
+                    ]
+                }
+            }
+        }
+
+        stage ('System Tests') {
+            steps {
+                sh """
+                    #. venv/bin/activate
+                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
+                    make systest || true
+                """
+            }
+
+            post {
+                always {
+                    junit keepLongStdio: true, testResults: 'report/pytest.xml'
+                    publishHTML target: [
+                        reportDir: 'report/coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report - System Test'
+                    ]
+                }
+            }
+        }
+
+        stage ('Docs') {
+            steps {
+                sh """
+                    #. venv/bin/activate
+                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
+                    PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
+                """
+            }
+
+            post {
+                always {
+                    publishHTML target: [
+                        reportDir: 'docs/*',
+                        reportFiles: 'index.html',
+                        reportName: 'Module Documentation'
+                    ]
+                }
+            }
+        }
 
         stage ('Cleanup') {
             steps {
