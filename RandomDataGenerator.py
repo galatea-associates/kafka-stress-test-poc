@@ -72,7 +72,9 @@ class RandomRunnable(Runnable):
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
         # Possible currencies
         currencies = ['USD', 'CAD', 'EUR', 'GBP']
-        return {'inst_id': inst_id, 'price': price, 'curr': random.choice(currencies)}
+        return {'inst_id': inst_id,
+                'price': price,
+                'curr': random.choice(currencies)}
 
     def __generate_position_entity(self):
         # Possible types of a position
@@ -107,7 +109,9 @@ class RandomRunnable(Runnable):
         asset_classes = ['Stock', 'Bond', 'Cash']
         # Possible countries
         countries = ['USA', 'UK', 'Canada', 'France', 'Germany', 'Switzerland', 'Singapore', 'Japan']
-        return {'inst_id': inst_id, 'asset_class': random.choice(asset_classes), 'COI': random.choice(countries)}
+        return {'inst_id': inst_id,
+                'asset_class': random.choice(asset_classes),
+                'COI': random.choice(countries)}
 
     # Random date generator
     def __generate_date(self):
