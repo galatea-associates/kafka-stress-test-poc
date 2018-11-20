@@ -61,7 +61,7 @@ pipeline {
                 sh """
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make unittest | tee report/pytest.xml  || true
+                    make unittest || true
                 """
             }
 
