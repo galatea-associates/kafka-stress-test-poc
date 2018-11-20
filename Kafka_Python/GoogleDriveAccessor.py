@@ -1,4 +1,4 @@
-from Runnable import Runnable
+from Kafka_Python.Runnable import Runnable
 
 from googleapiclient.http import MediaIoBaseDownload
 from googleapiclient.discovery import build
@@ -8,17 +8,18 @@ from CSVReader import CSVReader
 
 import io
 import os
-import time
 import argparse
 from enum import Enum
 from multiprocessing import Lock
 
 SCOPES = 'https://www.googleapis.com/auth/drive'
 
+
 class FileState(Enum):
     NOT_STARTED = 1
     DOWNLOADING = 2
     DOWNLOADED = 3
+
 
 class SetActions(Enum):
     START_DOWNLOADING = 1
@@ -27,7 +28,8 @@ class SetActions(Enum):
 
 
 class GoogleDriveAccessor(Runnable):
-    def __init__(self, folder_id=None, output_folder="data", file_name=None, file_type="CSV"):
+    def __init__(self, folder_id=None, output_folder="data",
+                 file_name=None, file_type="CSV"):
         self.__folder_ID = folder_id
         self.__output_folder = self.__process_path(path=output_folder)
         self.__service = None
@@ -44,7 +46,6 @@ class GoogleDriveAccessor(Runnable):
             return FileState.NOT_STARTED
 
     def __auth_gdrive(self):
-
         store = file.Storage('token.json')
         creds = store.get()
         if not creds or creds.invalid:
@@ -54,8 +55,8 @@ class GoogleDriveAccessor(Runnable):
 
     def __get_files_in_folder(self, folder):
         results = self.__service.files().list(
-            q=' "'+folder+'" in parents',fields="files(*)").execute()
-        return(results.get('files', []))
+            q=' "'+folder+'" in parents', fields="files(*)").execute()
+        return results.get('files', [])
 
     def __download_items(self, items):
         if not items:
@@ -122,7 +123,7 @@ class GoogleDriveAccessor(Runnable):
         while set_action in [SetActions.WAIT_FOR_DOWNLOAD, None]:
             with self.__lock:
                 set_action = {
-                    FileState.DOWNLOADED : SetActions.START_PROCESSING,
+                    FileState.DOWNLOADED: SetActions.START_PROCESSING,
                     FileState.DOWNLOADING: SetActions.WAIT_FOR_DOWNLOAD,
                     FileState.NOT_STARTED: SetActions.START_DOWNLOADING
                     }[self.__get_downloading_state()]
@@ -148,7 +149,7 @@ class GoogleDriveAccessor(Runnable):
     #                           }
     # }
     def run(self, args=None):
-        if not self.__data_loader == None:
+        if self.__data_loader is not None:
             return self.__process_data(args["Data Loader Config"])
 
         self.__process_args(args=args)
@@ -165,13 +166,23 @@ class GoogleDriveAccessor(Runnable):
 
         return self.__process_data(args["Data Loader Config"])
 
+
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--folder_id', type=str, required=True, help="The ID of the folder where the file is located on google drive.")
-    parser.add_argument('--output_folder', type=str, default="data", help="The folder where the data will be downloaded to")
-    parser.add_argument('--file_name', type=str, help="The name of the file to download")
-    parser.add_argument('--file_type', type=str, default="CSV", help="The type of the file, eg CSV")
+    parser.add_argument(
+        '--folder_id', type=str, required=True,
+        help="The ID of the folder where the file is located on google drive.")
+    parser.add_argument(
+        '--output_folder', type=str, default="data",
+        help="The folder where the data will be downloaded to")
+    parser.add_argument(
+        '--file_name', type=str,
+        help="The name of the file to download")
+    parser.add_argument(
+        '--file_type', type=str, default="CSV",
+        help="The type of the file, eg CSV")
     return parser.parse_args()
+
 
 def format_args(output_dir, folder_id, file_name, file_type):
     return {
@@ -187,11 +198,11 @@ def format_args(output_dir, folder_id, file_name, file_type):
                                 }
     }
 
+
 if __name__ == "__main__":
-    args=get_args()
+    args = get_args()
     formatted_args = format_args(output_dir=args.output_folder,
                                  folder_id=args.folder_id,
                                  file_name=args.file_name,
                                  file_type=args.file_type)
     print(GoogleDriveAccessor().run(args=formatted_args))
-    

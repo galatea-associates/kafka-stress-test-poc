@@ -1,6 +1,8 @@
-from ReadFromFile import ReadFromFile
-# This file will contrain the core configuration for running the consumer and producer.
-# It will also contain the functions needed to generate data for the different topics.
+from CSVReader import CSVReader
+
+# This file will contrain the core configuration for running the consumer and
+# producer. It will also contain the functions needed to generate data for the
+# different topics.
 
 configuration = {
     "prices": {
@@ -11,7 +13,7 @@ configuration = {
         "Avro Schema - Keys": "prices-keys.avsc",
         "Avro Schema - Values": "prices-values.avsc",
         "Serializer": "Avro",
-        "Data": ReadFromFile(),
+        "Data": CSVReader(),
         "Data Args": {
             'File': 'out/prices.csv',
             'Format': 'CSV',
@@ -33,7 +35,7 @@ configuration = {
         "Avro Schema - Keys": "positions-keys.avsc",
         "Avro Schema - Values": "positions-values.avsc",
         "Serializer": "Avro",
-        "Data": ReadFromFile(),
+        "Data": CSVReader(),
         "Data Args": {
             'File': 'out/positions.csv',
             'Format': 'CSV',
@@ -56,7 +58,7 @@ configuration = {
         "Avro Schema - Keys": "instrument_reference_data-keys.avsc",
         "Avro Schema - Values": "instrument_reference_data-values.avsc",
         "Serializer": "Avro",
-        "Data": ReadFromFile(),
+        "Data": CSVReader(),
         "Data Args": {
             'File': 'out/inst-ref.csv',
             'Format': 'CSV',

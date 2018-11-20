@@ -4,7 +4,7 @@ import datetime
 import argparse
 import csv
 import os
-from Runnable import Runnable
+from Kafka_Python.Runnable import Runnable
 
 
 class RandomRunnable(Runnable):

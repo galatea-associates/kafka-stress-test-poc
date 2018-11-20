@@ -2,7 +2,7 @@ import argparse
 import csv
 import os
 from functools import partial
-from Runnable import Runnable
+from Kafka_Python.Runnable import Runnable
 from DataGenerator import DataGenerator
 
 ddc = DataGenerator()

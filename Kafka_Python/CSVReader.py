@@ -1,10 +1,8 @@
-import os
 from builtins import StopIteration
 
 import pandas as pd
-from Runnable import Runnable
+from Kafka_Python.Runnable import Runnable
 
-import csv
 from multiprocessing import Lock
 
 
