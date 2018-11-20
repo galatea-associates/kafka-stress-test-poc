@@ -1,18 +1,18 @@
 from RandomDataGenerator import RandomDataGenerator
-from ReadFromFile import ReadFromFile
+from CSVReader import CSVReader
 # This file will contrain the core configuration for running the consumer and producer.
 # It will also contain the functions needed to generate data for the different topics.
 
 configuration = {
     "prices": {
         "Counter": {
-            "init_val": 0,
-            "limit_val": 40000
+            "Initial Value" : 0,
+            "Limit Value" : 40000
         },
         "Avro Schema - Keys": "prices-keys.avsc",
         "Avro Schema - Values": "prices-values.avsc",
         "Serializer": "Avro",
-        "Data": ReadFromFile(),
+        "Data": CSVReader(),
         "Data Args": {
             'File': 'out/prices.csv',
             'Format' : 'CSV',
@@ -28,13 +28,13 @@ configuration = {
     },
     "positions": {
         "Counter": {
-            "init_val": 0,
-            "limit_val": 20000
+            "Initial Value" : 0,
+            "Limit Value" : 20000
         },
         "Avro Schema - Keys": "positions-keys.avsc",
         "Avro Schema - Values": "positions-values.avsc",
         "Serializer": "Avro",
-        "Data": ReadFromFile(),
+        "Data": CSVReader(),
         "Data Args": {
             'File': 'out/positions.csv',
             'Format' : 'CSV',
@@ -42,7 +42,7 @@ configuration = {
             'Loop on end': True
         },
         "Data Queue Max Size": 20,
-        "Keys": ["type", "knowledge_date", "effective_date", "account", "instrument"],
+        "Keys": ["type", "knowledge_date", "effective_date", "account", "inst_id", "purpose"],
         "Load data first": True,
         "Number of Processes": 4,
         "Number of Data Generation Processes": 1,
@@ -50,13 +50,13 @@ configuration = {
     },
     "instrument_reference_data": {
         "Counter": {
-            "init_val": 0,
-            "limit_val": 100
+            "Initial Value" : 0,
+            "Limit Value" : 100
         },
         "Avro Schema - Keys": "instrument_reference_data-keys.avsc",
         "Avro Schema - Values": "instrument_reference_data-values.avsc",
         "Serializer": "Avro",
-        "Data": ReadFromFile(),
+        "Data": CSVReader(),
         "Data Args": {
             'File': 'out/inst-ref.csv',
             'Format' : 'CSV',
