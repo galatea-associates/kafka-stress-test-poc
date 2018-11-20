@@ -17,5 +17,6 @@ credentials.json
 token.json
 .mypy_cache
 data/*
-Kafka-Python/out/*
-Kafka-Python/data/*
+Kafka_Python/out/*
+Kafka_Python/data/*
+.coverage
