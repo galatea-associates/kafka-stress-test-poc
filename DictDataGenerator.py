@@ -15,7 +15,8 @@ data_template = {
         'sedol': {'func': ddc.generate_sedol,
                   'args': ['ticker', 'asset_class']},
         'ticker': {'func': ddc.generate_ticker, 'args': ['asset_class']},
-        'cusip': {'func': ddc.generate_cusip, 'args': ['ticker', 'asset_class']},
+        'cusip': {'func': ddc.generate_cusip,
+                  'args': ['ticker', 'asset_class']},
         'asset_class': {'func': ddc.generate_asset_class},
         'coi': {'func': ddc.generate_coi}
     },
@@ -50,7 +51,8 @@ data_template = {
     },
     'order_execution': {
         'order_id': {'func': ddc.generate_order_id, 'args': ['asset_class']},
-        'customer_id': {'func': ddc.generate_customer_id, 'args': ['asset_class']},
+        'customer_id': {'func': ddc.generate_customer_id,
+                        'args': ['asset_class']},
         'direction': {'func': ddc.generate_direction},
         'sto_id': {'func': ddc.generate_sto_id, 'args': ['asset_class']},
         'agent_id': {'func': ddc.generate_agent_id, 'args': ['asset_class']},
