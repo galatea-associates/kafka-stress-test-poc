@@ -1,6 +1,6 @@
 #!/usr/bin/make
 
-NAME = "Kafka-Python"
+NAME="Kafka-Python"
 
 
 PYTHON=python
