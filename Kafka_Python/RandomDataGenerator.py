@@ -3,17 +3,39 @@ import string
 import datetime
 import argparse
 import csv
+import os
+from DataGenerator import DataGenerator
 
-class DataGenerator:
+class RandomDataGenerator(DataGenerator):
 
-    def run(self):
-        args = self.__get_args()
+    # In DataConfiguration.py, 'Data Args' field should look like:
+    # {'Type': 'position'}
+    def run(self, args):
+        type = args["Type"]
+        if type == 'price':
+            return self.__generate_price_entity()
+        elif type == 'position':
+            return self.__generate_position_entity()
+        elif type == 'inst-ref':
+            return self.__generate_inst_ref_entity()
+
+    @staticmethod
+    def main():
+        rdm_data_generator = RandomDataGenerator()
+        args = rdm_data_generator.__get_args()
+        rdm_data_generator.__generate_data_files(args)
+
+    def __generate_data_files(self, args):
+        # Create out directory if it does not yet exist
+        if not os.path.exists('out'):
+            os.makedirs('out')
+
         if args.prices > 0:
-            self.create_data_file('out/prices.csv', args.prices, self.generate_price_entity)
+            self.__create_data_file('out/prices.csv', args.prices, self.__generate_price_entity)
         if args.positions > 0:
-            self.create_data_file('out/positions.csv', args.positions, self.generate_position_entity)
+            self.__create_data_file('out/positions.csv', args.positions, self.__generate_position_entity)
         if args.inst_ref > 0:
-            self.create_data_file('out/inst-ref.csv', args.inst_ref, self.generate_inst_ref_entity)
+            self.__create_data_file('out/inst-ref.csv', args.inst_ref, self.__generate_inst_ref_entity)
 
     def __get_args(self):
         parser = argparse.ArgumentParser()
@@ -25,7 +47,7 @@ class DataGenerator:
     # file_name corresponds to the name of the CSV file the function will write to
     # n is the number of data entities to write to the CSV file
     # data_generator is the function reference that generates the data entity of interest
-    def create_data_file(self, file_name, n, data_generator):
+    def __create_data_file(self, file_name, n, data_generator):
         # w+ means create file first if it does not already exist
         with open(file_name, mode='w+', newline='') as file:
             entity = data_generator()
@@ -38,7 +60,7 @@ class DataGenerator:
                 entity = data_generator()
                 writer.writerow(entity)
 
-    def generate_price_entity(self):
+    def __generate_price_entity(self):
         min = 100
         max = 1000000
         num_decimal_points = 2
@@ -49,7 +71,7 @@ class DataGenerator:
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
         return {'inst_id': inst_id, 'price': price}
 
-    def generate_position_entity(self):
+    def __generate_position_entity(self):
         # Possible types of a position
         types = ['SD']
         type = random.choice(types)
@@ -74,7 +96,7 @@ class DataGenerator:
                 'direction': random.choice(directions),
                 'qty': qty}
 
-    def generate_inst_ref_entity(self):
+    def __generate_inst_ref_entity(self):
         bank_id = "ABC"
         # Generate random inst id with the prefix of the bank (ABC) and a random string composed of numbers and letters
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
@@ -91,5 +113,5 @@ class DataGenerator:
         day = random.randint(1, 28)
         return datetime.datetime(year, month, day).date()
 
-
-DataGenerator().run()
+if __name__ == '__main__':
+    RandomDataGenerator.main()

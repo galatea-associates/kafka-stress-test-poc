@@ -3,7 +3,6 @@
     "type": "record",
     "name": "instrument_reference_data",
     "fields": [
-        {"name": "inst_id", "type": "string"},
         {"name": "asset_class", "type": "string"},
         {"name": "COI", "type": "string"}
     ]

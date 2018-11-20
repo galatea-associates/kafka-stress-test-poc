@@ -1,0 +1,8 @@
+{
+    "namespace": "kafka.poc",
+    "type": "record",
+    "name": "prices",
+    "fields": [
+        {"name": "inst_id", "type": "string"}
+    ]
+}
