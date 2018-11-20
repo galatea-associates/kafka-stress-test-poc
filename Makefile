@@ -5,8 +5,8 @@ NAME="Kafka_Python"
 
 PYTHON=python
 COVERAGE=coverage
-REPORT_DIR="report/pytest.xml"
-PYTEST_OPTS = --cov=$(NAME) --junitxml $(REPORT_DIR) --cov-report annotate:$(REPORT_DIR)/coverage
+REPORT_DIR="report"
+PYTEST_OPTS = --cov=$(NAME) --junitxml $(REPORT_DIR)/pytest.xml --cov-report annotate:$(REPORT_DIR)/coverage
 
 FLAKE8_IGNORE = E302,E203,E261
 
