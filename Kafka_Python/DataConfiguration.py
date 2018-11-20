@@ -6,8 +6,8 @@ from CSVReader import CSVReader
 configuration = {
     "prices": {
         "Counter": {
-            "Initial Value" : 0,
-            "Limit Value" : 40000
+            "Initial Value": 0,
+            "Limit Value": 40000
         },
         "Avro Schema - Keys": "prices-keys.avsc",
         "Avro Schema - Values": "prices-values.avsc",
@@ -28,8 +28,8 @@ configuration = {
     },
     "positions": {
         "Counter": {
-            "Initial Value" : 0,
-            "Limit Value" : 20000
+            "Initial Value": 0,
+            "Limit Value": 20000
         },
         "Avro Schema - Keys": "positions-keys.avsc",
         "Avro Schema - Values": "positions-values.avsc",
@@ -50,8 +50,8 @@ configuration = {
     },
     "instrument_reference_data": {
         "Counter": {
-            "Initial Value" : 0,
-            "Limit Value" : 100
+            "Initial Value": 0,
+            "Limit Value": 100
         },
         "Avro Schema - Keys": "instrument_reference_data-keys.avsc",
         "Avro Schema - Values": "instrument_reference_data-values.avsc",
