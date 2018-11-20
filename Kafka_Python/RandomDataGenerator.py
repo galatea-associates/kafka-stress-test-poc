@@ -37,7 +37,8 @@ class RandomDataGenerator(DataGenerator):
         if args.inst_ref > 0:
             self.__create_data_file('out/inst-ref.csv', args.inst_ref, self.__generate_inst_ref_entity)
 
-    def __get_args(self):
+    @staticmethod
+    def __get_args():
         parser = argparse.ArgumentParser()
         parser.add_argument('--prices', nargs='?', type=int, default=0)
         parser.add_argument('--positions', nargs='?', type=int, default=0)
@@ -69,7 +70,9 @@ class RandomDataGenerator(DataGenerator):
         bank_id = "ABC"
         # Generate random inst id with the prefix of the bank (ABC) and a random string composed of numbers and letters
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
-        return {'inst_id': inst_id, 'price': price}
+        # Possible currencies
+        currencies = ['USD', 'CAD', 'EUR', 'GBP']
+        return {'inst_id': inst_id, 'price': price, 'curr': random.choice(currencies)}
 
     def __generate_position_entity(self):
         # Possible types of a position
@@ -101,10 +104,10 @@ class RandomDataGenerator(DataGenerator):
         # Generate random inst id with the prefix of the bank (ABC) and a random string composed of numbers and letters
         inst_id = bank_id + ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(5)])
         # Possible instruments
-        instruments = ['Stock', 'Bond', 'Cash']
+        asset_classes = ['Stock', 'Bond', 'Cash']
         # Possible countries
         countries = ['USA', 'UK', 'Canada', 'France', 'Germany', 'Switzerland', 'Singapore', 'Japan']
-        return {'inst_id': inst_id, 'asset_class': random.choice(instruments), 'COI': random.choice(countries)}
+        return {'inst_id': inst_id, 'asset_class': random.choice(asset_classes), 'COI': random.choice(countries)}
 
     # Random date generator
     def __generate_date(self):

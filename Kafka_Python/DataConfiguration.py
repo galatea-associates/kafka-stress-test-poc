@@ -42,7 +42,7 @@ configuration = {
             'Loop on end': True
         },
         "Data Queue Max Size": 20,
-        "Keys": ["type", "knowledge_date", "effective_date", "account", "instrument"],
+        "Keys": ["type", "knowledge_date", "effective_date", "account", "inst_id", "purpose"],
         "Load data first": True,
         "Number of Processes": 4,
         "Number of Data Generation Processes": 1,

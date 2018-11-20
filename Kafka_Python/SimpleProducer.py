@@ -229,7 +229,6 @@ def process_data_config(config, server_args):
         producer_counters = Producer(init_val=config[topic]["Counter"]["Initial Value"],
                                      limit_val=config[topic]["Counter"]["Limit Value"],
                                      ready_start_prod=(not config[topic]['Load data first']))
-
         producer_list.append(producer_counters)
 
         procs = start_sending(server_args=server_args, 
