@@ -98,7 +98,25 @@ pipeline {
             }
         }
 
-        
+         stage ('Docs') {
+            steps {
+                sh """
+                    #. venv/bin/activate
+                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
+                    pdoc --html --html-dir docs --overwrite ./KafkaPython
+                """
+            }
+
+            post {
+                always {
+                    publishHTML target: [
+                        reportDir: 'docs/*',
+                        reportFiles: 'index.html',
+                        reportName: 'Module Documentation'
+                    ]
+                }
+            }
+        } 
 
         stage ('Cleanup') {
             steps {
