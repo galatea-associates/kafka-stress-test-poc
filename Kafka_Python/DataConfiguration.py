@@ -1,7 +1,8 @@
-from RandomDataGenerator import RandomDataGenerator
 from CSVReader import CSVReader
-# This file will contrain the core configuration for running the consumer and producer.
-# It will also contain the functions needed to generate data for the different topics.
+
+# This file will contrain the core configuration for running the consumer and
+# producer. It will also contain the functions needed to generate data for the
+# different topics.
 
 configuration = {
     "prices": {
@@ -24,7 +25,7 @@ configuration = {
         "Load data first": True,
         "Number of Processes": 11,
         "Number of Data Generation Processes": 1,
-        "Time Interval": 1.0      
+        "Time Interval": 1.0
     },
     "positions": {
         "Counter": {
@@ -42,7 +43,8 @@ configuration = {
             'Loop on end': True
         },
         "Data Queue Max Size": 20,
-        "Keys": ["type", "knowledge_date", "effective_date", "account", "inst_id", "purpose"],
+        "Keys": ["type", "knowledge_date", "effective_date", "account",
+                 "instrument"],
         "Load data first": True,
         "Number of Processes": 4,
         "Number of Data Generation Processes": 1,

@@ -10,7 +10,7 @@ import io
 import json
 from Counter import Counter
 from DataConfiguration import configuration
-from DataGenerator import DataGenerator
+from Kafka_Python.Runnable import Runnable
 from argparse import ArgumentParser
 from multiprocessing import Manager, Process, Queue, Value
 
@@ -42,9 +42,9 @@ def serialize_val(val, serializer, schema=None):
 
 def process_val(val, args=None):
     if callable(val):
-        return_val = process_val(val())
-    elif isinstance(val, DataGenerator):
-        return_val = process_val(val.run(args))
+        return process_val(val())
+    elif isinstance(val, Runnable):
+        return process_val(val.run(args))
     else:
         return_val = val
     return return_val
@@ -70,16 +70,14 @@ def send(server_args, producer_counters, topic, shared_data_queue,
             val = shared_data_queue.get()
             if val is None:
                 break
-            producer.send(topic,
-                          value=serialize_val(val["value"],
-                                              serializer,
-                                              schema_values),
-                          key=serialize_val(val["key"],
-                                            serializer,
-                                            schema_keys)
-                          ).add_callback(on_send_success,
-                                         producer_counters).add_errback(on_send_error,
-                                                                        producer_counters)
+            producer.send(
+                topic,
+                value=serialize_val(val["value"], serializer, schema_values),
+                key=serialize_val(val["key"], serializer, schema_keys)
+            ).add_callback(
+                on_send_success,
+                producer_counters
+            ).add_errback(on_send_error, producer_counters)
 
 
 def on_send_success(producer_counters, _):
