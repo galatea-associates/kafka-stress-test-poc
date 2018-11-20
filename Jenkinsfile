@@ -9,6 +9,7 @@ pipeline {
             logRotator(numToKeepStr:'10'))
     }
     environment {
+        projectName = 'Kafka_Python'
         VIRTUAL_ENV = "${env.WORKSPACE}/venv"
     }
     stages {
@@ -103,7 +104,7 @@ pipeline {
                 sh """
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    pdoc --html --html-dir docs --overwrite ./KafkaPython
+                    PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
                 """
             }
 
