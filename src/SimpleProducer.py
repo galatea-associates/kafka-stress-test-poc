@@ -28,26 +28,21 @@ class Producer():
         self.end_topic = multiprocessing.Value('i', False)
 
 class Thread_Safe_Queue():
-    def __init__(self, manager=None):
-        self.__data = manager.list() 
-        self.__data_len = multiprocessing.Value('i', 0)
+    def __init__(self):
+        self.__data = multiprocessing.Queue() 
         self.__lock = multiprocessing.Lock()
 
     def qsize(self):
         with self.__lock:
-            return self.__data_len.value
+            return self.__data.qsize()
 
     def put(self, data):
         with self.__lock:
-            self.__data.append(data)
-            self.__data_len.value += 1
+            self.__data.put(data)
 
     def get_nowait(self):
         with self.__lock:
-            if self.__data_len.value == 0:
-                raise queue.Empty
-            self.__data_len.value -= 1
-            return self.__data.pop(0)
+            return self.__data.get_nowait()
 
 
 
@@ -184,7 +179,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                   data_args=None, keys=None):
     shared_dict[topic] = manager.list() 
     #shared_data_queue = multiprocessing.Queue()
-    shared_data_queue = Thread_Safe_Queue(manager=manager)
+    shared_data_queue = Thread_Safe_Queue()
 
     procs = []
 
