@@ -18,11 +18,11 @@ configuration = {
             'Chunk Size': 10,
             'Loop on end': True
         },
-        "Data Queue Max Size": 40,
+        "Data Queue Max Size": 40000,
         "Keys": ["inst_id"],
         "Load data first": True,
-        "Number of Processes": 11,
-        "Number of Data Generation Processes": 1,
+        "Number of Processes": 2,
+        "Number of Data Generation Processes": 2,
         "Time Interval": 1.0      
     },
     "positions": {
@@ -40,11 +40,11 @@ configuration = {
             'Chunk Size': 10,
             'Loop on end': True
         },
-        "Data Queue Max Size": 20,
+        "Data Queue Max Size": 20000,
         "Keys": ["type", "knowledge_date", "effective_date", "account", "inst_id", "purpose"],
         "Load data first": True,
-        "Number of Processes": 4,
-        "Number of Data Generation Processes": 1,
+        "Number of Processes": 2,
+        "Number of Data Generation Processes": 2,
         "Time Interval": 1.0
     },
     "instrument_reference_data": {
@@ -62,7 +62,7 @@ configuration = {
             'Chunk Size': 10,
             'Loop on end': True
         },
-        "Data Queue Max Size": 5,
+        "Data Queue Max Size": 200,
         "Keys": ["inst_id"],
         "Load data first": True,
         "Number of Processes": 1,

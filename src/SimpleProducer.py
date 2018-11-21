@@ -27,6 +27,29 @@ class Producer():
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
         self.end_topic = multiprocessing.Value('i', False)
 
+class Thread_Safe_Queue():
+    def __init__(self):
+        self.__data = (multiprocessing.Manager()).list() 
+        self.__data_len = multiprocessing.Value('i', 0)
+        self.__lock = multiprocessing.Lock()
+
+    def qsize(self):
+        with self.__lock:
+            return self.__data_len.value
+
+    def put(self, data):
+        with self.__lock:
+            self.__data.append(data)
+            self.__data_len.value += 1
+
+    def get_nowait(self):
+        with self.__lock:
+            if self.__data_len.value == 0:
+                raise queue.Empty
+            self.__data_len.value -= 1
+            return self.__data.pop(0)
+
+
 
 def serialize_val(val, serializer, schema=None):
     if serializer == "Avro":
@@ -67,20 +90,20 @@ def send(server_args, producer_counters, topic, shared_data_queue,
         
     while not bool(producer_counters.ready_start_producing.value):
         pass
-    print("Ready start producing")
+    #print(shared_data_queue.qsize())
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             if bool(producer_counters.end_topic.value):
-                print("Ending topic now")
                 return
             try:
                 val = shared_data_queue.get_nowait()
             except queue.Empty:
-                print("Queue is Empty")
+                print(shared_data_queue.qsize())
+                print(str(topic) + " - Queue is Empty")
                 producer_counters.end_topic.value = int(True)
                 return
             if val is None:
-                print("Value is returned as None")
+                print(str(topic) + " - Value is returned as None")
                 producer_counters.end_topic.value = int(True)
                 return
             producer.send(topic,
@@ -106,22 +129,26 @@ def on_send_error(producer_counters, _):
 def reset_every_second(producer_counters, topic, time_interval, shared_dict, shared_data_queue, max_queue_size):
     while ((not bool(producer_counters.ready_start_producing.value)) and 
            (shared_data_queue.qsize() < max_queue_size)):
-        pass
+        time.sleep(1)
     producer_counters.ready_start_producing.value = int(True)
     prev_time = time.time()
+    print(str(topic) + " - Data Ready")
     while True:
         if bool(producer_counters.end_topic.value):
+            print(str(topic) + " - Clock quitting")
             return
-        if time.time() - prev_time >= time_interval:
+        time_now = time.time()
+        if time_now - prev_time >= time_interval: 
             result = {
-                "Sent Counter": int(producer_counters.sent_counter.value()),
-                "Received Counter": int(producer_counters.received_counter.value()),
-                "Error Counter": int(producer_counters.error_counter.value())
+                "Sent Counter": producer_counters.sent_counter.value() / (time_now - prev_time),
+                "Received Counter": producer_counters.received_counter.value() / (time_now - prev_time),
+                "Error Counter": producer_counters.error_counter.value() / (time_now - prev_time)
             }
             producer_counters.received_counter.reset()
             producer_counters.sent_counter.reset()
+            producer_counters.error_counter.reset()
             shared_dict[topic].append(result)
-            prev_time = time.time()
+            prev_time = time_now
 
 
 def split_key_and_value(data, keys=None):
@@ -152,12 +179,12 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
             else:
                 shared_data_queue.put(split_key_and_value(data=data, keys=keys))
 
-
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
                   time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
                   data_args=None, keys=None):
     shared_dict[topic] = manager.list() 
-    shared_data_queue = multiprocessing.Queue()
+    #shared_data_queue = multiprocessing.Queue()
+    shared_data_queue = Thread_Safe_Queue()
 
     procs = []
 
@@ -189,7 +216,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
         p.start()
 
     # Sleep for a second to let the data generators have time to push some data into the queue
-    time.sleep(1.0)
+    time.sleep(5.0)
     procs += producer_procs
     procs.append(timer_proc)
     for p in procs: 
@@ -306,8 +333,9 @@ def run():
     topics_procs, _ = process_data_config(configuration,
                                           server_args)
 
-    atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
+    #atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
     input("Press Enter to exit...")
+    cleanup(config=configuration, topics_procs=topics_procs)
 
 
 if __name__ == '__main__':
