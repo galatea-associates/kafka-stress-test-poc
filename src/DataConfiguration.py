@@ -1,4 +1,3 @@
-from RandomDataGenerator import RandomDataGenerator
 from CSVReader import CSVReader
 # This file will contrain the core configuration for running the consumer and producer.
 # It will also contain the functions needed to generate data for the different topics.
@@ -9,21 +8,21 @@ configuration = {
             "Initial Value": 0,
             "Limit Value": 40000
         },
-        "Avro Schema - Keys": "prices-keys.avsc",
-        "Avro Schema - Values": "prices-values.avsc",
+        "Avro Schema - Keys": "src/prices-keys.avsc",
+        "Avro Schema - Values": "src/prices-values.avsc",
         "Serializer": "Avro",
         "Data": CSVReader(),
         "Data Args": {
-            'File': 'out/prices.csv',
+            'File': 'src/out/prices.csv',
             'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
         },
-        "Data Queue Max Size": 40,
+        "Data Queue Max Size": 40000,
         "Keys": ["inst_id"],
         "Load data first": True,
-        "Number of Processes": 11,
-        "Number of Data Generation Processes": 1,
+        "Number of Processes": 2,
+        "Number of Data Generation Processes": 2,
         "Time Interval": 1.0      
     },
     "positions": {
@@ -31,21 +30,21 @@ configuration = {
             "Initial Value": 0,
             "Limit Value": 20000
         },
-        "Avro Schema - Keys": "positions-keys.avsc",
-        "Avro Schema - Values": "positions-values.avsc",
+        "Avro Schema - Keys": "src/positions-keys.avsc",
+        "Avro Schema - Values": "src/positions-values.avsc",
         "Serializer": "Avro",
         "Data": CSVReader(),
         "Data Args": {
-            'File': 'out/positions.csv',
+            'File': 'src/out/positions.csv',
             'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
         },
-        "Data Queue Max Size": 20,
+        "Data Queue Max Size": 20000,
         "Keys": ["type", "knowledge_date", "effective_date", "account", "inst_id", "purpose"],
         "Load data first": True,
-        "Number of Processes": 4,
-        "Number of Data Generation Processes": 1,
+        "Number of Processes": 2,
+        "Number of Data Generation Processes": 2,
         "Time Interval": 1.0
     },
     "instrument_reference_data": {
@@ -53,17 +52,17 @@ configuration = {
             "Initial Value": 0,
             "Limit Value": 100
         },
-        "Avro Schema - Keys": "instrument_reference_data-keys.avsc",
-        "Avro Schema - Values": "instrument_reference_data-values.avsc",
+        "Avro Schema - Keys": "src/instrument_reference_data-keys.avsc",
+        "Avro Schema - Values": "src/instrument_reference_data-values.avsc",
         "Serializer": "Avro",
         "Data": CSVReader(),
         "Data Args": {
-            'File': 'out/inst-ref.csv',
+            'File': 'src/out/inst-ref.csv',
             'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
         },
-        "Data Queue Max Size": 5,
+        "Data Queue Max Size": 200,
         "Keys": ["inst_id"],
         "Load data first": True,
         "Number of Processes": 1,

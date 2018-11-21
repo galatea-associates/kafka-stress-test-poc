@@ -6,10 +6,6 @@ class Counter(object):
         self.__limit = limit_val
         self.__lock = Lock()
 
-    def increment(self):
-        with self.__lock:
-            self.__val.value += 1
-
     def value(self):
         with self.__lock:
             return self.__val.value
@@ -24,6 +20,3 @@ class Counter(object):
             if value_beneath_limit:
                 self.__val.value += 1
             return value_beneath_limit
-
-    def get_limit(self):
-        return self.__limit
