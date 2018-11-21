@@ -241,6 +241,8 @@ class DataGenerator:
             choices = ['Holdings', 'Seg']
         elif data_type == 'SL':
             choices = ['Borrow', 'Loan']
+        elif data_type == 'C':
+            choices = ['Cash Balance', 'P&L', 'Fees']
         else:
             choices = ['']
 

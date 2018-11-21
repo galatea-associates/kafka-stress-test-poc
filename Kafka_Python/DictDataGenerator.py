@@ -58,7 +58,7 @@ data_template = {
         'sto_id': {'func': ddc.generate_sto_id, 'args': ['asset_class']},
         'agent_id': {'func': ddc.generate_agent_id, 'args': ['asset_class']},
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
-        'currency': {'func': ddc.generate_currency},
+        'curr': {'func': ddc.generate_currency},
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
         'qty': {'func': ddc.generate_qty}
     },
@@ -100,6 +100,12 @@ data_template = {
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='ST')},
     },
+    'cash': {
+        'amount': {'func': ddc.generate_qty},
+        'curr': {'func': ddc.generate_currency},
+        'account_num': {'func': ddc.generate_account_number},
+        'purpose': {'func': partial(ddc.generate_purpose, data_type='C')}
+    }
 }
 
 
@@ -150,6 +156,8 @@ class DictRunnable(Runnable):
             self.__create_data_file('out/swap_trades.csv',
                                     args.swap_trades,
                                     'swap_trade')
+        if args.cash > 0:
+            self.__create_data_file('out/swap_trades.csv', args.cash, 'cash')
 
     # file_name corresponds to the name of the CSV file the function will write
     # to n is the number of data entities to write to the CSV file
@@ -201,6 +209,7 @@ def get_args():
     parser.add_argument('--stock-loans', **optional_args)
     parser.add_argument('--swap-trades', **optional_args)
     parser.add_argument('--swap-contracts', **optional_args)
+    parser.add_argument('--cash', **optional_args)
     return parser.parse_args()
 
 
