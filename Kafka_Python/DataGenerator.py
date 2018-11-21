@@ -159,7 +159,6 @@ class DataGenerator:
             return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
 
     def generate_asset_class(self):
-
         return random.choice(['Stock', 'Cash'])
 
     def generate_coi(self):
