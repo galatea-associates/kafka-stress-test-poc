@@ -33,12 +33,10 @@ class Thread_Safe_Queue():
         self.__lock = multiprocessing.Lock()
 
     def qsize(self):
-        with self.__lock:
-            return self.__data.qsize()
+        return self.__data.qsize()
 
     def put(self, data):
-        with self.__lock:
-            self.__data.put(data)
+        self.__data.put(data)
 
     def get_nowait(self):
         with self.__lock:
