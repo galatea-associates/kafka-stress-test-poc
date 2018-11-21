@@ -191,6 +191,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
     procs.append(timer_proc)
     for p in procs: 
         p.start()
+    procs += data_gen_procs
     return procs
 
 
