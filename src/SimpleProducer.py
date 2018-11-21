@@ -65,20 +65,23 @@ def send(server_args, producer_counters, topic, shared_data_queue,
     if avro_schema_values:
         schema_values = avro.schema.Parse(open(avro_schema_values).read())
         
-    while not producer_counters.ready_start_producing:
+    while not bool(producer_counters.ready_start_producing.value):
         pass
+    print("Ready start producing")
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
-            if producer_counters.end_topic:
+            if bool(producer_counters.end_topic.value):
+                print("Ending topic now")
                 return
             try:
                 val = shared_data_queue.get_nowait()
             except queue.Empty:
                 print("Queue is Empty")
-                producer_counters.end_topic = True
+                producer_counters.end_topic.value = int(True)
                 return
             if val is None:
-                producer_counters.end_topic = True
+                print("Value is returned as None")
+                producer_counters.end_topic.value = int(True)
                 return
             producer.send(topic,
                           value=serialize_val(val["value"],
@@ -101,13 +104,13 @@ def on_send_error(producer_counters, _):
 
 
 def reset_every_second(producer_counters, topic, time_interval, shared_dict, shared_data_queue, max_queue_size):
-    while ((not producer_counters.ready_start_producing) and 
+    while ((not bool(producer_counters.ready_start_producing.value)) and 
            (shared_data_queue.qsize() < max_queue_size)):
         pass
-    producer_counters.ready_start_producing = True
+    producer_counters.ready_start_producing.value = int(True)
     prev_time = time.time()
     while True:
-        if producer_counters.end_topic:
+        if bool(producer_counters.end_topic.value):
             return
         if time.time() - prev_time >= time_interval:
             result = {
