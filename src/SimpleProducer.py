@@ -12,8 +12,9 @@ from Counter import Counter
 from DataConfiguration import configuration
 from DataGenerator import DataGenerator
 from argparse import ArgumentParser
-from multiprocessing import Manager, Process, Queue, Value
-
+import multiprocessing
+import queue
+import os
 import math
 import statistics
 
@@ -22,8 +23,9 @@ class Producer():
     def __init__(self, init_val=0, limit_val=0, ready_start_prod=False):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
-        self.ready_start_producing = Value('i', ready_start_prod)
+        self.ready_start_producing = multiprocessing.Value('i', ready_start_prod)
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
+        self.end_topic = multiprocessing.Value('i', False)
 
 
 def serialize_val(val, serializer, schema=None):
@@ -67,9 +69,17 @@ def send(server_args, producer_counters, topic, shared_data_queue,
         pass
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
-            val = shared_data_queue.get()
+            if producer_counters.end_topic:
+                return
+            try:
+                val = shared_data_queue.get_nowait()
+            except queue.Empty:
+                print("Queue is Empty")
+                producer_counters.end_topic = True
+                return
             if val is None:
-                break
+                producer_counters.end_topic = True
+                return
             producer.send(topic,
                           value=serialize_val(val["value"],
                                               serializer,
@@ -97,6 +107,8 @@ def reset_every_second(producer_counters, topic, time_interval, shared_dict, sha
     producer_counters.ready_start_producing = True
     prev_time = time.time()
     while True:
+        if producer_counters.end_topic:
+            return
         if time.time() - prev_time >= time_interval:
             result = {
                 "Sent Counter": int(producer_counters.sent_counter.value()),
@@ -112,7 +124,6 @@ def reset_every_second(producer_counters, topic, time_interval, shared_dict, sha
 def split_key_and_value(data, keys=None):
     keys_dict = {}
     values_dict = {}
-
     for key in keys:
         keys_dict[key] = data[key]
 
@@ -120,7 +131,7 @@ def split_key_and_value(data, keys=None):
     for value_key in value_keys:
         values_dict[value_key] = data[value_key]
         
-    return {"key": keys_dict, "value":values_dict}
+    return {"key": keys_dict, "value": values_dict}
 
 
 def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_args, keys):
@@ -143,9 +154,9 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                   time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
                   data_args=None, keys=None):
     shared_dict[topic] = manager.list() 
-    shared_data_queue = Queue()
+    shared_data_queue = multiprocessing.Queue()
 
-    procs = [Process(target=send,
+    procs = [multiprocessing.Process(target=send,
                      args=(server_args,
                            producer_counters,
                            topic,
@@ -154,7 +165,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                            avro_schema_values,
                            serializer)) for i in range(numb_prod_procs)]
 
-    timer_proc = Process(target=reset_every_second,
+    timer_proc = multiprocessing.Process(target=reset_every_second,
                          args=(producer_counters,
                                topic,
                                time_interval,
@@ -162,7 +173,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                shared_data_queue,
                                max_data_pipe_size))
 
-    data_gen_procs = [Process(target=data_pipe_producer,
+    data_gen_procs = [multiprocessing.Process(target=data_pipe_producer,
                               args=(shared_data_queue,
                                     data_generator,
                                     max_data_pipe_size,
@@ -201,9 +212,13 @@ def print_data_results(keys, dict_key):
 def produce_output(dict_key, output_time):
     if not shared_dict[dict_key]:
         return
+    output_directory = "out"
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
     keys = shared_dict[dict_key][0].keys()
     print_data_results(keys, dict_key)
-    with open("out/output-send-" + str(int(output_time)) + ".csv",
+   
+    with open(output_directory + "/output-send-" + str(int(output_time)) + ".csv",
               'a',
               newline='') as output_file:
         dict_writer = csv.DictWriter(output_file, keys)
@@ -274,7 +289,7 @@ def run():
 
     server_args = parse_args()
 
-    manager = Manager()
+    manager = multiprocessing.Manager()
     shared_dict = manager.dict()    
 
     topics_procs, _ = process_data_config(configuration,

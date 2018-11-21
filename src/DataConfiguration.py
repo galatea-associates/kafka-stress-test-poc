@@ -9,12 +9,12 @@ configuration = {
             "Initial Value": 0,
             "Limit Value": 40000
         },
-        "Avro Schema - Keys": "prices-keys.avsc",
-        "Avro Schema - Values": "prices-values.avsc",
+        "Avro Schema - Keys": "Kafka_Python/prices-keys.avsc",
+        "Avro Schema - Values": "Kafka_Python/prices-values.avsc",
         "Serializer": "Avro",
         "Data": CSVReader(),
         "Data Args": {
-            'File': 'out/prices.csv',
+            'File': 'Kafka_Python/out/prices.csv',
             'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
@@ -31,12 +31,12 @@ configuration = {
             "Initial Value": 0,
             "Limit Value": 20000
         },
-        "Avro Schema - Keys": "positions-keys.avsc",
-        "Avro Schema - Values": "positions-values.avsc",
+        "Avro Schema - Keys": "Kafka_Python/positions-keys.avsc",
+        "Avro Schema - Values": "Kafka_Python/positions-values.avsc",
         "Serializer": "Avro",
         "Data": CSVReader(),
         "Data Args": {
-            'File': 'out/positions.csv',
+            'File': 'Kafka_Python/out/positions.csv',
             'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True
@@ -53,12 +53,12 @@ configuration = {
             "Initial Value": 0,
             "Limit Value": 100
         },
-        "Avro Schema - Keys": "instrument_reference_data-keys.avsc",
-        "Avro Schema - Values": "instrument_reference_data-values.avsc",
+        "Avro Schema - Keys": "Kafka_Python/instrument_reference_data-keys.avsc",
+        "Avro Schema - Values": "Kafka_Python/instrument_reference_data-values.avsc",
         "Serializer": "Avro",
         "Data": CSVReader(),
         "Data Args": {
-            'File': 'out/inst-ref.csv',
+            'File': 'Kafka_Python/out/inst-ref.csv',
             'Format': 'CSV',
             'Chunk Size': 10,
             'Loop on end': True

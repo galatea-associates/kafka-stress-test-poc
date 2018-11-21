@@ -1,6 +1,6 @@
 #!/usr/bin/make
 
-NAME="Kafka_Python"
+NAME="src"
 
 
 PYTHON=python

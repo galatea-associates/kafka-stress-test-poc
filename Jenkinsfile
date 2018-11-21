@@ -9,7 +9,7 @@ pipeline {
             logRotator(numToKeepStr:'10'))
     }
     environment {
-        projectName = 'Kafka_Python'
+        projectName = 'src'
         VIRTUAL_ENV = "${env.WORKSPACE}/venv"
     }
     stages {
@@ -111,7 +111,7 @@ pipeline {
             post {
                 always {
                     publishHTML target: [
-                        reportDir: 'docs/Kafka_Python',
+                        reportDir: 'docs/src',
                         reportFiles: 'index.html',
                         reportName: 'Module Documentation'
                     ]
