@@ -156,7 +156,16 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
     shared_dict[topic] = manager.list() 
     shared_data_queue = multiprocessing.Queue()
 
-    procs = [multiprocessing.Process(target=send,
+    procs = []
+
+    data_gen_procs = [multiprocessing.Process(target=data_pipe_producer,
+                              args=(shared_data_queue,
+                                    data_generator,
+                                    max_data_pipe_size,
+                                    data_args,
+                                    keys)) for i in range(numb_data_procs)]
+
+    producer_procs = [multiprocessing.Process(target=send,
                      args=(server_args,
                            producer_counters,
                            topic,
@@ -173,15 +182,9 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                shared_data_queue,
                                max_data_pipe_size))
 
-    data_gen_procs = [multiprocessing.Process(target=data_pipe_producer,
-                              args=(shared_data_queue,
-                                    data_generator,
-                                    max_data_pipe_size,
-                                    data_args,
-                                    keys)) for i in range(numb_data_procs)]
-
-    procs.append(timer_proc)
     procs += data_gen_procs
+    procs += producer_procs
+    procs.append(timer_proc)
     for p in procs: 
         p.start()
     return procs
