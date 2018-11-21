@@ -83,7 +83,6 @@ def send(server_args, producer_counters, topic, shared_data_queue,
         
     while not bool(producer_counters.ready_start_producing.value):
         pass
-    #print(shared_data_queue.qsize())
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             if bool(producer_counters.end_topic.value):
@@ -91,12 +90,11 @@ def send(server_args, producer_counters, topic, shared_data_queue,
             try:
                 val = shared_data_queue.get_nowait()
             except queue.Empty:
-                print(shared_data_queue.qsize())
-                print(str(topic) + " - Queue is Empty")
+                print(str(topic) + " - Queue is Empty. Now Quitting this topic.")
                 producer_counters.end_topic.value = int(True)
                 return
             if val is None:
-                print(str(topic) + " - Value is returned as None")
+                print(str(topic) + " - Value is returned as None. Now Quitting this topic.")
                 producer_counters.end_topic.value = int(True)
                 return
             producer.send(topic,
@@ -125,10 +123,8 @@ def reset_every_second(producer_counters, topic, time_interval, shared_dict, sha
         time.sleep(1)
     producer_counters.ready_start_producing.value = int(True)
     prev_time = time.time()
-    print(str(topic) + " - Data Ready")
     while True:
         if bool(producer_counters.end_topic.value):
-            print(str(topic) + " - Clock quitting")
             return
         time_now = time.time()
         if time_now - prev_time >= time_interval: 
@@ -327,9 +323,8 @@ def run():
     topics_procs, _ = process_data_config(configuration,
                                           server_args)
 
-    #atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
+    atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
     input("Press Enter to exit...")
-    cleanup(config=configuration, topics_procs=topics_procs)
 
 
 if __name__ == '__main__':
