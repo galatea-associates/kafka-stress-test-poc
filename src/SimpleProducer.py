@@ -182,7 +182,11 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                shared_data_queue,
                                max_data_pipe_size))
 
-    procs += data_gen_procs
+    for p in data_gen_procs:
+        p.start()
+    
+    # Sleep for a second to let the data generators have time to push some data into the queue
+    time.sleep(1.0)
     procs += producer_procs
     procs.append(timer_proc)
     for p in procs: 
