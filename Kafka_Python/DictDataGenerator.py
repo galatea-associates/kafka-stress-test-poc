@@ -23,11 +23,12 @@ data_template = {
     'price': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
-        'curr': {'func': ddc.generate_currency},
+        'curr': {'func': ddc.generate_currency}
     },
     'front_office_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
-        'position_type': {'func': ddc.generate_position_type},
+        'position_type': {'func': partial(ddc.generate_position_type,
+                                          no_td=True)},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': partial(ddc.generate_effective_date,
                                            n_days_to_add=3),
@@ -39,11 +40,12 @@ data_template = {
     },
     'depot_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
-        'position_type': {'func': ddc.generate_position_type},
+        'position_type': {'func': partial(ddc.generate_position_type,
+                                          no_td=True)},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': ddc.generate_effective_date,
                            'args': ['knowledge_date']},
-        'account': {'func': ddc.generate_account},
+        'account': {'func': partial(ddc.generate_account, no_ecp=True)},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='DP')},
@@ -51,12 +53,12 @@ data_template = {
     },
     'order_execution': {
         'order_id': {'func': ddc.generate_order_id, 'args': ['asset_class']},
-        'customer_id': {'func': ddc.generate_customer_id,
-                        'args': ['asset_class']},
+        'account_num': {'func': ddc.generate_account_number},
         'direction': {'func': ddc.generate_direction},
         'sto_id': {'func': ddc.generate_sto_id, 'args': ['asset_class']},
         'agent_id': {'func': ddc.generate_agent_id, 'args': ['asset_class']},
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
+        'currency': {'func': ddc.generate_currency},
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
         'qty': {'func': ddc.generate_qty}
     },
@@ -92,7 +94,7 @@ data_template = {
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': partial(ddc.generate_effective_date,
                                            n_days_to_add=3),
-                           'args': ['knowledge_date']},
+                           'args': ['knowledge_date', 'position_type']},
         'account': {'func': ddc.generate_account},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},

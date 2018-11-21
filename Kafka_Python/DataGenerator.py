@@ -182,8 +182,13 @@ class DataGenerator:
     def generate_currency(self):
         return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
 
-    def generate_position_type(self):
-        return random.choice(['SD'])
+    def generate_position_type(self, no_sd=False, no_td=False):
+        choices = ['SD', 'TD']
+        if no_sd:
+            choices.remove('SD')
+        if no_td:
+            choices.remove('TD')
+        return random.choice(choices)
 
     def generate_knowledge_date(self,
                                 from_year=2016, to_year=2017,
@@ -194,17 +199,32 @@ class DataGenerator:
         day = random.randint(from_day, to_day)
         return datetime.datetime(year, month, day).date()
 
-    def generate_effective_date(self, n_days_to_add=3, knowledge_date=None):
+    def generate_effective_date(self, n_days_to_add=3,
+                                knowledge_date=None, position_type=None):
+        if position_type is None:
+            position_type = self.__get_preemptive_generation(
+                'position_type',
+                self.generate_position_type())
+
         if knowledge_date is None:
             knowledge_date = self.__get_preemptive_generation(
                 'knowledge_date',
                 self.generate_knowledge_date())
 
-        return knowledge_date + datetime.timedelta(days=n_days_to_add)
+        if position_type == 'TD':
+            return knowledge_date
+        else:
+            return knowledge_date + datetime.timedelta(days=n_days_to_add)
 
     # TODO: see if you have to merge the account and account number fields
-    def generate_account(self, n_digits=4):
-        account_type = random.choice(['ICP', 'ECP'])
+    def generate_account(self, n_digits=4, no_ecp=False, no_icp=False):
+        choices = ['ICP', 'ECP']
+        if no_ecp:
+            choices.remove('ECP')
+        if no_icp:
+            choices = ['ICP']
+
+        account_type = random.choice(choices)
         digits = [random.choice(string.digits) for _ in range(n_digits)]
         return account_type + ''.join(digits)
 
