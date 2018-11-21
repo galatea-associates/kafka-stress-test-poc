@@ -134,10 +134,11 @@ def reset_every_second(producer_counters, topic, time_interval, shared_dict, sha
             return
         time_now = time.time()
         if time_now - prev_time >= time_interval: 
+            ratio_time_spent = (time_interval* (time_now - prev_time))
             result = {
-                "Sent Counter": producer_counters.sent_counter.value() / (time_now - prev_time),
-                "Received Counter": producer_counters.received_counter.value() / (time_now - prev_time),
-                "Error Counter": producer_counters.error_counter.value() / (time_now - prev_time)
+                "Sent Counter": producer_counters.sent_counter.value() / ratio_time_spent,
+                "Received Counter": producer_counters.received_counter.value() / ratio_time_spent,
+                "Error Counter": producer_counters.error_counter.value() / ratio_time_spent
             }
             producer_counters.received_counter.reset()
             producer_counters.sent_counter.reset()
