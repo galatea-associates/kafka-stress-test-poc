@@ -1,6 +1,8 @@
 import atexit
 import time
 
+import cProfile
+
 import avro.schema
 from avro.io import DatumWriter
 from kafka import KafkaProducer
@@ -12,7 +14,8 @@ from Counter import Counter
 from DataConfiguration import configuration
 from DataGenerator import DataGenerator
 from argparse import ArgumentParser
-import multiprocessing
+from multiprocessing import Value, Lock, Manager, Process
+from fmq import Queue
 import queue
 import os
 import math
@@ -23,9 +26,9 @@ class Producer():
     def __init__(self, init_val=0, limit_val=0, ready_start_prod=False):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
-        self.ready_start_producing = multiprocessing.Value('i', ready_start_prod)
+        self.ready_start_producing = Value('i', ready_start_prod)
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
-        self.end_topic = multiprocessing.Value('i', False)
+        self.end_topic = Value('i', False)
 
 def serialize_val(val, serializer, schema=None):
     if serializer == "Avro":
@@ -49,7 +52,6 @@ def process_val(val, args=None):
     else:
         return_val = val
     return return_val
-
 
 def send(server_args, producer_counters, topic, shared_data_queue,
          avro_schema_keys, avro_schema_values, serializer):
@@ -105,6 +107,7 @@ def reset_every_second(producer_counters, topic, time_interval, shared_dict, sha
            (shared_data_queue.qsize() < max_queue_size)):
         time.sleep(1)
     producer_counters.ready_start_producing.value = int(True)
+    print(topic + "- Ready to start sending")
     prev_time = time.time()
     while True:
         if bool(producer_counters.end_topic.value):
@@ -151,23 +154,46 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
                                                               keys=keys))
             else:
                 shared_data_queue.put(split_key_and_value(data=data, keys=keys))
+        else:
+            break
+
+def profile_senders(server_args,
+                           producer_counters,
+                           topic,
+                           shared_data_queue,
+                           avro_schema_keys,
+                           avro_schema_values,
+                           serializer,
+                           i):
+    cProfile.runctx('send(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer)', globals(), locals(), 'prof%d.prof' %i)
+
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
                   time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
                   data_args=None, keys=None):
 
-    shared_data_queue = manager.Queue()
+    shared_dict[topic] = manager.list() 	
+    shared_data_queue = Queue()
 
     procs = []
 
-    data_gen_procs = [multiprocessing.Process(target=data_pipe_producer,
+    data_gen_procs = [Process(target=data_pipe_producer,
                               args=(shared_data_queue,
                                     data_generator,
                                     max_data_pipe_size,
                                     data_args,
                                     keys)) for i in range(numb_data_procs)]
 
-    producer_procs = [multiprocessing.Process(target=send,
+    #producer_procs = [Process(target=profile_senders,
+    #                 args=(server_args,
+    #                       producer_counters,
+    #                       topic,
+    #                       shared_data_queue,
+    #                       avro_schema_keys,
+    #                       avro_schema_values,
+    #                       serializer,
+    #                       i)) for i in range(numb_prod_procs)]
+    producer_procs = [Process(target=send,
                      args=(server_args,
                            producer_counters,
                            topic,
@@ -176,7 +202,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                            avro_schema_values,
                            serializer)) for i in range(numb_prod_procs)]
 
-    timer_proc = multiprocessing.Process(target=reset_every_second,
+    timer_proc = Process(target=reset_every_second,
                          args=(producer_counters,
                                topic,
                                time_interval,
@@ -299,7 +325,7 @@ def run():
 
     server_args = parse_args()
 
-    manager = multiprocessing.Manager()
+    manager = Manager()
     shared_dict = manager.dict()    
 
     topics_procs, _ = process_data_config(configuration,
