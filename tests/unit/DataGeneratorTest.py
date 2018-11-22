@@ -195,5 +195,167 @@ def test_generate_currency(data_generator):
 def test_generate_swap_contract_id_(data_generator):
     swap_contract_ids = ['18825586', '90344267']
     data_generator._DataGenerator__swap_contract_ids = swap_contract_ids
-    id = data_generator.generate_swap_contract_id()
-    assert id in swap_contract_ids
+    length = len(data_generator._DataGenerator__swap_contract_ids)
+    new_length = len(data_generator._DataGenerator__swap_contract_ids)
+    swap_contract_id = data_generator.generate_swap_contract_id()
+    assert swap_contract_id in swap_contract_ids and (new_length == length)
+
+
+def test_generate_ticker_asset_class_is_stock(data_generator):
+    ticker = data_generator.generate_ticker(asset_class='Stock')
+    assert ticker in ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB']
+
+
+def test_generate_ticker_asset_class_is_cash(data_generator):
+    ticker = data_generator.generate_ticker(asset_class='Cash')
+    assert ticker in ['USD', 'CAD', 'EUR', 'GBP']
+
+
+def test_generate_ticker_asset_class_is_none(data_generator):
+    # TODO: check __preemptive_generation called
+    ticker = data_generator.generate_ticker()
+    assert ticker in ['USD', 'CAD', 'EUR', 'GBP'] + \
+                     ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB']
+
+
+def test_generate_cusip_asset_class_is_cash(data_generator):
+    cusip = data_generator.generate_cusip(asset_class='Cash')
+    assert cusip == ''
+
+
+def test_generate_cusip_asset_class_is_stock_ticker_is_none(data_generator):
+    # TODO: make sure preemptive function called
+    length = len(data_generator._DataGenerator__stock_to_cusip)
+    cusip = data_generator.generate_cusip(asset_class='Stock')
+    new_length = len(data_generator._DataGenerator__stock_to_cusip)
+    is_correct_format = True
+    for c in cusip:
+        is_correct_format = is_correct_format and c in string.digits
+
+    assert is_correct_format and (
+           cusip in data_generator._DataGenerator__stock_to_cusip.values() and
+           new_length == length + 1)
+
+
+def test_generate_cusip_asset_class_is_stock_ticker_is_not_none(data_generator):
+    data_generator._DataGenerator__stock_to_cusip = {'IBM': '505627582',
+                                                     'APPL': '485020892'}
+    length = len(data_generator._DataGenerator__stock_to_cusip)
+    cusip = data_generator.generate_cusip(ticker='IBM', asset_class='Stock')
+    new_length = len(data_generator._DataGenerator__stock_to_cusip)
+
+    assert cusip == data_generator._DataGenerator__stock_to_cusip['IBM'] and (
+           length == new_length)
+
+
+def test_generate_sedol_asset_class_is_cash(data_generator):
+    sedol = data_generator.generate_sedol(asset_class='Cash')
+    assert sedol == ''
+
+
+def test_generate_sedol_asset_class_is_stock_ticker_is_none(data_generator):
+    # TODO: make sure preemptive function called
+    length = len(data_generator._DataGenerator__stock_to_sedol)
+    sedol = data_generator.generate_sedol(asset_class='Stock')
+    new_length = len(data_generator._DataGenerator__stock_to_sedol)
+    is_correct_format = True
+    for c in sedol:
+        is_correct_format = is_correct_format and c in string.digits
+
+    assert is_correct_format and (
+           sedol in data_generator._DataGenerator__stock_to_sedol.values() and
+           new_length == length + 1)
+
+
+def test_generate_sedol_asset_class_is_stock_ticker_is_not_none(data_generator):
+    data_generator._DataGenerator__stock_to_sedol = {'IBM': '3888133',
+                                                     'APPL': '5422214'}
+    length = len(data_generator._DataGenerator__stock_to_sedol)
+    sedol = data_generator.generate_sedol(ticker='IBM', asset_class='Stock')
+    new_length = len(data_generator._DataGenerator__stock_to_sedol)
+
+    assert sedol == data_generator._DataGenerator__stock_to_sedol['IBM'] and (
+           length == new_length)
+
+
+def test_generate_isin_asset_class_is_cash(data_generator):
+    isin = data_generator.generate_isin(asset_class='Cash')
+    assert isin == ''
+
+
+def test_generate_ric_asset_class_is_cash(data_generator):
+    ric = data_generator.generate_ric(asset_class='Cash')
+    assert ric == ''
+
+
+def test_generate_ric_asset_class_is_stock_ticker_is_none(data_generator):
+    ric = data_generator.generate_ric(asset_class='Stock')
+    assert ric.startswith(tuple(['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS',
+                                 'F', 'GOOGL', 'FB'])) and (
+           ric.endswith(tuple(['L', 'N', 'OQ'])) and '.' in ric)
+
+
+def test_generate_ric_asset_class_is_stock_ticker_is_not_none(data_generator):
+    ric = data_generator.generate_ric(ticker='IBM', asset_class='Stock')
+    assert ric.startswith('IBM') and (
+           ric.endswith(tuple(['L', 'N', 'OQ'])) and '.' in ric)
+
+
+def test_generate_new_swap_contract_id(data_generator):
+    length = len(data_generator._DataGenerator__swap_contract_ids)
+    swap_contract_id = data_generator.generate_new_swap_contract_id()
+    new_length = len(data_generator._DataGenerator__swap_contract_ids)
+    is_correct_format = True
+    for c in swap_contract_id:
+        is_correct_format = is_correct_format and c in string.digits
+    assert is_correct_format and (new_length == length + 1)
+
+
+def test_generate_purpose_data_type_is_fop(data_generator):
+    purpose = data_generator.generate_purpose(data_type='FOP')
+    assert purpose in ['Outright']
+
+
+def test_generate_purpose_data_type_is_bop(data_generator):
+    purpose = data_generator.generate_purpose(data_type='BOP')
+    assert purpose in ['Outright']
+
+
+def test_generate_purpose_data_type_is_st(data_generator):
+    purpose = data_generator.generate_purpose(data_type='ST')
+    assert purpose in ['Outright']
+
+
+def test_generate_purpose_data_type_is_dp(data_generator):
+    purpose = data_generator.generate_purpose(data_type='DP')
+    assert purpose in ['Holdings', 'Seg']
+
+
+def test_generate_purpose_data_type_is_sl(data_generator):
+    purpose = data_generator.generate_purpose(data_type='SL')
+    assert purpose in ['Borrow', 'Loan']
+
+
+def test_generate_purpose_data_type_is_c(data_generator):
+    purpose = data_generator.generate_purpose(data_type='C')
+    assert purpose in ['Cash Balance', 'P&L', 'Fees']
+
+
+def test_generate_purpose_data_type_is_none(data_generator):
+    purpose = data_generator.generate_purpose()
+    assert purpose == ''
+
+
+def test_generate_position_type_with_no_constraints(data_generator):
+    position_type = data_generator.generate_position_type()
+    assert position_type in ['SD', 'TD']
+
+
+def test_generate_position_type_with_no_sd(data_generator):
+    position_type = data_generator.generate_position_type(no_sd=True)
+    assert position_type in ['TD']
+
+
+def test_generate_position_type_with_no_td(data_generator):
+    position_type = data_generator.generate_position_type(no_td=True)
+    assert position_type in ['SD']
