@@ -132,6 +132,33 @@ def test_generate_depot_id(data_generator):
     assert is_correct_format
 
 
+def test_generate_account_with_no_constraints(data_generator):
+    account = data_generator.generate_account(no_ecp=True)
+    account_suffix = account.replace('ICP', '').replace('ECP', '')
+    is_correct_format = True
+    for c in account_suffix:
+        is_correct_format = is_correct_format and c in string.digits
+    assert account.startswith(('ICP', 'ECP')) and is_correct_format
+
+
+def test_generate_account_with_no_ecp(data_generator):
+    account = data_generator.generate_account(no_ecp=True)
+    account_suffix = account.replace('ICP', '')
+    is_correct_format = True
+    for c in account_suffix:
+        is_correct_format = is_correct_format and c in string.digits
+    assert account.startswith('ICP') and is_correct_format
+
+
+def test_generate_account_with_no_icp(data_generator):
+    account = data_generator.generate_account(no_icp=True)
+    account_suffix = account.replace('ECP', '')
+    is_correct_format = True
+    for c in account_suffix:
+        is_correct_format = is_correct_format and c in string.digits
+    assert account.startswith('ECP') and is_correct_format
+
+
 def test_generate_account_number(data_generator):
     account_number = data_generator.generate_account_number()
     # TODO: check __get_preemptive_generation called
@@ -359,3 +386,21 @@ def test_generate_position_type_with_no_sd(data_generator):
 def test_generate_position_type_with_no_td(data_generator):
     position_type = data_generator.generate_position_type(no_td=True)
     assert position_type in ['SD']
+
+
+def test_generate_price_inst_id_of_cash(data_generator):
+    price = data_generator.generate_price(inst_id='BCD0MUID')
+    assert price == 1.00
+
+
+def test_generate_price_inst_id_of_stock(data_generator):
+    price = data_generator.generate_price(inst_id='ABCV740P')
+    assert 10 <= price <= 10000
+
+
+def test_generate_price_inst_id_is_none(data_generator):
+    # TODO: checl function call
+    data_generator._DataGenerator__stock_inst_ids = {'ABCV740P': None}
+    data_generator._DataGenerator__cash_inst_ids = {'BCD0MUID': None}
+    price = data_generator.generate_price()
+    assert price == 1 or 10 <= price <= 10000

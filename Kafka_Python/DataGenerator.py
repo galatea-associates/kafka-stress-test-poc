@@ -221,7 +221,7 @@ class DataGenerator:
         if no_ecp:
             choices.remove('ECP')
         if no_icp:
-            choices = ['ICP']
+            choices.remove('ICP')
 
         account_type = random.choice(choices)
         digits = [random.choice(string.digits) for _ in range(n_digits)]
