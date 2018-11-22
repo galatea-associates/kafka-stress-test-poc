@@ -185,22 +185,22 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                     keys)) for i in range(numb_data_procs)]
 
     #producer_procs = [Process(target=profile_senders,
-    #                 args=(server_args,
-    #                       producer_counters,
-    #                       topic,
-    #                       shared_data_queue,
-    #                       avro_schema_keys,
-    #                       avro_schema_values,
-    #                       serializer,
-    #                       i)) for i in range(numb_prod_procs)]
+    #                          args=(server_args,
+    #                                producer_counters,
+    #                                topic,
+    #                                shared_data_queue,
+    #                                avro_schema_keys,
+    #                                avro_schema_values,
+    #                                serializer,
+    #                                i)) for i in range(numb_prod_procs)]
     producer_procs = [Process(target=send,
-                     args=(server_args,
-                           producer_counters,
-                           topic,
-                           shared_data_queue,
-                           avro_schema_keys,
-                           avro_schema_values,
-                           serializer)) for i in range(numb_prod_procs)]
+                              args=(server_args,
+                                    producer_counters,
+                                    topic,
+                                    shared_data_queue,
+                                    avro_schema_keys,
+                                    avro_schema_values,
+                                    serializer)) for i in range(numb_prod_procs)]
 
     timer_proc = Process(target=reset_every_second,
                          args=(producer_counters,
