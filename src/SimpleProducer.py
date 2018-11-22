@@ -157,14 +157,7 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
         else:
             break
 
-def profile_senders(server_args,
-                           producer_counters,
-                           topic,
-                           shared_data_queue,
-                           avro_schema_keys,
-                           avro_schema_values,
-                           serializer,
-                           i):
+def profile_senders(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer, i):
     cProfile.runctx('send(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer)', globals(), locals(), 'prof%d.prof' %i)
 
 

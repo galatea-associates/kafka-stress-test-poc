@@ -5,6 +5,7 @@ from threading import Thread
 import _multiprocessing as _mp
 import weakref
 
+
 class Queue():
     def __init__(self, maxsize=0, debug=False):
         if maxsize <= 0:
@@ -26,6 +27,7 @@ class Queue():
         TODO: maybe support "block" and "timeout"
         """
         self.mpq.put(item)
+
     def get_nowait(self):
         return self.qq.get_nowait()
 
@@ -57,10 +59,10 @@ class Queue():
                 if obj is sentinel:
                     break
                 dstq.put(obj)
-                    
+
                 # print 'steal'
             # print 'daemon done'
-        
+
         def stop(ref):
             # print 'stop called'
             srcq.put(sentinel)
@@ -71,5 +73,3 @@ class Queue():
         stealer = Thread(target=steal, args=(srcq, dstq, me1,))
         stealer.daemon = True
         stealer.start()
-
-
