@@ -1,4 +1,4 @@
-#Modified from - https://github.com/WeiTang114/FMQ
+# Modified from - https://github.com/WeiTang114/FMQ
 import multiprocessing as mp
 import queue as Queue_
 from threading import Thread

@@ -14,7 +14,7 @@ from Counter import Counter
 from DataConfiguration import configuration
 from DataGenerator import DataGenerator
 from argparse import ArgumentParser
-from multiprocessing import Value, Lock, Manager, Process
+from multiprocessing import Value, Manager, Process
 from fmq import Queue
 import queue
 import os
@@ -157,6 +157,7 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
         else:
             break
 
+
 def profile_senders(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer, i):
     cProfile.runctx('send(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer)', globals(), locals(), 'prof%d.prof' %i)
 
@@ -165,7 +166,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                   time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
                   data_args=None, keys=None):
 
-    shared_dict[topic] = manager.list() 	
+    shared_dict[topic] = manager.list()
     shared_data_queue = Queue()
 
     procs = []
@@ -177,7 +178,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                     data_args,
                                     keys)) for i in range(numb_data_procs)]
 
-    #producer_procs = [Process(target=profile_senders,
+    # producer_procs = [Process(target=profile_senders,
     #                          args=(server_args,
     #                                producer_counters,
     #                                topic,
