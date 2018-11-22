@@ -341,6 +341,11 @@ def test_generate_new_swap_contract_id(data_generator):
     assert is_correct_format and (new_length == length + 1)
 
 
+def test_generate_collateral_type(data_generator):
+    collateral_type = data_generator.generate_collateral_type()
+    assert collateral_type in ['Cash', 'Non Cash']
+
+
 def test_generate_purpose_data_type_is_fop(data_generator):
     purpose = data_generator.generate_purpose(data_type='FOP')
     assert purpose in ['Outright']
@@ -511,3 +516,10 @@ def test_generate_rebate_rate_collateral_type_is_cash(data_generator):
 def test_generate_rebate_rate_collateral_type_is_cash(data_generator):
     rebate_rate = data_generator.generate_rebate_rate(collateral_type='Stock')
     assert rebate_rate == ''
+
+
+def test_generate_qty(data_generator):
+    min_qty = 1
+    max_qty = 21
+    qty = data_generator.generate_qty(min_qty=min_qty, max_qty=max_qty)
+    assert min_qty*100 <= qty <= max_qty*100
