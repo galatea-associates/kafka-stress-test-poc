@@ -27,23 +27,6 @@ class Producer():
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
         self.end_topic = multiprocessing.Value('i', False)
 
-class Thread_Safe_Queue():
-    def __init__(self):
-        self.__data = multiprocessing.Queue() 
-        self.__lock = multiprocessing.Lock()
-
-    def qsize(self):
-        return self.__data.qsize()
-
-    def put(self, data):
-        self.__data.put(data)
-
-    def get_nowait(self):
-        with self.__lock:
-            return self.__data.get_nowait()
-
-
-
 def serialize_val(val, serializer, schema=None):
     if serializer == "Avro":
         writer = DatumWriter(schema)
@@ -172,9 +155,8 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
                   time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
                   data_args=None, keys=None):
-    shared_dict[topic] = manager.list() 
-    #shared_data_queue = multiprocessing.Queue()
-    shared_data_queue = Thread_Safe_Queue()
+
+    shared_data_queue = manager.Queue()
 
     procs = []
 
