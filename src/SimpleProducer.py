@@ -158,8 +158,13 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
             break
 
 
-def profile_senders(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer, i):
-    cProfile.runctx('send(server_args, producer_counters, topic, shared_data_queue, avro_schema_keys, avro_schema_values, serializer)', globals(), locals(), 'prof%d.prof' %i)
+def profile_senders(server_args, producer_counters, topic, shared_data_queue,
+                    avro_schema_keys, avro_schema_values, serializer, i):
+    cProfile.runctx(('send(server_args, producer_counters, topic, shared_data_queue,'
+                     'avro_schema_keys, avro_schema_values, serializer)'),
+                    globals(),
+                    locals(),
+                    'prof%d.prof' %i)
 
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
@@ -176,7 +181,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                     data_generator,
                                     max_data_pipe_size,
                                     data_args,
-                                    keys)) for i in range(numb_data_procs)]
+                                    keys)) for _ in range(numb_data_procs)]
 
     # producer_procs = [Process(target=profile_senders,
     #                          args=(server_args,
@@ -194,7 +199,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                     shared_data_queue,
                                     avro_schema_keys,
                                     avro_schema_values,
-                                    serializer)) for i in range(numb_prod_procs)]
+                                    serializer)) for _ in range(numb_prod_procs)]
 
     timer_proc = Process(target=reset_every_second,
                          args=(producer_counters,
