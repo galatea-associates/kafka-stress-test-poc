@@ -1,6 +1,8 @@
 import pytest
 import string
+import datetime
 import sys
+
 sys.path.insert(0, 'Kafka_Python/')
 
 from DataGenerator import DataGenerator
@@ -24,8 +26,8 @@ def test_state_contains_field(data_generator):
     data_generator._DataGenerator__state = {'inst_id': 'ABC27216',
                                             'position_type': 'SD'}
     assert data_generator.state_contains_field('inst_id') \
-        and data_generator.state_contains_field('position_type') \
-        and not data_generator.state_contains_field('qty')
+           and data_generator.state_contains_field('position_type') \
+           and not data_generator.state_contains_field('qty')
 
 
 def test_get_state_value(data_generator):
@@ -70,6 +72,7 @@ def test_generate_new_inst_id_add_to_lists_of_inst_ids(data_generator):
             == n_stock_ids
 
     assert is_correct_length
+
 
 # TODO: test with only param
 
@@ -242,7 +245,7 @@ def test_generate_ticker_asset_class_is_none(data_generator):
     # TODO: check __preemptive_generation called
     ticker = data_generator.generate_ticker()
     assert ticker in ['USD', 'CAD', 'EUR', 'GBP'] + \
-                     ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB']
+           ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB']
 
 
 def test_generate_cusip_asset_class_is_cash(data_generator):
@@ -260,8 +263,8 @@ def test_generate_cusip_asset_class_is_stock_ticker_is_none(data_generator):
         is_correct_format = is_correct_format and c in string.digits
 
     assert is_correct_format and (
-           cusip in data_generator._DataGenerator__stock_to_cusip.values() and
-           new_length == length + 1)
+            cusip in data_generator._DataGenerator__stock_to_cusip.values() and
+            new_length == length + 1)
 
 
 def test_generate_cusip_asset_class_is_stock_ticker_is_not_none(data_generator):
@@ -272,7 +275,7 @@ def test_generate_cusip_asset_class_is_stock_ticker_is_not_none(data_generator):
     new_length = len(data_generator._DataGenerator__stock_to_cusip)
 
     assert cusip == data_generator._DataGenerator__stock_to_cusip['IBM'] and (
-           length == new_length)
+            length == new_length)
 
 
 def test_generate_sedol_asset_class_is_cash(data_generator):
@@ -290,8 +293,8 @@ def test_generate_sedol_asset_class_is_stock_ticker_is_none(data_generator):
         is_correct_format = is_correct_format and c in string.digits
 
     assert is_correct_format and (
-           sedol in data_generator._DataGenerator__stock_to_sedol.values() and
-           new_length == length + 1)
+            sedol in data_generator._DataGenerator__stock_to_sedol.values() and
+            new_length == length + 1)
 
 
 def test_generate_sedol_asset_class_is_stock_ticker_is_not_none(data_generator):
@@ -302,7 +305,7 @@ def test_generate_sedol_asset_class_is_stock_ticker_is_not_none(data_generator):
     new_length = len(data_generator._DataGenerator__stock_to_sedol)
 
     assert sedol == data_generator._DataGenerator__stock_to_sedol['IBM'] and (
-           length == new_length)
+            length == new_length)
 
 
 def test_generate_isin_asset_class_is_cash(data_generator):
@@ -319,13 +322,13 @@ def test_generate_ric_asset_class_is_stock_ticker_is_none(data_generator):
     ric = data_generator.generate_ric(asset_class='Stock')
     assert ric.startswith(tuple(['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS',
                                  'F', 'GOOGL', 'FB'])) and (
-           ric.endswith(tuple(['L', 'N', 'OQ'])) and '.' in ric)
+                   ric.endswith(tuple(['L', 'N', 'OQ'])) and '.' in ric)
 
 
 def test_generate_ric_asset_class_is_stock_ticker_is_not_none(data_generator):
     ric = data_generator.generate_ric(ticker='IBM', asset_class='Stock')
     assert ric.startswith('IBM') and (
-           ric.endswith(tuple(['L', 'N', 'OQ'])) and '.' in ric)
+            ric.endswith(tuple(['L', 'N', 'OQ'])) and '.' in ric)
 
 
 def test_generate_new_swap_contract_id(data_generator):
@@ -404,3 +407,92 @@ def test_generate_price_inst_id_is_none(data_generator):
     data_generator._DataGenerator__cash_inst_ids = {'BCD0MUID': None}
     price = data_generator.generate_price()
     assert price == 1 or 10 <= price <= 10000
+
+
+def test_generate_knowledge_date(data_generator):
+    knowledge_date = data_generator.generate_knowledge_date(
+        from_year=2016, to_year=2017,
+        from_month=1, to_month=12,
+        from_day=1, to_day=28)
+
+    oldest = datetime.date(2016, 1, 1)
+    most_recent = datetime.date(2017, 12, 28)
+    assert oldest <= knowledge_date <= most_recent
+
+
+def test_generate_swap_start_date(data_generator):
+    knowledge_date = data_generator.generate_swap_start_date(
+        from_year=2016, to_year=2017,
+        from_month=1, to_month=12,
+        from_day=1, to_day=28)
+
+    oldest = datetime.date(2016, 1, 1)
+    most_recent = datetime.date(2017, 12, 28)
+    assert oldest <= knowledge_date <= most_recent
+
+
+def test_generate_swap_end_date_start_date_is_not_none_status_is_live(
+        data_generator):
+    start_date = data_generator.generate_swap_start_date()
+    end_date = data_generator.generate_swap_end_date(start_date=start_date,
+                                                     status='Live')
+    assert end_date == ''
+
+
+def test_generate_swap_end_date_start_date_is_none_status_is_live(
+        data_generator):
+    start_date = data_generator.generate_swap_start_date()
+    end_date = data_generator.generate_swap_end_date(start_date=start_date,
+                                                     status='Live')
+    assert end_date == ''
+
+
+def test_generate_swap_end_date_start_date_is_not_none_status_is_dead(
+        data_generator):
+    start_date = data_generator.generate_swap_start_date()
+    n_years_to_add = 5
+    end_date = data_generator.generate_swap_end_date(
+        start_date=start_date,
+        status='Dead',
+        n_years_to_add=n_years_to_add)
+    assert end_date == (
+            start_date + datetime.timedelta(days=365 * n_years_to_add))
+
+
+# TODO: fix
+def test_generate_swap_end_date_start_date_is_none_status_is_dead(data_generator):
+    start_date = data_generator.generate_swap_start_date(
+        from_year=2016, to_year=2017,
+        from_month=1, to_month=12,
+        from_day=1, to_day=28
+    )
+    n_years_to_add = 5
+    end_date = data_generator.generate_swap_end_date(
+        start_date=start_date,
+        status='Live',
+        n_years_to_add=n_years_to_add)
+
+    assert True
+
+
+# TODO: tests these functions with None as input
+def test_generate_effective_date_knowledge_date_is_not_none_position_type_is_td(data_generator):
+    knowledge_date = data_generator.generate_knowledge_date()
+    effective_date = data_generator.generate_effective_date(
+        knowledge_date=knowledge_date,
+        position_type='TD')
+
+    assert effective_date == knowledge_date
+
+
+def test_generate_effective_date_knowledge_date_is_not_none_position_type_is_sd(
+        data_generator):
+    knowledge_date = data_generator.generate_knowledge_date()
+    n_days_to_add = 3
+    effective_date = data_generator.generate_effective_date(
+        n_days_to_add=n_days_to_add,
+        knowledge_date=knowledge_date,
+        position_type='SD')
+
+    assert effective_date == (
+            knowledge_date + datetime.timedelta(days=n_days_to_add))
