@@ -6,6 +6,10 @@ class Counter(object):
         self.__limit = limit_val
         self.__lock = Lock()
 
+    def increment(self):
+        with self.__lock:
+            self.__val.value += 1
+
     def value(self):
         with self.__lock:
             return self.__val.value
