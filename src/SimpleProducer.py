@@ -154,8 +154,6 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
                                                               keys=keys))
             else:
                 shared_data_queue.put(split_key_and_value(data=data, keys=keys))
-        else:
-            break
 
 
 def profile_senders(server_args, producer_counters, topic, shared_data_queue,
