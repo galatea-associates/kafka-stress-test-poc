@@ -496,3 +496,18 @@ def test_generate_effective_date_knowledge_date_is_not_none_position_type_is_sd(
 
     assert effective_date == (
             knowledge_date + datetime.timedelta(days=n_days_to_add))
+
+
+# FIXME
+def test_generate_rebate_rate_collateral_type_is_none(data_generator):
+    assert True
+
+
+def test_generate_rebate_rate_collateral_type_is_cash(data_generator):
+    rebate_rate = data_generator.generate_rebate_rate(collateral_type='Cash')
+    assert rebate_rate == '5.75%'
+
+
+def test_generate_rebate_rate_collateral_type_is_cash(data_generator):
+    rebate_rate = data_generator.generate_rebate_rate(collateral_type='Stock')
+    assert rebate_rate == ''
