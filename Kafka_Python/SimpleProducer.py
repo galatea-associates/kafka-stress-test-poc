@@ -10,7 +10,7 @@ import io
 import json
 from Counter import Counter
 from DataConfiguration import configuration
-from Kafka_Python.Runnable import Runnable
+from Runnable import Runnable
 from argparse import ArgumentParser
 from multiprocessing import Manager, Process, Queue, Value
 

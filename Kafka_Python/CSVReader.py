@@ -1,7 +1,7 @@
 from builtins import StopIteration
 
 import pandas as pd
-from Kafka_Python.Runnable import Runnable
+from Runnable import Runnable
 
 from multiprocessing import Lock
 
