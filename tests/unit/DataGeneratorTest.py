@@ -1,4 +1,6 @@
+from unittest.mock import Mock
 import pytest
+from pytest_mock import mocker
 import string
 import datetime
 import sys
@@ -39,19 +41,42 @@ def test_get_state_value(data_generator):
 
 
 def test_generate_new_inst_id_when_asset_class_none(data_generator):
+    data_generator._DataGenerator__get_preemptive_generation = Mock()
     inst_id = data_generator.generate_new_inst_id()
-    # TODO: check __get_preemptive_generation called
-    is_correct_format = True
-    for c in inst_id:
+    data_generator._DataGenerator__get_preemptive_generation.assert_called()
+    is_correct_format = inst_id.startswith(('ABC', 'BCD'))
+    inst_id_suffix = inst_id.replace('BCD', '').replace('ABC', '')
+    for c in inst_id_suffix:
         is_correct_format = is_correct_format \
                             and c in string.ascii_uppercase + string.digits
 
     assert is_correct_format
 
 
-def test_generate_new_inst_id_when_asset_class_not_none(data_generator):
-    # TODO: check __get_preemptive_generation called
-    assert True
+def test_generate_new_inst_id_when_asset_class_cash(data_generator):
+    data_generator._DataGenerator__get_preemptive_generation = Mock()
+    inst_id = data_generator.generate_new_inst_id(asset_class='Cash')
+    data_generator._DataGenerator__get_preemptive_generation.assert_not_called()
+    is_correct_format = inst_id.startswith('BCD')
+    inst_id_suffix = inst_id.replace('BCD', '')
+    for c in inst_id_suffix:
+        is_correct_format = is_correct_format \
+                            and c in string.ascii_uppercase + string.digits
+
+    assert is_correct_format
+
+
+def test_generate_new_inst_id_when_asset_class_stock(data_generator):
+    data_generator._DataGenerator__get_preemptive_generation = Mock()
+    inst_id = data_generator.generate_new_inst_id(asset_class='Stock')
+    data_generator._DataGenerator__get_preemptive_generation.assert_not_called()
+    is_correct_format = inst_id.startswith('ABC')
+    inst_id_suffix = inst_id.replace('ABC', '')
+    for c in inst_id_suffix:
+        is_correct_format = is_correct_format \
+                            and c in string.ascii_uppercase + string.digits
+
+    assert is_correct_format
 
 
 def test_generate_new_inst_id_add_to_lists_of_inst_ids(data_generator):
