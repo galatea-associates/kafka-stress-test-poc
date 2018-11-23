@@ -1,12 +1,11 @@
 #!/bin/bash
 
-number_tests=1
+number_tests=8
 prices_procs=(1 2 4 8 16 23 64 128)
 prices_data_procs=(1 1 1 1 1 1 1 1)
 
 positions_procs=(1 1 2 4 8 16 23 64)
 positions_data_procs=(1 1 1 1 1 1 1 1)
-
 
 cp src/DataConfiguration_skele.py src/DataConfiguration.py
 
