@@ -154,6 +154,8 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
                                                               keys=keys))
             else:
                 shared_data_queue.put(split_key_and_value(data=data, keys=keys))
+        else:
+            break
 
 
 def profile_senders(server_args, producer_counters, topic, shared_data_queue,
@@ -163,8 +165,16 @@ def profile_senders(server_args, producer_counters, topic, shared_data_queue,
                      'avro_schema_values, serializer)'),
                     globals(),
                     locals(),
-                    'prof%d.prof' % i)
+                    'senders-prof%d.prof' % i)
 
+def profile_data_pipe_producer(shared_data_queue, data_generator,
+                               max_queue_size, data_args, keys, i):
+    cProfile.runctx(('data_pipe_producer(shared_data_queue, '
+                     'data_generator, max_queue_size, '
+                     'data_args, keys)'),
+                    globals(),
+                    locals(),
+                    'data-prod-prof%d.prof' % i)
 
 def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
                   time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
@@ -175,12 +185,20 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
 
     procs = []
 
-    data_gen_procs = [Process(target=data_pipe_producer,
+    data_gen_procs = [Process(target=profile_data_pipe_producer,
                               args=(shared_data_queue,
                                     data_generator,
                                     max_data_pipe_size,
                                     data_args,
-                                    keys)) for _ in range(numb_data_procs)]
+                                    keys,
+                                    i)) for i in range(numb_data_procs)]
+
+    #data_gen_procs = [Process(target=data_pipe_producer,
+    #                          args=(shared_data_queue,
+    #                                data_generator,
+    #                                max_data_pipe_size,
+    #                                data_args,
+    #                                keys)) for _ in range(numb_data_procs)]
 
     # producer_procs = [Process(target=profile_senders,
     #                          args=(server_args,
