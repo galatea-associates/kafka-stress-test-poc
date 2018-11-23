@@ -27,7 +27,7 @@ do
     python3 src/SimpleProducer.py --serverIP=$1 --stopTime=300
 
     mkdir -p results/${i}
-    mv src/out/output* results/${i}
+    mv out/output* results/${i}
 
 done
 
