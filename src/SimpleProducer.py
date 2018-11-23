@@ -156,6 +156,7 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                   time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
                   data_args=None, keys=None):
 
+    shared_dict[topic] = manager.list()
     shared_data_queue = manager.Queue()
 
     procs = []
@@ -290,6 +291,12 @@ def parse_args():
                         help="Kafka server port",
                         default=9092)
 
+    parser.add_argument("-s",
+                        "--stopTime",
+                        dest="stop",
+                        help="Kafka server port",
+                        default=None)
+
     args = parser.parse_args()
     return args
 
@@ -306,7 +313,12 @@ def run():
                                           server_args)
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
-    input("Press Enter to exit...")
+
+    print("Producer script started")
+    if server_args.stop and server_args.stop.isdigit():
+        time.sleep(int(server_args.stop))
+    else:
+        input("Press Enter to exit...")
 
 
 if __name__ == '__main__':
