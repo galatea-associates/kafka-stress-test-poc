@@ -1,6 +1,6 @@
 import os
 from builtins import StopIteration
-
+import dask.dataframe as dd
 import pandas as pd
 from DataGenerator import DataGenerator
 
@@ -14,16 +14,27 @@ class CSVReader(DataGenerator):
         self.__lock = Lock()
 
     def __setup_file_reader(self, file, chunksize):
-        self.__file_reader = pd.read_csv(file, chunksize=chunksize, low_memory=False)
+        self.__file_reader = dd.read_csv(file)#, chunksize=chunksize, low_memory=False)
+
+    def convert_to_dict(self, row):
+        print('new call')
+        dict = {}
+        for key, value in row.iteritems():
+            dict[key] = value
+        return dict
 
     def __get_next_chunk(self):
         with self.__lock:
-            try:
-                return self.__file_reader.get_chunk().to_dict(orient='records')
+            raw_data = self.__file_reader.head(n=100)
 
-            #If EOF a StopIteration exception occurs
-            except StopIteration:
-                return None
+            data = [self.convert_to_dict(row) for _, row in raw_data.iterrows()]
+            print(data)
+            # try:
+            #     return data # self.__file_reader.get_chunk().to_dict(orient='records')
+            #
+            # #If EOF a StopIteration exception occurs
+            # except StopIteration:
+            #     return None
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'File': './out/prices.csv',
@@ -49,4 +60,14 @@ class CSVReader(DataGenerator):
 
         return data
 
-    
+    @staticmethod
+    def main():
+        reader = CSVReader()
+        reader._CSVReader__setup_file_reader('out/prices.csv', 100)
+        reader._CSVReader__get_next_chunk()
+        # print(type(reader._CSVReader__get_next_chunk()))
+        # print(type(reader._CSVReader__get_next_chunk()['inst_id']))
+
+
+if __name__ == "__main__":
+    CSVReader.main()
