@@ -1,6 +1,5 @@
 from unittest.mock import Mock
 import pytest
-from pytest_mock import mocker
 import string
 import datetime
 import sys
