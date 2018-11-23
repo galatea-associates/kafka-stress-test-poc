@@ -1,6 +1,10 @@
 from CSVReader import CSVReader
-# This file will contrain the core configuration for running the consumer and producer.
-# It will also contain the functions needed to generate data for the different topics.
+# This file will contrain the core configuration
+# for running the consumer and producer.
+
+# It will also contain the functions needed to
+# generate data for the different topics.
+#
 
 configuration = {
     "prices": {
@@ -23,7 +27,7 @@ configuration = {
         "Load data first": True,
         "Number of Processes": %prices_procs%,
         "Number of Data Generation Processes": %prices_data_procs%,
-        "Time Interval": 1.0      
+        "Time Interval": 1.0
     },
     "positions": {
         "Counter": {
@@ -41,7 +45,8 @@ configuration = {
             'Loop on end': True
         },
         "Data Queue Max Size": 20000,
-        "Keys": ["type", "knowledge_date", "effective_date", "account", "inst_id", "purpose"],
+        "Keys": ["type", "knowledge_date", 
+                 "effective_date", "account", "inst_id", "purpose"],
         "Load data first": True,
         "Number of Processes": %positions_procs%,
         "Number of Data Generation Processes": %positions_data_procs%,
@@ -70,4 +75,3 @@ configuration = {
         "Time Interval": 60.0
     },
 }
-
