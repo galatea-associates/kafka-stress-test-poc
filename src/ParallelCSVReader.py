@@ -1,11 +1,6 @@
-import os
 from builtins import StopIteration
-import dask.dataframe as dd
-
 import pandas as pd
 from DataGenerator import DataGenerator
-
-import csv
 from multiprocessing import Lock
 
 
@@ -15,7 +10,7 @@ class ParallelCSVReader(DataGenerator):
         self.__lock = Lock()
 
     def __setup_file_reader(self, file, chunksize):
-        self.__file_reader = dd.read_csv(file, chunksize=chunksize,
+        self.__file_reader = pd.read_csv(file, chunksize=chunksize,
                                          low_memory=False)
 
     def __get_next_chunk(self):

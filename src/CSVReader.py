@@ -1,10 +1,6 @@
-import os
 from builtins import StopIteration
 import dask.dataframe as dd
-import pandas as pd
 from DataGenerator import DataGenerator
-
-import csv
 from multiprocessing import Lock
 
 
@@ -17,7 +13,6 @@ class CSVReader(DataGenerator):
         self.__file_reader = dd.read_csv(file)#, chunksize=chunksize, low_memory=False)
 
     def convert_to_dict(self, row):
-        print('new call')
         dict = {}
         for key, value in row.iteritems():
             dict[key] = value
@@ -25,10 +20,11 @@ class CSVReader(DataGenerator):
 
     def __get_next_chunk(self):
         with self.__lock:
-            raw_data = self.__file_reader.head(n=100)
+            # raw_data = self.__file_reader.head(n=100).to_dict()
+             return self.__file_reader.head(n=100).to_dict(orient='records')
 
-            data = [self.convert_to_dict(row) for _, row in raw_data.iterrows()]
-            print(data)
+            # data = [self.convert_to_dict(row) for _, row in raw_data.iterrows()]
+            # return data
             # try:
             #     return data # self.__file_reader.get_chunk().to_dict(orient='records')
             #
@@ -53,7 +49,7 @@ class CSVReader(DataGenerator):
             if args["Loop on end"]:
                 
                 #If loop on EOF then start reader again at beginning
-                self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
+                # self.self__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
                 data = self.__get_next_chunk()
             else:
                 return None
