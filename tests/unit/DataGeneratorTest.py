@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import Mock
 import pytest
 import string
 import datetime
@@ -40,9 +40,9 @@ def test_get_state_value(data_generator):
 
 
 def test_generate_new_inst_id_when_asset_class_none(data_generator):
-    data_generator._DataGenerator__get_preemptive_generation = MagicMock()
+    data_generator._DataGenerator__get_preemptive_generation = Mock()
     inst_id = data_generator.generate_new_inst_id()
-    data_generator._DataGenerator__get_preemptive_generation.has_been_called()
+    data_generator._DataGenerator__get_preemptive_generation.assert_called_once_with()
     is_correct_format = inst_id.startswith(('ABC', 'BCD'))
     inst_id_suffix = inst_id.replace('BCD', '').replace('ABC', '')
     for c in inst_id_suffix:
@@ -53,9 +53,9 @@ def test_generate_new_inst_id_when_asset_class_none(data_generator):
 
 
 def test_generate_new_inst_id_when_asset_class_cash(data_generator):
-    data_generator._DataGenerator__get_preemptive_generation = MagicMock()
+    data_generator._DataGenerator__get_preemptive_generation = Mock()
     inst_id = data_generator.generate_new_inst_id(asset_class='Cash')
-    data_generator._DataGenerator__get_preemptive_generation.has_been_called()
+    data_generator._DataGenerator__get_preemptive_generation.assert_called_once_with()
     is_correct_format = inst_id.startswith('BCD')
     inst_id_suffix = inst_id.replace('BCD', '')
     for c in inst_id_suffix:
@@ -66,9 +66,9 @@ def test_generate_new_inst_id_when_asset_class_cash(data_generator):
 
 
 def test_generate_new_inst_id_when_asset_class_stock(data_generator):
-    data_generator._DataGenerator__get_preemptive_generation = MagicMock()
+    data_generator._DataGenerator__get_preemptive_generation = Mock()
     inst_id = data_generator.generate_new_inst_id(asset_class='Stock')
-    data_generator._DataGenerator__get_preemptive_generation.has_been_called()
+    data_generator._DataGenerator__get_preemptive_generation.assert_called_once_with()
     is_correct_format = inst_id.startswith('ABC')
     inst_id_suffix = inst_id.replace('ABC', '')
     for c in inst_id_suffix:
