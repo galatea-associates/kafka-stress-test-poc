@@ -28,15 +28,26 @@ data_template = {
     'front_office_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
         'position_type': {'func': partial(ddc.generate_position_type,
-                                          no_td=True)},
+                                          no_sd=True)},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {'func': partial(ddc.generate_effective_date,
-                                           n_days_to_add=3),
-                           'args': ['knowledge_date']},
+        'effective_date': {'func': ddc.generate_effective_date,
+                           'args': ['knowledge_date', 'position_type']},
         'account': {'func': ddc.generate_account},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='FOP')},
+    },
+    'back_office_position': {
+        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'position_type': {'func': ddc.generate_position_type},
+        'knowledge_date': {'func': ddc.generate_knowledge_date},
+        'effective_date': {'func': partial(ddc.generate_effective_date,
+                                           n_days_to_add=3),
+                           'args': ['knowledge_date', 'position_type']},
+        'account': {'func': ddc.generate_account},
+        'direction': {'func': ddc.generate_direction},
+        'qty': {'func': ddc.generate_qty},
+        'purpose': {'func': partial(ddc.generate_purpose, data_type='BOP')},
     },
     'depot_position': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
@@ -44,7 +55,7 @@ data_template = {
                                           no_td=True)},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': ddc.generate_effective_date,
-                           'args': ['knowledge_date']},
+                           'args': ['knowledge_date', 'position_type']},
         'account': {'func': partial(ddc.generate_account, no_ecp=True)},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
@@ -67,7 +78,7 @@ data_template = {
                     'args': ['asset_class']},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': ddc.generate_effective_date,
-                           'args': ['knowledge_date']},
+                           'args': ['knowledge_date', 'position_type']},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='SL')},
         'qty': {'func': ddc.generate_qty},
         'collateral_type': {'func': ddc.generate_collateral_type},
@@ -137,6 +148,10 @@ class DictRunnable(Runnable):
             self.__create_data_file('out/front_office_positions.csv',
                                     args.front_office_positions,
                                     'front_office_position')
+        if args.back_office_positions > 0:
+            self.__create_data_file('out/back_office_positions.csv',
+                                    args.back_office_positions,
+                                    'back_office_position')
         if args.depot_positions > 0:
             self.__create_data_file('out/depot_positions.csv',
                                     args.depot_positions,
@@ -204,6 +219,7 @@ def get_args():
     optional_args = {'nargs': '?', 'type': int, 'default': 0}
     parser.add_argument('--prices', **optional_args)
     parser.add_argument('--front-office-positions', **optional_args)
+    parser.add_argument('--back-office-positions', **optional_args)
     parser.add_argument('--inst-refs', **optional_args)
     parser.add_argument('--depot-positions', **optional_args)
     parser.add_argument('--order-executions', **optional_args)
