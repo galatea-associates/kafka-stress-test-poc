@@ -343,3 +343,6 @@ class DataGenerator:
     def generate_return_type(self):
         return random.choice(['Outstanding', 'Pending Return', 'Pending Recall',
                               'Partial Return', 'Partial Recall', 'Settled'])
+
+    def generate_rdn(self):
+        return 'Rdn'

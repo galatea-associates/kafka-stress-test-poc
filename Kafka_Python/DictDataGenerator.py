@@ -97,7 +97,15 @@ data_template = {
         'end_date': {'func': ddc.generate_swap_end_date,
                      'args': ['status', 'start_date']},
         'swap_type': {'func': ddc.generate_swap_type},
-        'reference_rate': {'func': ddc.generate_reference_rate}
+        'reference_rate': {'func': ddc.generate_reference_rate},
+        'field1': {'func': ddc.generate_rdn},
+        'field2': {'func': ddc.generate_rdn},
+        'field3': {'func': ddc.generate_rdn},
+        'field4': {'func': ddc.generate_rdn},
+        'field5': {'func': ddc.generate_rdn},
+        'field6': {'func': ddc.generate_rdn},
+        'field7': {'func': ddc.generate_rdn},
+        'field8': {'func': ddc.generate_rdn},
     },
     'swap_trade': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
@@ -173,7 +181,7 @@ class DictRunnable(Runnable):
                                     args.swap_trades,
                                     'swap_trade')
         if args.cash > 0:
-            self.__create_data_file('out/swap_trades.csv', args.cash, 'cash')
+            self.__create_data_file('out/cash.csv', args.cash, 'cash')
 
     # file_name corresponds to the name of the CSV file the function will write
     # to n is the number of data entities to write to the CSV file
