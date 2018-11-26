@@ -332,6 +332,12 @@ def parse_args():
                         help="Kafka server port",
                         default=9092)
 
+    parser.add_argument("-s",
+                        "--stopTime",
+                        dest="stop",
+                        help="Kafka server port",
+                        default=None)
+
     args = parser.parse_args()
     return args
 
@@ -348,7 +354,12 @@ def run():
                                           server_args)
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
-    input("Press Enter to exit...")
+
+    print("Producer script started")
+    if server_args.stop and server_args.stop.isdigit():
+        time.sleep(int(server_args.stop))
+    else:
+        input("Press Enter to exit...")
 
 
 if __name__ == '__main__':
