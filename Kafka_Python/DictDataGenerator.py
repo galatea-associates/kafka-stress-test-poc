@@ -76,7 +76,8 @@ data_template = {
                         'args': ['collateral_type']},
         'termination_date': {'func': ddc.generate_termination_date},
         'account': {'func': ddc.generate_account},
-        'is_callable': {'func': ddc.generate_is_callable}
+        'is_callable': {'func': ddc.generate_is_callable},
+        'return_type': {'func': ddc.generate_return_type}
     },
     'swap_contract': {
         'swap_contract_id': {'func': ddc.generate_new_swap_contract_id},

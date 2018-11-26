@@ -339,3 +339,7 @@ class DataGenerator:
 
     def generate_reference_rate(self):
         return random.choice(['LIBOR'])
+
+    def generate_return_type(self):
+        return random.choice(['Outstanding', 'Pending Return', 'Pending Recall',
+                              'Partial Return', 'Partial Recall', 'Settled'])

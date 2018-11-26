@@ -547,3 +547,9 @@ def test_generate_qty(data_generator):
     max_qty = 21
     qty = data_generator.generate_qty(min_qty=min_qty, max_qty=max_qty)
     assert min_qty*100 <= qty <= max_qty*100
+
+
+def test_generate_return_type(data_generator):
+    return_type = data_generator.generate_return_type()
+    assert return_type in ['Outstanding', 'Pending Return', 'Pending Recall',
+                           'Partial Return', 'Partial Recall', 'Settled']
