@@ -63,7 +63,9 @@ def send(server_args, producer_counters, topic, shared_slow_data_queue,
     atexit.register(cleanup_producer, producer=producer)
     schema_keys = None
     schema_values = None
-    shared_data_queue = Queue(maxsize=max_queue_size, slow_queue=shared_slow_data_queue, spawn_fast=True)
+    shared_data_queue = Queue(maxsize=max_queue_size,
+                              slow_queue=shared_slow_data_queue,
+                              spawn_fast=True)
 
     if avro_schema_keys:
         schema_keys = avro.schema.Parse(open(avro_schema_keys).read())
@@ -175,6 +177,7 @@ def profile_senders(server_args, producer_counters, topic, shared_data_queue,
                     locals(),
                     'senders-prof%d.prof' % i)
 
+
 def profile_data_pipe_producer(shared_data_queue, data_generator,
                                max_queue_size, data_args, keys, i):
     cProfile.runctx(('data_pipe_producer(shared_data_queue, '
@@ -183,6 +186,7 @@ def profile_data_pipe_producer(shared_data_queue, data_generator,
                     globals(),
                     locals(),
                     'data-prod-prof%d.prof' % i)
+
 
 def start_sending(server_args, producer_counters, topic,
                   data_generator, numb_prod_procs=1, numb_data_procs=1,

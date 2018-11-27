@@ -52,5 +52,6 @@ class CSVReader(DataGenerator):
         reader._CSVReader__setup_file_reader('out/prices.csv', 100)
         reader._CSVReader__get_next_chunk()
 
+
 if __name__ == "__main__":
     CSVReader.main()
