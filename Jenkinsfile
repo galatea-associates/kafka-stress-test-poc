@@ -62,7 +62,7 @@ pipeline {
                 sh """
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make unittest || true
+                    make unittest
                 """
             }
 
@@ -83,7 +83,7 @@ pipeline {
                 sh """
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make systest || true
+                    make systest
                 """
             }
 
