@@ -24,10 +24,9 @@ import multiprocessing as mp
 
 
 class Producer():
-    def __init__(self, init_val=0, limit_val=0, ready_start_prod=False):
+    def __init__(self, init_val=0, limit_val=0):
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
-        self.ready_start_producing = Value('i', ready_start_prod)
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
         self.end_topic = Value('i', False)
 
@@ -57,7 +56,7 @@ def process_val(val, args=None):
 
 def send(server_args, producer_counters, topic, shared_slow_data_queue,
          avro_schema_keys, avro_schema_values, serializer,
-         max_queue_size):
+         max_queue_size, shared_bar):
     server_addr = str(server_args.ip) + ":" + str(server_args.port)
     producer = KafkaProducer(bootstrap_servers=[server_addr])
     atexit.register(cleanup_producer, producer=producer)
@@ -71,8 +70,7 @@ def send(server_args, producer_counters, topic, shared_slow_data_queue,
         schema_keys = avro.schema.Parse(open(avro_schema_keys).read())
     if avro_schema_values:
         schema_values = avro.schema.Parse(open(avro_schema_values).read())
-    while not bool(producer_counters.ready_start_producing.value):
-        pass
+    shared_bar.wait()
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             if bool(producer_counters.end_topic.value):
@@ -109,12 +107,12 @@ def on_send_error(producer_counters, _):
 
 def reset_every_second(producer_counters, topic, time_interval,
                        shared_dict, shared_slow_data_queue,
-                       max_queue_size):
-    while ((not bool(producer_counters.ready_start_producing.value)) and 
-           (shared_slow_data_queue.qsize() < max_queue_size)):
+                       max_queue_size, shared_bar,
+                       load_data_first):
+    while ((shared_slow_data_queue.qsize() < max_queue_size) and load_data_first):
         time.sleep(1)
-    producer_counters.ready_start_producing.value = int(True)
     print(topic + "- Ready to start sending")
+    shared_bar.wait()
     prev_time = time.time()
     while True:
         if bool(producer_counters.end_topic.value):
@@ -189,10 +187,12 @@ def profile_data_pipe_producer(shared_data_queue, data_generator,
 
 
 def start_sending(server_args, producer_counters, topic,
-                  data_generator, numb_prod_procs=1, numb_data_procs=1,
+                  data_generator, shared_bar,
+                  numb_prod_procs=1, numb_data_procs=1,
                   time_interval=1, avro_schema_keys=None,
                   avro_schema_values=None, serializer=None,
-                  max_data_pipe_size=100, data_args=None, keys=None):
+                  max_data_pipe_size=100, data_args=None, keys=None,
+                  load_data_first=True):
 
     shared_dict[topic] = manager.list()
     shared_data_queue = mp.Queue(maxsize=max_data_pipe_size)
@@ -232,7 +232,8 @@ def start_sending(server_args, producer_counters, topic,
                                     avro_schema_keys,
                                     avro_schema_values,
                                     serializer,
-                                    max_data_pipe_size)) for _ in range(numb_prod_procs)]
+                                    max_data_pipe_size,
+                                    shared_bar)) for _ in range(numb_prod_procs)]
 
     timer_proc = Process(target=reset_every_second,
                          args=(producer_counters,
@@ -240,7 +241,9 @@ def start_sending(server_args, producer_counters, topic,
                                time_interval,
                                shared_dict,
                                shared_data_queue,
-                               max_data_pipe_size))
+                               max_data_pipe_size,
+                               shared_bar,
+                               load_data_first))
 
     for p in data_gen_procs:
         p.start()
@@ -301,7 +304,7 @@ def cleanup(config=None, topics_procs=None):
         produce_output(dict_key=topic, output_time=output_time)
 
 
-def process_data_config(config, server_args):
+def process_data_config(config, server_args, shared_bar):
 
     topics_procs = []
     producer_list = []
@@ -309,8 +312,7 @@ def process_data_config(config, server_args):
     for topic in config:
 
         producer_counters = Producer(init_val=config[topic]["Counter"]["Initial Value"],
-                                     limit_val=config[topic]["Counter"]["Limit Value"],
-                                     ready_start_prod=(not config[topic]['Load data first']))
+                                     limit_val=config[topic]["Counter"]["Limit Value"])
         producer_list.append(producer_counters)
 
         procs = start_sending(server_args=server_args, 
@@ -325,7 +327,9 @@ def process_data_config(config, server_args):
                               serializer=config[topic]["Serializer"],
                               max_data_pipe_size=config[topic]["Data Queue Max Size"],
                               data_args=config[topic]['Data Args'],
-                              keys=config[topic]["Keys"])
+                              keys=config[topic]["Keys"],
+                              shared_bar=shared_bar,
+                              load_data_first=config[topic]['Load data first'])
 
         topics_procs.append(procs)
 
@@ -356,6 +360,13 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+def get_num_processes(config):
+    num_processes = 1  # Is set to 1 due to main thread being 1
+    for topic in config:
+
+        # Add number of spawned processes and additional clock process
+        num_processes += config[topic]["Number of Processes"] + 1
+    return num_processes
 
 def run():
     global manager, shared_dict
@@ -363,14 +374,17 @@ def run():
     server_args = parse_args()
 
     manager = Manager()
-    shared_dict = manager.dict()    
+    shared_dict = manager.dict()
+    shared_bar = manager.Barrier(parties=get_num_processes(configuration))    
 
     topics_procs, _ = process_data_config(configuration,
-                                          server_args)
+                                          server_args,
+                                          shared_bar)
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
 
     print("Producer script started")
+    shared_bar.wait()
     if server_args.stop and server_args.stop.isdigit():
         time.sleep(int(server_args.stop))
     else:
