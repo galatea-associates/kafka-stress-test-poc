@@ -4,7 +4,6 @@ from threading import Thread
 import _multiprocessing as _mp
 
 
-
 class Queue:
     def __init__(self, maxsize=0, spawn_fast=False, slow_queue=None):
         if maxsize <= 0:

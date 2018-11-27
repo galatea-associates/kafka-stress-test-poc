@@ -10,7 +10,7 @@ class CSVReader(DataGenerator):
         self.__lock = Lock()
 
     def __setup_file_reader(self, file, chunksize):
-        self.__file_reader = dd.read_csv(file)#, chunksize=chunksize, low_memory=False)
+        self.__file_reader = dd.read_csv(file)
 
     def convert_to_dict(self, row):
         dict = {}
@@ -20,17 +20,7 @@ class CSVReader(DataGenerator):
 
     def __get_next_chunk(self):
         with self.__lock:
-            # raw_data = self.__file_reader.head(n=100).to_dict()
-             return self.__file_reader.head(n=100).to_dict(orient='records')
-
-            # data = [self.convert_to_dict(row) for _, row in raw_data.iterrows()]
-            # return data
-            # try:
-            #     return data # self.__file_reader.get_chunk().to_dict(orient='records')
-            #
-            # #If EOF a StopIteration exception occurs
-            # except StopIteration:
-            #     return None
+            return self.__file_reader.head(n=100).to_dict(orient='records')
 
     # In DataConfiguration.py, 'Data Args' field should look like:
     # {'File': './out/prices.csv',
@@ -40,7 +30,8 @@ class CSVReader(DataGenerator):
     def run(self, args):
         with self.__lock:
             if self.__file_reader is None:
-                self.__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
+                self.__setup_file_reader(file=args["File"],
+                                         chunksize=args["Chunk Size"])
 
         data = self.__get_next_chunk()
         
@@ -49,7 +40,6 @@ class CSVReader(DataGenerator):
             if args["Loop on end"]:
                 
                 #If loop on EOF then start reader again at beginning
-                # self.self__setup_file_reader(file=args["File"], chunksize=args["Chunk Size"])
                 data = self.__get_next_chunk()
             else:
                 return None
@@ -61,9 +51,6 @@ class CSVReader(DataGenerator):
         reader = CSVReader()
         reader._CSVReader__setup_file_reader('out/prices.csv', 100)
         reader._CSVReader__get_next_chunk()
-        # print(type(reader._CSVReader__get_next_chunk()))
-        # print(type(reader._CSVReader__get_next_chunk()['inst_id']))
-
 
 if __name__ == "__main__":
     CSVReader.main()

@@ -47,4 +47,3 @@ class ParallelCSVReader(DataGenerator):
                 return None
 
         return data
-

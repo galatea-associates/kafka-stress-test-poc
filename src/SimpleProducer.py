@@ -69,28 +69,20 @@ def send(server_args, producer_counters, topic, shared_slow_data_queue,
         schema_keys = avro.schema.Parse(open(avro_schema_keys).read())
     if avro_schema_values:
         schema_values = avro.schema.Parse(open(avro_schema_values).read())
-    #print(shared_data_queue.qsize())
     while not bool(producer_counters.ready_start_producing.value):
         pass
-    count = 0
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             if bool(producer_counters.end_topic.value):
                 return
             try:
-                #count+= 1
-                #if count >= 300000:
-                    #print("Quitting now")
-                    #producer_counters.end_topic.value = int(True)
-                    #return
-                #val = shared_data_queue.get()
                 val = shared_data_queue.get_nowait()
             except queue.Empty:
-                #print(str(topic) + " - Queue is Empty. Now Quitting this topic.")
+                print(str(topic) + " - Queue is Empty. Now Quitting this topic.")
                 producer_counters.end_topic.value = int(True)
                 return
             if val is None:
-                #print(str(topic) + " - Value is returned as None. Now Quitting this topic.")
+                print(str(topic) + " - Value is returned as None. Now Quitting this topic.")
                 producer_counters.end_topic.value = int(True)
                 return
             producer.send(topic,
@@ -113,13 +105,14 @@ def on_send_error(producer_counters, _):
     producer_counters.error_counter.increment()
 
 
-def reset_every_second(producer_counters, topic, time_interval, shared_dict, shared_slow_data_queue, max_queue_size):
+def reset_every_second(producer_counters, topic, time_interval,
+                       shared_dict, shared_slow_data_queue,
+                       max_queue_size):
     while ((not bool(producer_counters.ready_start_producing.value)) and 
            (shared_slow_data_queue.qsize() < max_queue_size)):
-        #print(shared_slow_data_queue.qsize())
         time.sleep(1)
     producer_counters.ready_start_producing.value = int(True)
-    #print(topic + "- Ready to start sending")
+    print(topic + "- Ready to start sending")
     prev_time = time.time()
     while True:
         if bool(producer_counters.end_topic.value):
@@ -152,8 +145,10 @@ def split_key_and_value(data, keys=None):
     return {"key": keys_dict, "value": values_dict}
 
 
-def data_pipe_producer(shared_slow_data_queue, data_generator, max_queue_size, data_args, keys):
-    shared_data_queue = Queue(slow_queue=shared_slow_data_queue, maxsize=max_queue_size)
+def data_pipe_producer(shared_slow_data_queue, data_generator,
+                       max_queue_size, data_args, keys):
+    shared_data_queue = Queue(slow_queue=shared_slow_data_queue,
+                              maxsize=max_queue_size)
     while True:
         if shared_data_queue.qsize() < max_queue_size:
             data = process_val(data_generator, data_args)
@@ -189,12 +184,13 @@ def profile_data_pipe_producer(shared_data_queue, data_generator,
                     locals(),
                     'data-prod-prof%d.prof' % i)
 
-def start_sending(server_args, producer_counters, topic, data_generator, numb_prod_procs=1, numb_data_procs=1,
-                  time_interval=1, avro_schema_keys=None, avro_schema_values=None, serializer=None, max_data_pipe_size=100,
-                  data_args=None, keys=None):
+def start_sending(server_args, producer_counters, topic,
+                  data_generator, numb_prod_procs=1, numb_data_procs=1,
+                  time_interval=1, avro_schema_keys=None,
+                  avro_schema_values=None, serializer=None,
+                  max_data_pipe_size=100, data_args=None, keys=None):
 
     shared_dict[topic] = manager.list()
-    #shared_data_queue = Queue(maxsize=max_data_pipe_size)
     shared_data_queue = mp.Queue(maxsize=max_data_pipe_size)
     procs = []
 
@@ -247,8 +243,6 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
 
     procs += producer_procs
     procs.append(timer_proc)
-    # Sleep for a second to let the data generators have time to push some data into the queue
-    time.sleep(5.0)
     for p in procs: 
         p.start()
     procs += data_gen_procs
