@@ -1,26 +1,22 @@
 # Modified from - https://github.com/WeiTang114/FMQ
-import multiprocessing as mp
-import queue as Queue_
+import queue as python_queue
 from threading import Thread
 import _multiprocessing as _mp
-import weakref
 
 
-class Queue():
-    def __init__(self, maxsize=0, debug=False):
+
+class Queue:
+    def __init__(self, maxsize=0, spawn_fast=False, slow_queue=None):
         if maxsize <= 0:
             # same as mp.Queue
             maxsize = _mp.SemLock.SEM_VALUE_MAX
 
-        self.mpq = mp.Queue(maxsize=maxsize)
-        self.qq = Queue_.Queue(maxsize=maxsize)
+        self.mpq = slow_queue
         self.maxsize = maxsize
-        Queue._steal_daemon(self.mpq, self.qq, self)
-        self.debug = debug
-
-    def __del__(self):
-        if self.debug:
-            print('del')
+        self.spawn_fast = spawn_fast
+        if spawn_fast:
+            self.qq = python_queue.Queue(maxsize=maxsize)
+            self._steal_daemon()
 
     def put(self, item):
         """
@@ -29,47 +25,44 @@ class Queue():
         self.mpq.put(item)
 
     def get_nowait(self):
+        if not self.spawn_fast:
+            return None
         return self.qq.get_nowait()
 
     def get(self):
+        if not self.spawn_fast:
+            return None
         return self.qq.get()
 
     def qsize(self):
         """
         can be 2*(maxsize), because this is the sum of qq.size and mpq.size
         """
+        if not self.spawn_fast:
+            return self.mpq.qsize()
         return self.qq.qsize() + self.mpq.qsize()
 
     def empty(self):
+        if not self.spawn_fast:
+            return self.mpq.empty()
         return self.qq.empty() and self.mpq.empty()
 
     def full(self):
+        if not self.spawn_fast:
+            return self.mpq.full()
         return self.qq.full() and self.mpq.full()
 
-    # static for not referencing "self" strongly
-    # but only weakly-referencing "me"
-    @staticmethod
-    def _steal_daemon(srcq, dstq, me):
-        sentinel = object()
+    def _steal_daemon(self):
 
-        def steal(srcq, dstq, me_ref):
-            while me_ref():
+        def steal(self):
+            while True:
                 # block here
-                obj = srcq.get()
-                if obj is sentinel:
-                    break
-                dstq.put(obj)
-
-                # print 'steal'
-            # print 'daemon done'
-
-        def stop(ref):
-            # print 'stop called'
-            srcq.put(sentinel)
+                self.qq.put(self.mpq.get())
+            print('daemon done')
 
         # when the FastMyQueue object is GCed, stop the thread
         # by the stop() callback
-        me1 = weakref.ref(me, stop)
-        stealer = Thread(target=steal, args=(srcq, dstq, me1,))
-        stealer.daemon = True
-        stealer.start()
+        stealer = [Thread(target=steal, args=(self,)) for _ in range(1, 3)]
+        for steal in stealer:
+            steal.daemon = True
+            steal.start()

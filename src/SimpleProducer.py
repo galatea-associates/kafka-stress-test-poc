@@ -20,6 +20,7 @@ import queue
 import os
 import math
 import statistics
+import multiprocessing as mp
 
 
 class Producer():
@@ -53,33 +54,43 @@ def process_val(val, args=None):
         return_val = val
     return return_val
 
-def send(server_args, producer_counters, topic, shared_data_queue,
-         avro_schema_keys, avro_schema_values, serializer):
+
+def send(server_args, producer_counters, topic, shared_slow_data_queue,
+         avro_schema_keys, avro_schema_values, serializer,
+         max_queue_size):
     server_addr = str(server_args.ip) + ":" + str(server_args.port)
     producer = KafkaProducer(bootstrap_servers=[server_addr])
     atexit.register(cleanup_producer, producer=producer)
     schema_keys = None
     schema_values = None
+    shared_data_queue = Queue(maxsize=max_queue_size, slow_queue=shared_slow_data_queue, spawn_fast=True)
 
     if avro_schema_keys:
         schema_keys = avro.schema.Parse(open(avro_schema_keys).read())
     if avro_schema_values:
         schema_values = avro.schema.Parse(open(avro_schema_values).read())
-        
+    #print(shared_data_queue.qsize())
     while not bool(producer_counters.ready_start_producing.value):
         pass
+    count = 0
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             if bool(producer_counters.end_topic.value):
                 return
             try:
+                #count+= 1
+                #if count >= 300000:
+                    #print("Quitting now")
+                    #producer_counters.end_topic.value = int(True)
+                    #return
+                #val = shared_data_queue.get()
                 val = shared_data_queue.get_nowait()
             except queue.Empty:
-                print(str(topic) + " - Queue is Empty. Now Quitting this topic.")
+                #print(str(topic) + " - Queue is Empty. Now Quitting this topic.")
                 producer_counters.end_topic.value = int(True)
                 return
             if val is None:
-                print(str(topic) + " - Value is returned as None. Now Quitting this topic.")
+                #print(str(topic) + " - Value is returned as None. Now Quitting this topic.")
                 producer_counters.end_topic.value = int(True)
                 return
             producer.send(topic,
@@ -102,12 +113,13 @@ def on_send_error(producer_counters, _):
     producer_counters.error_counter.increment()
 
 
-def reset_every_second(producer_counters, topic, time_interval, shared_dict, shared_data_queue, max_queue_size):
+def reset_every_second(producer_counters, topic, time_interval, shared_dict, shared_slow_data_queue, max_queue_size):
     while ((not bool(producer_counters.ready_start_producing.value)) and 
-           (shared_data_queue.qsize() < max_queue_size)):
+           (shared_slow_data_queue.qsize() < max_queue_size)):
+        #print(shared_slow_data_queue.qsize())
         time.sleep(1)
     producer_counters.ready_start_producing.value = int(True)
-    print(topic + "- Ready to start sending")
+    #print(topic + "- Ready to start sending")
     prev_time = time.time()
     while True:
         if bool(producer_counters.end_topic.value):
@@ -140,7 +152,8 @@ def split_key_and_value(data, keys=None):
     return {"key": keys_dict, "value": values_dict}
 
 
-def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_args, keys):
+def data_pipe_producer(shared_slow_data_queue, data_generator, max_queue_size, data_args, keys):
+    shared_data_queue = Queue(slow_queue=shared_slow_data_queue, maxsize=max_queue_size)
     while True:
         if shared_data_queue.qsize() < max_queue_size:
             data = process_val(data_generator, data_args)
@@ -154,15 +167,15 @@ def data_pipe_producer(shared_data_queue, data_generator, max_queue_size, data_a
                                                               keys=keys))
             else:
                 shared_data_queue.put(split_key_and_value(data=data, keys=keys))
-        else:
-            break
 
 
 def profile_senders(server_args, producer_counters, topic, shared_data_queue,
-                    avro_schema_keys, avro_schema_values, serializer, i):
+                    avro_schema_keys, avro_schema_values, serializer,
+                    max_data_pipe_size, i):
     cProfile.runctx(('send(server_args, producer_counters, topic, '
                      'shared_data_queue, avro_schema_keys, '
-                     'avro_schema_values, serializer)'),
+                     'avro_schema_values, serializer, '
+                     'max_data_pipe_size)'),
                     globals(),
                     locals(),
                     'senders-prof%d.prof' % i)
@@ -181,26 +194,26 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                   data_args=None, keys=None):
 
     shared_dict[topic] = manager.list()
-    shared_data_queue = Queue()
-
+    #shared_data_queue = Queue(maxsize=max_data_pipe_size)
+    shared_data_queue = mp.Queue(maxsize=max_data_pipe_size)
     procs = []
 
-    data_gen_procs = [Process(target=profile_data_pipe_producer,
-                              args=(shared_data_queue,
-                                    data_generator,
-                                    max_data_pipe_size,
-                                    data_args,
-                                    keys,
-                                    i)) for i in range(numb_data_procs)]
-
-    #data_gen_procs = [Process(target=data_pipe_producer,
+    #data_gen_procs = [Process(target=profile_data_pipe_producer,
     #                          args=(shared_data_queue,
     #                                data_generator,
     #                                max_data_pipe_size,
     #                                data_args,
-    #                                keys)) for _ in range(numb_data_procs)]
+    #                                keys,
+    #                                i)) for i in range(numb_data_procs)]
 
-    # producer_procs = [Process(target=profile_senders,
+    data_gen_procs = [Process(target=data_pipe_producer,
+                              args=(shared_data_queue,
+                                    data_generator,
+                                    max_data_pipe_size,
+                                    data_args,
+                                    keys)) for _ in range(numb_data_procs)]
+
+    #producer_procs = [Process(target=profile_senders,
     #                          args=(server_args,
     #                                producer_counters,
     #                                topic,
@@ -208,7 +221,9 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
     #                                avro_schema_keys,
     #                                avro_schema_values,
     #                                serializer,
+    #                                max_data_pipe_size,
     #                                i)) for i in range(numb_prod_procs)]
+
     producer_procs = [Process(target=send,
                               args=(server_args,
                                     producer_counters,
@@ -216,7 +231,8 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
                                     shared_data_queue,
                                     avro_schema_keys,
                                     avro_schema_values,
-                                    serializer)) for _ in range(numb_prod_procs)]
+                                    serializer,
+                                    max_data_pipe_size)) for _ in range(numb_prod_procs)]
 
     timer_proc = Process(target=reset_every_second,
                          args=(producer_counters,
@@ -229,10 +245,10 @@ def start_sending(server_args, producer_counters, topic, data_generator, numb_pr
     for p in data_gen_procs:
         p.start()
 
-    # Sleep for a second to let the data generators have time to push some data into the queue
-    time.sleep(5.0)
     procs += producer_procs
     procs.append(timer_proc)
+    # Sleep for a second to let the data generators have time to push some data into the queue
+    time.sleep(5.0)
     for p in procs: 
         p.start()
     procs += data_gen_procs
@@ -256,6 +272,7 @@ def print_data_results(keys, dict_key):
         print("Mean: " + str(sum(item[key] for item in shared_dict[dict_key]) / length), end=' ')
         print("Max: " + str(max(item[key] for item in shared_dict[dict_key])), end=' ')
         print("Min: " + str(min(item[key] for item in shared_dict[dict_key])), end=' ')
+        print("Total: " + str(sum(item[key] for item in shared_dict[dict_key])), end=' ')
         if length > 1:
             print("Standard Deviation: " + str(statistics.stdev(item[key] for item in shared_dict[dict_key])))
     print()
@@ -332,6 +349,12 @@ def parse_args():
                         help="Kafka server port",
                         default=9092)
 
+    parser.add_argument("-s",
+                        "--stopTime",
+                        dest="stop",
+                        help="Kafka server port",
+                        default=None)
+
     args = parser.parse_args()
     return args
 
@@ -348,7 +371,12 @@ def run():
                                           server_args)
 
     atexit.register(cleanup, config=configuration, topics_procs=topics_procs)
-    input("Press Enter to exit...")
+
+    print("Producer script started")
+    if server_args.stop and server_args.stop.isdigit():
+        time.sleep(int(server_args.stop))
+    else:
+        input("Press Enter to exit...")
 
 
 if __name__ == '__main__':
