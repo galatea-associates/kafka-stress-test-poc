@@ -24,13 +24,16 @@ import multiprocessing as mp
 
 
 class Producer():
+    ''' This is the producer docstring '''
     def __init__(self, init_val=0, limit_val=0):
+        ''' this is the producer init docstring '''
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
         self.end_topic = Value('i', False)
 
 def serialize_val(val, serializer, schema=None):
+    ''' This is the serialize val docstring''''
     if serializer == "Avro":
         writer = DatumWriter(schema)
         bytes_writer = io.BytesIO()
