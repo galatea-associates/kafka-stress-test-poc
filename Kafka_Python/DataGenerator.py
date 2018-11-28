@@ -34,6 +34,21 @@ class DataGenerator:
         return asset_class
 
     def generate_new_inst_id(self, n_chars=5, asset_class=None):
+        '''
+        Generates a new instrument ID that is not used by any other instrument.
+        ID will start with 'ABC' is the asset_class ia 'Stock' and 'BC" if it is
+        'Cash'
+
+        Args:
+            n_chars: number of characters after prefix ('ABC' or 'BCD')
+
+            asset_class: asset class of the instrument for which the instrument
+            ID is being created
+            If the asset_class is None, we generate it and save the generated
+            value in the state class variable op it can be fetched later on
+
+        Return: string comprised of a prefix and a random suffix
+        '''
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
@@ -162,6 +177,14 @@ class DataGenerator:
         return random.choice(['Stock', 'Cash'])
 
     def generate_coi(self):
+        """
+        Generates a country of issuer
+
+        Args:
+
+        Return: one of the following strings ['US', 'GB', 'CA', 'FR', 'DE',
+                                              'CH', 'SG', 'JP']
+        """
         return random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
 
     def generate_price(self, inst_id=None):
@@ -179,6 +202,13 @@ class DataGenerator:
             return 1.00
 
     def generate_currency(self):
+        """
+        Generates a country of issuer
+
+        Args:
+
+        Return: one of the following strings ['USD', 'CAD', 'EUR', 'GBP']
+        """
         return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
 
     def generate_position_type(self, no_sd=False, no_td=False):
@@ -266,12 +296,34 @@ class DataGenerator:
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
     def generate_haircut(self):
+        """
+        Generates a haircut value, typically this is 2% so that is the value
+        we are using
+
+        Args:
+
+        Return: 2.00%
+        """
         return '2.00%'
 
     def generate_collateral_type(self):
+        """
+        Generates a collateral type
+
+        Args:
+
+        Return: one of the following strings ['Cash', 'Non Cash']
+        """
         return random.choice(['Cash', 'Non Cash'])
 
     def generate_is_callable(self):
+        """
+        Generates a is_callable value: 'Yes' means it is and 'No' means it isn't
+
+        Args:
+
+        Return: one of the following strings ['Yes', 'No']
+        """
         return random.choice(['Yes', 'No'])
 
     # TODO: change knowledge date function name
@@ -304,6 +356,13 @@ class DataGenerator:
         return random.choice(self.__swap_contract_ids)
 
     def generate_status(self):
+        """
+        Generates a status
+
+        Args:
+
+        Return: one of the following strings ['Live', 'Dead']
+        """
         return random.choice(['Live', 'Dead'])
 
     # TODO: merge knowledge_date with swap_start_date maybe even effective_date
@@ -335,14 +394,45 @@ class DataGenerator:
             return start_date + datetime.timedelta(days=365*n_years_to_add)
 
     def generate_swap_type(self):
+        """
+        Generates a swap type
+
+        Args:
+
+        Return: one of the following strings ['Equity', 'Portfolio']
+        """
         return random.choice(['Equity', 'Portfolio'])
 
     def generate_reference_rate(self):
+        """
+        Generates a reference rate
+
+        Args:
+
+        Return: one of the following strings ['LIBOR']
+        """
         return random.choice(['LIBOR'])
 
     def generate_return_type(self):
+        """
+        Generates a return type
+
+        Args:
+
+        Return: one of the following strings
+        ['Outstanding', 'Pending Return', 'Pending Recall', 'Partial Return',
+         'Partial Recall', 'Settled']
+        """
         return random.choice(['Outstanding', 'Pending Return', 'Pending Recall',
                               'Partial Return', 'Partial Recall', 'Settled'])
 
     def generate_rdn(self):
+        """
+        Returns same value, used for mock fields, i.e. fields used just to make
+        the data type more realistic in therms of number of of fields it has
+
+        Args:
+
+        Return: 'Rdn'
+        """
         return 'Rdn'
