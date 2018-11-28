@@ -33,7 +33,7 @@ class Producer():
         self.end_topic = Value('i', False)
 
 def serialize_val(val, serializer, schema=None):
-    ''' This is the serialize val docstring''''
+    ''' This is the serialize val docstring'''
     if serializer == "Avro":
         writer = DatumWriter(schema)
         bytes_writer = io.BytesIO()
