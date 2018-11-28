@@ -278,21 +278,81 @@ class DataGenerator:
         return random.choice(choices)
 
     def generate_depot_id(self, n_digits=5):
+        """
+        Generates a depot ID, here the ID is a sequence of numbers, no
+        letters. This is why we pick characters from string.digits only
+
+        Args:
+            n_digits: the number of digits to have in the ID, i.e. the length of
+            the ID
+
+        Return: a string comprised of n_digits digits
+        """
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
     def generate_account_number(self, n_digits=8):
+        """
+        Generates an account number, here the ID is a sequence of numbers, no
+        letters. This is why we pick characters from string.digits only
+
+        Args:
+            n_digits: the number of digits to have in the ID, i.e. the length of
+            the ID
+
+        Return: a string comprised of n_digits digits
+        """
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
     def generate_order_id(self, n_digits=8):
+        """
+        Generates an order ID, here the ID is a sequence of numbers, no letters.
+        This is why we pick characters from string.digits only
+
+        Args:
+            n_digits: the number of digits to have in the ID, i.e. the length of
+            the ID
+
+        Return: a string comprised of n_digits digits
+        """
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
     def generate_customer_id(self, n_digits=8):
+        """
+        Generates a customer ID, here the ID is a sequence of numbers, no
+        letters. This is why we pick characters from string.digits only
+
+        Args:
+            n_digits: the number of digits to have in the ID, i.e. the length of
+            the ID
+
+        Return: a string comprised of n_digits digits
+        """
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
     def generate_sto_id(self, n_digits=7):
+        """
+        Generates a STO ID, here the ID is a sequence of numbers, no letters.
+        This is why we pick characters from string.digits only
+
+        Args:
+            n_digits: the number of digits to have in the ID, i.e. the length of
+            the ID
+
+        Return: a string comprised of n_digits digits
+        """
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
     def generate_agent_id(self, n_digits=7):
+        """
+        Generates an agent ID, here the ID is a sequence of numbers, no letters.
+        This is why we pick characters from string digits only
+
+        Args:
+            n_digits: the number of digits to have in the ID, i.e. the length of
+            the ID
+
+        Return: a string comprised of n_digits digits
+        """
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
     def generate_haircut(self):
@@ -302,7 +362,7 @@ class DataGenerator:
 
         Args:
 
-        Return: 2.00%
+        Return: a string representing 2.00%
         """
         return '2.00%'
 
