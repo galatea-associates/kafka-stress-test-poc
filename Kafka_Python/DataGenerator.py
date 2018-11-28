@@ -258,6 +258,13 @@ class DataGenerator:
         return account_type + ''.join(digits)
 
     def generate_direction(self):
+        """
+        Generates a direction
+
+        Args:
+
+        Return: one of the following strings ['Credit', 'Debit']
+        """
         return random.choice(['Credit', 'Debit'])
 
     def generate_qty(self, min_qty=1, max_qty=21):
