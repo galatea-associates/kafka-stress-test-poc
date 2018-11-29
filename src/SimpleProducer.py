@@ -1,39 +1,49 @@
 import atexit
-import time
-
 import cProfile
+import csv
+import io
+import json
+import math
+import multiprocessing as mp
+import os
+import queue
+import statistics
+import time
+from argparse import ArgumentParser
+from multiprocessing import Manager, Process, Value
 
 import avro.schema
 from avro.io import DatumWriter
 from kafka import KafkaProducer
 
-import csv
-import io
-import json
 from Counter import Counter
 from DataConfiguration import configuration
 from DataGenerator import DataGenerator
-from argparse import ArgumentParser
-from multiprocessing import Value, Manager, Process
 from fmq import Queue
-import queue
-import os
-import math
-import statistics
-import multiprocessing as mp
 
 
 class Producer():
-    ''' This is the producer docstring '''
+    """Holds the key shared counters for each topic for producers."""
+
     def __init__(self, init_val=0, limit_val=0):
-        ''' this is the producer init docstring '''
+        """Acts as the initialization for each counter.
+
+        Stores the shared counters that each topic uses. The counters
+        generated 
+
+        Args:
+            self: Reference to class self.
+            init_val: The initial value that the counters will have set.
+            limit_val: The maximum value the counters can be set to.
+        """
         self.sent_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.received_counter = Counter(init_val=init_val, limit_val=limit_val)
         self.error_counter = Counter(init_val=init_val, limit_val=math.inf)
         self.end_topic = Value('i', False)
 
+
 def serialize_val(val, serializer, schema=None):
-    ''' This is the serialize val docstring'''
+    """Serializes the data in preparation for sending."""
     if serializer == "Avro":
         writer = DatumWriter(schema)
         bytes_writer = io.BytesIO()
