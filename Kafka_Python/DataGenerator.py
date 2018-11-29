@@ -9,6 +9,7 @@ import datetime
 class DataGenerator:
 
     def __init__(self):
+        self.__stock_loan_contract_ids = []
         self.__swap_contract_ids = []
         self.__stock_inst_ids = {}
         self.__cash_inst_ids = {}
@@ -431,6 +432,22 @@ class DataGenerator:
             return '5.75%'
         else:
             return ''
+
+    def generate_new_stock_loan_contract_id(self, n_digits=8):
+        """
+        Generates a new swap contract ID that is not used by any other current
+        swap contracts. Adds new ID to __swap_contract_ids in order to keep
+        keep track of all the current ones (so we avoid clashes)
+
+        Args:
+            n_digits: number of digits in the ID, i.e. the length of the ID
+            since it contains only digits
+
+        Return: string comprised of n_digits digits
+        """
+        id = ''.join([random.choice(string.digits) for _ in range(n_digits)])
+        self.__stock_loan_contract_ids.append(id)
+        return id
 
     def generate_new_swap_contract_id(self, n_digits=8):
         """

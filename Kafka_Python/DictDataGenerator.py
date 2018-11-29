@@ -74,6 +74,9 @@ data_template = {
         'qty': {'func': ddc.generate_qty}
     },
     'stock_loan': {
+        'stock_loan_contract_id': {
+            'func': ddc.generate_new_stock_loan_contract_id
+        },
         'inst_id': {'func': partial(ddc.generate_inst_id, only='S'),
                     'args': ['asset_class']},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
