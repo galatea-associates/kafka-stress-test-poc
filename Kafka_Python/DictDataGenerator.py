@@ -18,7 +18,7 @@ data_template = {
         'cusip': {'func': ddc.generate_cusip,
                   'args': ['ticker', 'asset_class']},
         'asset_class': {'func': ddc.generate_asset_class},
-        'coi': {'func': ddc.generate_coi}
+        'coi': {'func': ddc.generate_coi, 'args': ['asset_class']}
     },
     'price': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},

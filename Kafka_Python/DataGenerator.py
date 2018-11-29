@@ -34,7 +34,7 @@ class DataGenerator:
         return asset_class
 
     def generate_new_inst_id(self, n_chars=5, asset_class=None):
-        '''
+        """
         Generates a new instrument ID that is not used by any other instrument.
         ID will start with 'ABC' is the asset_class ia 'Stock' and 'BC" if it is
         'Cash'
@@ -48,7 +48,7 @@ class DataGenerator:
             value in the state class variable op it can be fetched later on
 
         Return: string comprised of a prefix and a random suffix
-        '''
+        """
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
@@ -65,6 +65,17 @@ class DataGenerator:
         return inst_id
 
     def generate_inst_id(self, only=None, asset_class=None):
+        """
+        Generates an existing instrument ID from __stock_inst_ids if the asset
+        class of interest in 'Stock' or __cash_inst_ids if the asset class of
+        interest is 'Cash'
+
+        Args:
+            only:
+
+        Return: string comprised of n_digits digits
+        """
+
         if only is None:
             if asset_class is None:
                 asset_class = self.__get_preemptive_generation(
@@ -176,7 +187,7 @@ class DataGenerator:
     def generate_asset_class(self):
         return random.choice(['Stock', 'Cash'])
 
-    def generate_coi(self):
+    def generate_coi(self, asset_class=None):
         """
         Generates a country of issuer
 
@@ -185,6 +196,14 @@ class DataGenerator:
         Return: one of the following strings ['US', 'GB', 'CA', 'FR', 'DE',
                                               'CH', 'SG', 'JP']
         """
+        if asset_class is None:
+            asset_class = self.__get_preemptive_generation(
+                'asset_class',
+                self.generate_asset_class())
+
+        if asset_class == 'Cash':
+            return ''
+
         return random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
 
     def generate_price(self, inst_id=None):
@@ -414,12 +433,30 @@ class DataGenerator:
             return ''
 
     def generate_new_swap_contract_id(self, n_digits=8):
+        """
+        Generates a new swap contract ID that is not used by any other current
+        swap contracts. Adds new ID to __swap_contract_ids in order to keep
+        keep track of all the current ones (so we avoid clashes)
+
+        Args:
+            n_digits: number of digits in the ID, i.e. the length of the ID
+            since it contains only digits
+
+        Return: string comprised of n_digits digits
+        """
         id = ''.join([random.choice(string.digits) for _ in range(n_digits)])
         self.__swap_contract_ids.append(id)
         return id
 
     # TODO: what happens if __swap_contract_ids is empty?
     def generate_swap_contract_id(self):
+        """
+        Generates an existing swap contract ID from __swap_contract_ids
+
+        Args:
+
+        Return: string comprised of n_digits digits
+        """
         return random.choice(self.__swap_contract_ids)
 
     def generate_status(self):
