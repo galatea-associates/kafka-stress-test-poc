@@ -17,8 +17,10 @@ data_template = {
         'ticker': {'func': ddc.generate_ticker, 'args': ['asset_class']},
         'cusip': {'func': ddc.generate_cusip,
                   'args': ['ticker', 'asset_class']},
-        'asset_class': {'func': ddc.generate_asset_class},
-        'coi': {'func': ddc.generate_coi, 'args': ['asset_class']}
+        'asset_class': {'func': partial(ddc.generate_asset_class,
+                                        generating_inst=True)},
+        'coi': {'func': ddc.generate_coi, 'args': ['asset_class']},
+        # 'event-time': {'func': ddc.generate_time_stamp}
     },
     'price': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},

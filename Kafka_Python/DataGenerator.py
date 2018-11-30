@@ -1,7 +1,10 @@
 import random
+from functools import partial
 import string
 import datetime
-
+import time
+# from pandas import Timestamp
+import pandas
 # TODO: merge sedol and cusip dictionaries
 # TODO: check inst_id is unique
 
@@ -9,6 +12,7 @@ import datetime
 class DataGenerator:
 
     def __init__(self):
+        self.__curr_in_inst = []
         self.__stock_loan_contract_ids = []
         self.__swap_contract_ids = []
         self.__stock_inst_ids = {}
@@ -16,6 +20,7 @@ class DataGenerator:
         self.__stock_to_cusip = {}
         self.__stock_to_sedol = {}
         self.__state = {}
+        self.__possible_curr = ['USD', 'CAD', 'EUR', 'GBP']
 
     def state_contains_field(self, field_to_generate):
         return field_to_generate in self.__state
@@ -26,13 +31,13 @@ class DataGenerator:
     def clear_state(self):
         self.__state = {}
 
+    # TODO: change this to function calls, don't pass actual value
     def __get_preemptive_generation(self, field_name, field_value):
         if field_name not in self.__state:
-            asset_class = field_value
             self.__state[field_name] = field_value
+            return field_value
         else:
-            asset_class = self.__state[field_name]
-        return asset_class
+            return self.__state[field_name]
 
     def generate_new_inst_id(self, n_chars=5, asset_class=None):
         """
@@ -53,7 +58,7 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class())
+                self.generate_asset_class(generating_inst=True))
 
         possible_chars = string.ascii_uppercase + string.digits
         suffix = [random.choice(possible_chars) for _ in range(n_chars)]
@@ -81,7 +86,7 @@ class DataGenerator:
             if asset_class is None:
                 asset_class = self.__get_preemptive_generation(
                     'asset_class',
-                    self.generate_asset_class())
+                    self.generate_asset_class(generating_inst=True))
         elif only == 'S':
             asset_class = 'Stock'
         else:
@@ -96,7 +101,7 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class())
+                self.generate_asset_class(generating_inst=True))
 
         if asset_class is 'Cash':
             return ''
@@ -119,7 +124,7 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class())
+                self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Cash':
             return ''
@@ -142,7 +147,7 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class())
+                self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Cash':
             return ''
@@ -161,7 +166,7 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class())
+                self.generate_asset_class(generating_inst=True))
 
         if asset_class is 'Cash':
             return ''
@@ -177,16 +182,25 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class())
+                self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Stock':
             return random.choice(['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F',
                                   'GOOGL', 'FB'])
         else:
-            return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
+            possibles_curr_tickers = [c for c in self.__possible_curr
+                                      if c not in self.__curr_in_inst]
+            curr = random.choice(possibles_curr_tickers)
+            self.__curr_in_inst.append(curr)
+            return curr
 
-    def generate_asset_class(self):
-        return random.choice(['Stock', 'Cash'])
+    def generate_asset_class(self, generating_inst=False):
+        if generating_inst:
+            if len(self.__curr_in_inst) == len(self.__possible_curr):
+                return 'Stock'
+            return random.choice(['Stock', 'Cash'])
+        else:
+            return random.choice(['Stock', 'Cash'])
 
     def generate_coi(self, asset_class=None):
         """
@@ -229,7 +243,7 @@ class DataGenerator:
 
         Return: one of the following strings ['USD', 'CAD', 'EUR', 'GBP']
         """
-        return random.choice(['USD', 'CAD', 'EUR', 'GBP'])
+        return random.choice(self.__possible_curr)
 
     def generate_position_type(self, no_sd=False, no_td=False):
         choices = ['SD', 'TD']
@@ -557,3 +571,16 @@ class DataGenerator:
         Return: 'Rdn'
         """
         return 'Rdn'
+
+    def generate_time_stamp(self):
+        """
+        Returns timestamp
+
+        Args:
+
+        Return: timestamp
+        """
+
+        now = Timestamp.utcnow()
+        return now.to_datetime64()
+        # return datetime.datetime.utcnow()
