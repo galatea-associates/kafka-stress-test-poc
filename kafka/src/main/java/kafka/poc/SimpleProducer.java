@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-
-import kafka.poc.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
@@ -14,52 +14,18 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 
 import java.util.Properties;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public final class SimpleProducer {
     private SimpleProducer() {
     }
-    
-    public static byte[] serializeMessageValues(instrument_reference_data_values eventMessage) throws IOException {
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-        DatumWriter<instrument_reference_data_values> writer = new SpecificDatumWriter<instrument_reference_data_values>(instrument_reference_data_values.getClassSchema());
-        writer.write(eventMessage, encoder);
-        encoder.flush();
-        out.close();
-        return out.toByteArray();
-    }
 
-    public static byte[] serializeMessageKeys(instrument_reference_data_keys eventMessage) throws IOException {
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-        DatumWriter<instrument_reference_data_keys> writer = new SpecificDatumWriter<instrument_reference_data_keys>(instrument_reference_data_keys.getClassSchema());
-        writer.write(eventMessage, encoder);
-        encoder.flush();
-        out.close();
-        return out.toByteArray();
-    }
-    
-    /**
-     * Says hello to the world.
-     * @param args The arguments of the program.
-     */
-
-    public static void main(String[] args) {
-
+    private static Producer producer(){
         Properties properties = new Properties();
-        /*properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "3.8.1.159:9092");
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                  io.confluent.kafka.serializers.KafkaAvroSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                  io.confluent.kafka.serializers.KafkaAvroSerializer.class);
-        properties.put("schema.registry.url", "http://localhost:8081");*/
         properties.put("bootstrap.servers", "3.8.1.159:9092");
         properties.put("acks", "1");
         properties.put("retries", 0);
@@ -70,13 +36,24 @@ public final class SimpleProducer {
         properties.put("key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
         properties.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 
-        Producer kafkaProducer = new KafkaProducer(properties);
+        return new KafkaProducer(properties);
+    }
 
-
-        String csvFile = "./src/out/inst-ref.csv";
+    public static <T> byte[] serializeMessage(T eventMessage, org.apache.avro.Schema classSchema) throws IOException {
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+        DatumWriter<T> writer = new SpecificDatumWriter<T>(classSchema);
+        writer.write(eventMessage, encoder);
+        encoder.flush();
+        out.close();
+        return out.toByteArray();
+    }
+    
+    private static List<String[]> read_file(String csvFile){
+        List<String[]> data = new ArrayList<String[]>();
         String line = "";
         String cvsSplitBy = ",";
-        List<String[]> data = new ArrayList<String[]>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
 
@@ -90,36 +67,81 @@ public final class SimpleProducer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return data;
+    }
+
+
+    private static void start_sending(Producer kafkaProducer, String topic, List<String[]> data, Class keyClassType,
+        Class valueClassType) {
         for (String[] singleData : data) {
 
-            instrument_reference_data_keys testKeys = instrument_reference_data_keys.newBuilder()
-                                                        .setInstId(singleData[0])
-                                                        .build();
-
-            instrument_reference_data_values testVal = instrument_reference_data_values.newBuilder()
-                                                        .setAssetClass(singleData[1])
-                                                        .setCOI(singleData[2])
-                                                        .setRIC(singleData[3])
-                                                        .setISIN(singleData[4])
-                                                        .setSEDOL(singleData[5])
-                                                        .setTicker(singleData[6])
-                                                        .setCusip(singleData[7])
-                                                        .build();
-
-
-
             try {
-                ProducerRecord<Object, Object> record = new ProducerRecord<>("instrument_reference_data", serializeMessageKeys(testKeys),
-                        serializeMessageValues(testVal));
+                Constructor<?> keyConstructor = keyClassType.getConstructor(java.lang.CharSequence.class);
+                Constructor<?> valueConstructor = valueClassType.getConstructor(java.lang.CharSequence.class,
+                                                                                java.lang.CharSequence.class,
+                                                                                java.lang.CharSequence.class,
+                                                                                java.lang.CharSequence.class,
+                                                                                java.lang.CharSequence.class,
+                                                                                java.lang.CharSequence.class,
+                                                                                java.lang.CharSequence.class);
+
+
+
+                Object testKeys = keyConstructor.newInstance(new Object[] { singleData[0] });
+
+                Object testVal =  valueConstructor.newInstance(new Object[] { singleData[1],
+                                                                                singleData[2],
+                                                                                singleData[3],
+                                                                                singleData[4],
+                                                                                singleData[5],
+                                                                                singleData[6],
+                                                                                singleData[7] });
+                org.apache.avro.Schema keyClassSchema = (org.apache.avro.Schema) keyClassType.getMethod("getClassSchema").invoke(testKeys);
+                org.apache.avro.Schema valueClassSchema = (org.apache.avro.Schema) valueClassType.getMethod("getClassSchema").invoke(testVal);
+
+                ProducerRecord<Object, Object> record = new ProducerRecord<>(topic,
+                                                                             serializeMessage(testKeys, keyClassSchema),
+                                                                             serializeMessage(testVal, valueClassSchema));
                 kafkaProducer.send(record);
                 System.out.println("I sent a message");
+
             } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (SecurityException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+			} catch (InstantiationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
             
-        }        
+        } 
+    }
+
+    public static void main(String[] args) {
+
+        Producer kafkaProducer = producer();
+
+
+        String csvFile = "./out/inst-ref.csv";
+        String topic = "instrument_reference_data";
+        List<String[]> data = read_file(csvFile);
+        start_sending(kafkaProducer, topic, data, instrument_reference_data_keys.class, instrument_reference_data_values.class);
+               
         kafkaProducer.flush();
         kafkaProducer.close();
     }
