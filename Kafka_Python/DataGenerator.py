@@ -409,7 +409,7 @@ class DataGenerator:
         """
         return ''.join([random.choice(string.digits) for _ in range(n_digits)])
 
-    def generate_haircut(self):
+    def generate_haircut(self, collateral_type=None):
         """
         Generates a haircut value, typically this is 2% so that is the value
         we are using
@@ -418,7 +418,34 @@ class DataGenerator:
 
         Return: a string representing 2.00%
         """
-        return '2.00%'
+        if collateral_type is None:
+            collateral_type = self.__get_preemptive_generation(
+                'collateral_type',
+                self.generate_collateral_type())
+
+        if collateral_type == 'Non Cash':
+            return '2.00%'
+        else:
+            return ''
+
+    def generate_collateral_margin(self, collateral_type=None):
+        """
+        Generates a haircut value, typically this is 2% so that is the value
+        we are using
+
+        Args:
+
+        Return: a string representing 2.00%
+        """
+        if collateral_type is None:
+            collateral_type = self.__get_preemptive_generation(
+                'collateral_type',
+                self.generate_collateral_type())
+
+        if collateral_type == 'Cash':
+            return '140.00%'
+        else:
+            return ''
 
     def generate_collateral_type(self):
         """
@@ -457,6 +484,17 @@ class DataGenerator:
 
         if collateral_type == 'Cash':
             return '5.75%'
+        else:
+            return ''
+
+    def generate_borrow_fee(self, collateral_type=None):
+        if collateral_type is None:
+            collateral_type = self.__get_preemptive_generation(
+                'collateral_type',
+                self.generate_collateral_type())
+
+        if collateral_type == 'Non Cash':
+            return '4.00%%'
         else:
             return ''
 
