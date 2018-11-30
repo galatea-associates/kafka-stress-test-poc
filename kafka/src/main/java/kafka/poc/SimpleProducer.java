@@ -73,19 +73,18 @@ public final class SimpleProducer {
 
     private static void start_sending(Producer kafkaProducer, String topic, List<String[]> data, Class keyClassType,
         Class valueClassType) {
-        for (String[] singleData : data) {
 
-            try {
-                Constructor<?> keyConstructor = keyClassType.getConstructor(java.lang.CharSequence.class);
-                Constructor<?> valueConstructor = valueClassType.getConstructor(java.lang.CharSequence.class,
-                                                                                java.lang.CharSequence.class,
-                                                                                java.lang.CharSequence.class,
-                                                                                java.lang.CharSequence.class,
-                                                                                java.lang.CharSequence.class,
-                                                                                java.lang.CharSequence.class,
-                                                                                java.lang.CharSequence.class);
+        try {
+            Constructor<?> keyConstructor = keyClassType.getConstructor(java.lang.CharSequence.class);
+            Constructor<?> valueConstructor = valueClassType.getConstructor(java.lang.CharSequence.class,
+                                                                            java.lang.CharSequence.class,
+                                                                            java.lang.CharSequence.class,
+                                                                            java.lang.CharSequence.class,
+                                                                            java.lang.CharSequence.class,
+                                                                            java.lang.CharSequence.class,
+                                                                            java.lang.CharSequence.class);
 
-
+            for (String[] singleData : data) {
 
                 Object testKeys = keyConstructor.newInstance(new Object[] { singleData[0] });
 
@@ -100,10 +99,12 @@ public final class SimpleProducer {
                 org.apache.avro.Schema valueClassSchema = (org.apache.avro.Schema) valueClassType.getMethod("getClassSchema").invoke(testVal);
 
                 ProducerRecord<Object, Object> record = new ProducerRecord<>(topic,
-                                                                             serializeMessage(testKeys, keyClassSchema),
-                                                                             serializeMessage(testVal, valueClassSchema));
+                                                                                serializeMessage(testKeys, keyClassSchema),
+                                                                                serializeMessage(testVal, valueClassSchema));
                 kafkaProducer.send(record);
                 System.out.println("I sent a message");
+
+            }
 
             } catch (IOException e) {
                 // TODO Auto-generated catch block
@@ -123,14 +124,13 @@ public final class SimpleProducer {
             } catch (SecurityException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-			} catch (InstantiationException e) {
+            } catch (InstantiationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
             
-        } 
-    }
+        
+    } 
 
     public static void main(String[] args) {
 
