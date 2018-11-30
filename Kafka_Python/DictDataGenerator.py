@@ -24,11 +24,14 @@ data_template = {
     },
     'price': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
+                'args': ['ticker', 'asset_class']},
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
         'curr': {'func': ddc.generate_currency}
     },
     'front_office_position': {
-        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
+                'args': ['ticker', 'asset_class']},
         'position_type': {'func': partial(ddc.generate_position_type,
                                           no_sd=True)},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
@@ -40,7 +43,8 @@ data_template = {
         'purpose': {'func': partial(ddc.generate_purpose, data_type='FOP')},
     },
     'back_office_position': {
-        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'cusip': {'func': partial(ddc.generate_cusip, no_cash=True),
+                  'args': ['ticker', 'asset_class']},
         'position_type': {'func': ddc.generate_position_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': partial(ddc.generate_effective_date,
@@ -52,7 +56,8 @@ data_template = {
         'purpose': {'func': partial(ddc.generate_purpose, data_type='BOP')},
     },
     'depot_position': {
-        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'isin': {'func': partial(ddc.generate_isin, no_cash=True),
+                 'args': ['coi', 'cusip', 'asset_class']},
         'position_type': {'func': partial(ddc.generate_position_type,
                                           no_td=True)},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
@@ -72,15 +77,16 @@ data_template = {
         'agent_id': {'func': ddc.generate_agent_id, 'args': ['asset_class']},
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
         'curr': {'func': ddc.generate_currency},
-        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
+                'args': ['ticker', 'asset_class']},
         'qty': {'func': ddc.generate_qty}
     },
-    'stock_loan': {
+    'stock_loan_position': {
         'stock_loan_contract_id': {
             'func': ddc.generate_new_stock_loan_contract_id
         },
-        'inst_id': {'func': partial(ddc.generate_inst_id, only='S'),
-                    'args': ['asset_class']},
+        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
+                'args': ['ticker', 'asset_class']},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
         'effective_date': {'func': ddc.generate_effective_date,
                            'args': ['knowledge_date', 'position_type']},
@@ -112,8 +118,9 @@ data_template = {
         'field7': {'func': ddc.generate_rdn},
         'field8': {'func': ddc.generate_rdn},
     },
-    'swap_trade': {
-        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
+    'swap_position': {
+        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
+                'args': ['ticker', 'asset_class']},
         'swap_contract_id': {'func': ddc.generate_swap_contract_id},
         'position_type': {'func': ddc.generate_position_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
@@ -173,18 +180,18 @@ class DictRunnable(Runnable):
             self.__create_data_file('out/order_executions.csv',
                                     args.order_executions,
                                     'order_execution')
-        if args.stock_loans > 0:
-            self.__create_data_file('out/stock_loans.csv',
-                                    args.stock_loans,
-                                    'stock_loan')
+        if args.stock_loan_positions > 0:
+            self.__create_data_file('out/stock_loan_positions.csv',
+                                    args.stock_loan_positions,
+                                    'stock_loan_position')
         if args.swap_contracts > 0:
             self.__create_data_file('out/swap_contracts.csv',
                                     args.swap_contracts,
                                     'swap_contract')
-        if args.swap_trades > 0:
-            self.__create_data_file('out/swap_trades.csv',
-                                    args.swap_trades,
-                                    'swap_trade')
+        if args.swap_positions > 0:
+            self.__create_data_file('out/swap_positions.csv',
+                                    args.swap_positions,
+                                    'swap_position')
         if args.cash > 0:
             self.__create_data_file('out/cash.csv', args.cash, 'cash')
 
@@ -236,9 +243,9 @@ def get_args():
     parser.add_argument('--inst-refs', **optional_args)
     parser.add_argument('--depot-positions', **optional_args)
     parser.add_argument('--order-executions', **optional_args)
-    parser.add_argument('--stock-loans', **optional_args)
-    parser.add_argument('--swap-trades', **optional_args)
+    parser.add_argument('--stock-loan-positions', **optional_args)
     parser.add_argument('--swap-contracts', **optional_args)
+    parser.add_argument('--swap-positions', **optional_args)
     parser.add_argument('--cash', **optional_args)
     return parser.parse_args()
 

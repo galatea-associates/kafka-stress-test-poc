@@ -4,5 +4,7 @@
     "name": "prices",
     "fields": [
         {"name": "price", "type": "double"}
+        {"name": "curr", "type": "string"}
+        {"name": "ric", "type": "string"}
     ]
 }

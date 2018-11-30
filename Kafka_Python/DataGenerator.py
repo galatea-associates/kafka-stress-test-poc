@@ -97,11 +97,15 @@ class DataGenerator:
         else:
             return random.choice(list(self.__cash_inst_ids))
 
-    def generate_cusip(self,  n_digits=9, ticker=None, asset_class=None):
-        if asset_class is None:
-            asset_class = self.__get_preemptive_generation(
-                'asset_class',
-                self.generate_asset_class(generating_inst=True))
+    def generate_cusip(self, n_digits=9, ticker=None, asset_class=None,
+                       no_cash=False):
+        if no_cash:
+            asset_class = 'Stock'
+        else:
+            if asset_class is None:
+                asset_class = self.__get_preemptive_generation(
+                    'asset_class',
+                    self.generate_asset_class(generating_inst=True))
 
         if asset_class is 'Cash':
             return ''
@@ -143,30 +147,39 @@ class DataGenerator:
 
         return sedol
 
-    def generate_isin(self, coi=None, cusip=None, asset_class=None):
-        if asset_class is None:
-            asset_class = self.__get_preemptive_generation(
-                'asset_class',
-                self.generate_asset_class(generating_inst=True))
+    def generate_isin(self, coi=None, cusip=None, asset_class=None,
+                      no_cash=False):
+        if no_cash:
+            asset_class = 'Stock'
+        else:
+            if asset_class is None:
+                asset_class = self.__get_preemptive_generation(
+                    'asset_class',
+                    self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Cash':
             return ''
 
         if coi is None:
-            coi = self.generate_coi()
-            self.__state['coi'] = coi
+            coi = self.__get_preemptive_generation(
+                'coi',
+                self.generate_coi(asset_class))
 
         if cusip is None:
-            cusip = self.generate_cusip()
-            self.__state['cusip'] = cusip
+            cusip = self.__get_preemptive_generation(
+                'cusip',
+                self.generate_cusip())
 
         return coi + cusip + '4'
 
-    def generate_ric(self, ticker=None, asset_class=None):
-        if asset_class is None:
-            asset_class = self.__get_preemptive_generation(
-                'asset_class',
-                self.generate_asset_class(generating_inst=True))
+    def generate_ric(self, ticker=None, asset_class=None, no_cash=False):
+        if no_cash:
+            asset_class = 'Stock'
+        else:
+            if asset_class is None:
+                asset_class = self.__get_preemptive_generation(
+                    'asset_class',
+                    self.generate_asset_class(generating_inst=True))
 
         if asset_class is 'Cash':
             return ''
