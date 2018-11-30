@@ -4,11 +4,11 @@
     "name": "instrument_reference_data",
     "fields": [
         {"name": "asset_class", "type": "string"},
-        {"name": "COI", "type": "string"}
-        {"name": "RIC", "type": "string"}
-        {"name": "ISIN", "type": "string"}
-        {"name": "SEDOL", "type": "string"}
-        {"name": "Ticker", "type": "string"}
+        {"name": "COI", "type": "string"},
+        {"name": "RIC", "type": "string"},
+        {"name": "ISIN", "type": "string"},
+        {"name": "SEDOL", "type": "string"},
+        {"name": "Ticker", "type": "string"},
         {"name": "Cusip", "type": "string"}
     ]
 }
