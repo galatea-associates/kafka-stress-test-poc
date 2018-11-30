@@ -54,37 +54,44 @@ def process_val(val, args=None):
     return return_val
 
 
-def send(server_args, producer_counters, topic, shared_slow_data_queue,
+def send(server_args, producer_counters, topic,
          avro_schema_keys, avro_schema_values, serializer,
-         max_queue_size, shared_bar):
+         shared_bar, data_generator, data_args, keys):
     server_addr = str(server_args.ip) + ":" + str(server_args.port)
-    producer = KafkaProducer(bootstrap_servers=[server_addr])
+    producer = KafkaProducer(bootstrap_servers=[server_addr],
+                             ack='all',
+                             buffer_memory=268435456,
+                             batch_size=50000)
     atexit.register(cleanup_producer, producer=producer)
     schema_keys = None
     schema_values = None
-    shared_data_queue = Queue(maxsize=max_queue_size,
-                              slow_queue=shared_slow_data_queue,
-                              spawn_fast=True)
 
     if avro_schema_keys:
         schema_keys = avro.schema.Parse(open(avro_schema_keys).read())
     if avro_schema_values:
         schema_values = avro.schema.Parse(open(avro_schema_values).read())
+    total_data = []
+
+    for _ in range(1, 10):
+        data = process_val(data_generator, data_args)
+        if data is None:
+            return
+        if isinstance(data, list):
+            for item in data:
+                total_data.append(split_key_and_value(data=item,
+                                                      keys=keys))
+        else:
+            total_data.append(split_key_and_value(data=data, keys=keys))
+
     shared_bar.wait()
     while True:
         while producer_counters.sent_counter.check_value_and_increment():
             if bool(producer_counters.end_topic.value):
                 return
-            try:
-                val = shared_data_queue.get_nowait()
-            except queue.Empty:
-                print(str(topic) + " - Queue is Empty. Now Quitting this topic.")
-                producer_counters.end_topic.value = int(True)
+            if len(total_data) == 0:
+                print(topic + "- Finished sending")
                 return
-            if val is None:
-                print(str(topic) + " - Value is returned as None. Now Quitting this topic.")
-                producer_counters.end_topic.value = int(True)
-                return
+            val = total_data.pop()
             producer.send(topic,
                           value=serialize_val(val["value"],
                                               serializer,
@@ -106,11 +113,8 @@ def on_send_error(producer_counters, _):
 
 
 def reset_every_second(producer_counters, topic, time_interval,
-                       shared_dict, shared_slow_data_queue,
-                       max_queue_size, shared_bar,
+                       shared_dict,shared_bar,
                        load_data_first):
-    while ((shared_slow_data_queue.qsize() < max_queue_size) and load_data_first):
-        time.sleep(1)
     print(topic + "- Ready to start sending")
     shared_bar.wait()
     prev_time = time.time()
@@ -145,114 +149,69 @@ def split_key_and_value(data, keys=None):
     return {"key": keys_dict, "value": values_dict}
 
 
-def data_pipe_producer(shared_slow_data_queue, data_generator,
-                       max_queue_size, data_args, keys):
-    shared_data_queue = Queue(slow_queue=shared_slow_data_queue,
-                              maxsize=max_queue_size)
-    while True:
-        if shared_data_queue.qsize() < max_queue_size:
-            data = process_val(data_generator, data_args)
-            if data is None:
-                # Means producer has finished sending
-                shared_data_queue.put(data)
-                break
-            if isinstance(data, list):
-                for item in data:
-                    shared_data_queue.put(split_key_and_value(data=item,
-                                                              keys=keys))
-            else:
-                shared_data_queue.put(split_key_and_value(data=data, keys=keys))
 
-
-def profile_senders(server_args, producer_counters, topic, shared_data_queue,
-                    avro_schema_keys, avro_schema_values, serializer,
-                    max_data_pipe_size, i):
-    cProfile.runctx(('send(server_args, producer_counters, topic, '
-                     'shared_data_queue, avro_schema_keys, '
-                     'avro_schema_values, serializer, '
-                     'max_data_pipe_size)'),
+def profile_senders(server_args, producer_counters, topic,
+                    avro_schema_keys, avro_schema_values,
+                    serializer, shared_bar, data_generator,
+                    data_args, keys, i):
+    cProfile.runctx(('server_args, producer_counters, topic,'
+                    'avro_schema_keys, avro_schema_values,'
+                    'serializer, shared_bar, data_generator,'
+                    'data_args, keys, i'),
                     globals(),
                     locals(),
                     'senders-prof%d.prof' % i)
 
 
-def profile_data_pipe_producer(shared_data_queue, data_generator,
-                               max_queue_size, data_args, keys, i):
-    cProfile.runctx(('data_pipe_producer(shared_data_queue, '
-                     'data_generator, max_queue_size, '
-                     'data_args, keys)'),
-                    globals(),
-                    locals(),
-                    'data-prod-prof%d.prof' % i)
-
 
 def start_sending(server_args, producer_counters, topic,
                   data_generator, shared_bar,
-                  numb_prod_procs=1, numb_data_procs=1,
+                  numb_prod_procs=1,
                   time_interval=1, avro_schema_keys=None,
                   avro_schema_values=None, serializer=None,
-                  max_data_pipe_size=100, data_args=None, keys=None,
+                  data_args=None, keys=None,
                   load_data_first=True):
 
     shared_dict[topic] = manager.list()
-    shared_data_queue = mp.Queue(maxsize=max_data_pipe_size)
     procs = []
 
-    #data_gen_procs = [Process(target=profile_data_pipe_producer,
-    #                          args=(shared_data_queue,
-    #                                data_generator,
-    #                                max_data_pipe_size,
-    #                                data_args,
-    #                                keys,
-    #                                i)) for i in range(numb_data_procs)]
-
-    data_gen_procs = [Process(target=data_pipe_producer,
-                              args=(shared_data_queue,
+    '''producer_procs = [Process(target=profile_senders,
+                              args=(server_args,
+                                    producer_counters,
+                                    topic,
+                                    avro_schema_keys,
+                                    avro_schema_values,
+                                    serializer,
+                                    shared_bar,
                                     data_generator,
-                                    max_data_pipe_size,
                                     data_args,
-                                    keys)) for _ in range(numb_data_procs)]
-
-    #producer_procs = [Process(target=profile_senders,
-    #                          args=(server_args,
-    #                                producer_counters,
-    #                                topic,
-    #                                shared_data_queue,
-    #                                avro_schema_keys,
-    #                                avro_schema_values,
-    #                                serializer,
-    #                                max_data_pipe_size,
-    #                                i)) for i in range(numb_prod_procs)]
+                                    keys, 
+                                    i)) for i in range(numb_prod_procs)]'''
 
     producer_procs = [Process(target=send,
                               args=(server_args,
                                     producer_counters,
                                     topic,
-                                    shared_data_queue,
                                     avro_schema_keys,
                                     avro_schema_values,
                                     serializer,
-                                    max_data_pipe_size,
-                                    shared_bar)) for _ in range(numb_prod_procs)]
+                                    shared_bar,
+                                    data_generator,
+                                    data_args,
+                                    keys)) for _ in range(numb_prod_procs)]
 
     timer_proc = Process(target=reset_every_second,
                          args=(producer_counters,
                                topic,
                                time_interval,
                                shared_dict,
-                               shared_data_queue,
-                               max_data_pipe_size,
                                shared_bar,
                                load_data_first))
-
-    for p in data_gen_procs:
-        p.start()
 
     procs += producer_procs
     procs.append(timer_proc)
     for p in procs: 
         p.start()
-    procs += data_gen_procs
     return procs
 
 
@@ -320,12 +279,10 @@ def process_data_config(config, server_args, shared_bar):
                               topic=topic, 
                               data_generator=config[topic]["Data"], 
                               numb_prod_procs=config[topic]["Number of Processes"], 
-                              numb_data_procs=config[topic]["Number of Data Generation Processes"], 
                               time_interval=config[topic]["Time Interval"], 
                               avro_schema_keys=config[topic]["Avro Schema - Keys"],
                               avro_schema_values=config[topic]["Avro Schema - Values"],
                               serializer=config[topic]["Serializer"],
-                              max_data_pipe_size=config[topic]["Data Queue Max Size"],
                               data_args=config[topic]['Data Args'],
                               keys=config[topic]["Keys"],
                               shared_bar=shared_bar,
