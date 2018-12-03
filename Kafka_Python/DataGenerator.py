@@ -287,7 +287,7 @@ class DataGenerator:
                 'knowledge_date',
                 self.generate_knowledge_date())
 
-        if position_type == 'TD':
+        if position_type == 'SD':
             return knowledge_date
         else:
             return knowledge_date + datetime.timedelta(days=n_days_to_add)
