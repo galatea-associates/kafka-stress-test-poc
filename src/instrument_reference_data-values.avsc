@@ -7,8 +7,8 @@
         {"name": "COI", "type": "string"},
         {"name": "RIC", "type": "string"},
         {"name": "ISIN", "type": "string"},
-        {"name": "SEDOL", "type": "integer"},
+        {"name": "SEDOL", "type": "int"},
         {"name": "Ticker", "type": "string"},
-        {"name": "Cusip", "type": "integer"}
+        {"name": "Cusip", "type": "int"}
     ]
 }
