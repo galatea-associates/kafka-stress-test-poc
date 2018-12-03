@@ -24,8 +24,8 @@ data_template = {
     },
     'price': {
         'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
-        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
-                'args': ['ticker', 'asset_class']},
+        'ticker': {'func': partial(ddc.generate_ticker, no_cash=True),
+                   'args': ['asset_class']},
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
         'curr': {'func': ddc.generate_currency}
     },

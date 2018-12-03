@@ -191,11 +191,14 @@ class DataGenerator:
 
         return ticker + '.' + random.choice(['L', 'N', 'OQ'])
 
-    def generate_ticker(self, asset_class=None):
-        if asset_class is None:
-            asset_class = self.__get_preemptive_generation(
-                'asset_class',
-                self.generate_asset_class(generating_inst=True))
+    def generate_ticker(self, asset_class=None, no_cash=False):
+        if no_cash:
+            asset_class = 'Stock'
+        else:
+            if asset_class is None:
+                asset_class = self.__get_preemptive_generation(
+                    'asset_class',
+                    self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Stock':
             return random.choice(['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F',
