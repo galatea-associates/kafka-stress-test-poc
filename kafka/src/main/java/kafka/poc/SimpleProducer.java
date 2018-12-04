@@ -1,14 +1,8 @@
 package kafka.poc;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
@@ -18,15 +12,13 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.Producer;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.avro.specific.SpecificRecord;
 
 public final class SimpleProducer {
     private SimpleProducer() {
@@ -61,7 +53,7 @@ public final class SimpleProducer {
         return out.toByteArray();
     }
 
-    private static List<Map<String, String>> read_file(String csvFile) {
+    private static List<Map<String, String>> readFile(String csvFile) {
         File file = new File(csvFile);
         List<Map<String, String>> response = new LinkedList<Map<String, String>>();
         CsvMapper mapper = new CsvMapper();
@@ -80,8 +72,7 @@ public final class SimpleProducer {
     }
 
     private static void startSending(Producer kafkaProducer, Topic topic,
-            List<Map<String, String>> dataList) {
-        org.apache.avro.specific.SpecificRecord[] recordObj = generateClasses(topic);
+            List<Map<String, String>> dataList, SpecificRecord[] recordObj) {
         int sent_counter = 0;
         AtomicInteger recieved_counter = new AtomicInteger();
         long startTime = System.currentTimeMillis();
@@ -97,7 +88,6 @@ public final class SimpleProducer {
                         recieved_counter.incrementAndGet();
                     });
                     sent_counter++;
-                    //System.out.println("I sent a message");
                     if (System.currentTimeMillis() - startTime > 1000){
                         System.out.println("I have tried to send: " + sent_counter);
                         System.out.println("I have recieved acks: " + recieved_counter.getAndSet(0));
@@ -112,20 +102,17 @@ public final class SimpleProducer {
             e.printStackTrace();
 
         }
-        System.out.println(sent_counter);
-        long difference = System.currentTimeMillis() - startTime;
-        System.out.println(difference / 1000.0);
     }
 
 
-    public static org.apache.avro.specific.SpecificRecord[] generateClasses(Topic topic) {
+    public static SpecificRecord[] generateClasses(Topic topic) {
         switch (topic) {
             case INST_REF:
-                return new org.apache.avro.specific.SpecificRecord[] {new instrument_reference_data_keys(), new instrument_reference_data_values()};
+                return new SpecificRecord[] {new instrument_reference_data_keys(), new instrument_reference_data_values()};
             case PRICES:
-                return new org.apache.avro.specific.SpecificRecord[] {new prices_keys(), new prices_values()};
+                return new SpecificRecord[] {new prices_keys(), new prices_values()};
             case POSITION:
-                return new org.apache.avro.specific.SpecificRecord[] {new position_data_keys(), new position_data_values()};
+                return new SpecificRecord[] {new position_data_keys(), new position_data_values()};
             default:
                 return null;
         }
@@ -137,8 +124,9 @@ public final class SimpleProducer {
         Topic topic = Topic.INST_REF;
 
         String csvFile = "./out/inst-ref.csv";
-        List<Map<String, String>> data = read_file(csvFile);
-        startSending(kafkaProducer, topic, data);
+        List<Map<String, String>> data = readFile(csvFile);
+        SpecificRecord[] recordObj = generateClasses(topic);
+        startSending(kafkaProducer, topic, data, recordObj);
 
         kafkaProducer.flush();
         kafkaProducer.close();
