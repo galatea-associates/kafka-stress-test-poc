@@ -77,20 +77,21 @@ public final class SimpleProducer {
         AtomicInteger recieved_counter = new AtomicInteger();
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 10000; i++){
+            for (int i = 0; i < 10000; i++) {
                 for (Map<String, String> data : dataList) {
                     recordObj = PopulateAvroTopic.populateData(topic, recordObj, data);
                     ProducerRecord<Object, Object> record = new ProducerRecord<>(topic.toString(),
                             serializeMessage(recordObj[0], recordObj[0].getSchema()),
                             serializeMessage(recordObj[1], recordObj[1].getSchema()));
 
-                    kafkaProducer.send(record, (metadata, exception)->{
+                    kafkaProducer.send(record, (metadata, exception) -> {
                         recieved_counter.incrementAndGet();
                     });
                     sent_counter++;
-                    if (System.currentTimeMillis() - startTime > 1000){
+                    if (System.currentTimeMillis() - startTime > 1000) {
                         System.out.println("I have tried to send: " + sent_counter);
-                        System.out.println("I have recieved acks: " + recieved_counter.getAndSet(0));
+                        System.out
+                                .println("I have recieved acks: " + recieved_counter.getAndSet(0));
                         System.out.println("---------------------------");
                         sent_counter = 0;
                         startTime = System.currentTimeMillis();
@@ -108,7 +109,8 @@ public final class SimpleProducer {
     public static SpecificRecord[] generateClasses(Topic topic) {
         switch (topic) {
             case INST_REF:
-                return new SpecificRecord[] {new instrument_reference_data_keys(), new instrument_reference_data_values()};
+                return new SpecificRecord[] {new instrument_reference_data_keys(),
+                        new instrument_reference_data_values()};
             case PRICES:
                 return new SpecificRecord[] {new prices_keys(), new prices_values()};
             case POSITION:
