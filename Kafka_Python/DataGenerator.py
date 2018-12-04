@@ -19,6 +19,7 @@ class DataGenerator:
         self.__cash_inst_ids = {}
         self.__stock_to_cusip = {}
         self.__stock_to_sedol = {}
+        self.__ticker_to_coi = {}
         self.__state = {}
         self.__possible_curr = ['USD', 'CAD', 'EUR', 'GBP']
 
@@ -218,7 +219,7 @@ class DataGenerator:
         else:
             return random.choice(['Stock', 'Cash'])
 
-    def generate_coi(self, asset_class=None):
+    def generate_coi(self, asset_class=None, ticker=None):
         """
         Generates a country of issuer
 
@@ -235,7 +236,19 @@ class DataGenerator:
         if asset_class == 'Cash':
             return ''
 
-        return random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
+        if ticker is None:
+            ticker = self.__get_preemptive_generation(
+                'ticker',
+                self.generate_ticker(asset_class=asset_class, no_cash=True))
+
+        if ticker in self.__ticker_to_coi:
+            coi = self.__ticker_to_coi[ticker]
+        else:
+            coi = random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG',
+                                 'JP'])
+            self.__ticker_to_coi[ticker] = coi
+
+        return coi
 
     def generate_price(self, inst_id=None):
         if inst_id is None:

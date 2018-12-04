@@ -23,7 +23,6 @@ data_template = {
         # 'event-time': {'func': ddc.generate_time_stamp}
     },
     'price': {
-        'inst_id': {'func': ddc.generate_inst_id, 'args': ['asset_class']},
         'ticker': {'func': partial(ddc.generate_ticker, no_cash=True),
                    'args': ['asset_class']},
         'price': {'func': ddc.generate_price, 'args': ['inst_id']},
