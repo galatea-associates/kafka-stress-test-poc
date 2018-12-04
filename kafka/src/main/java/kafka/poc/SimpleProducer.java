@@ -11,6 +11,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.Producer;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -71,7 +73,7 @@ public final class SimpleProducer {
         return response;
     }
 
-    private static void startSending(Producer kafkaProducer, Topic topic,
+    public static void startSending(Producer kafkaProducer, Topic topic,
             List<Map<String, String>> dataList, SpecificRecord[] recordObj) {
         int sent_counter = 0;
         AtomicInteger recieved_counter = new AtomicInteger();
@@ -91,7 +93,7 @@ public final class SimpleProducer {
                     if (System.currentTimeMillis() - startTime > 1000) {
                         System.out.println("I have tried to send: " + sent_counter);
                         System.out
-                                .println("I have recieved acks: " + recieved_counter.getAndSet(0));
+                                .println("I have received acks: " + recieved_counter.getAndSet(0));
                         System.out.println("---------------------------");
                         sent_counter = 0;
                         startTime = System.currentTimeMillis();
@@ -123,14 +125,26 @@ public final class SimpleProducer {
     public static void main(String[] args) {
 
         Producer kafkaProducer = producer();
-        Topic topic = Topic.INST_REF;
-
         String csvFile = "./out/inst-ref.csv";
+
+        Topic topic = Topic.INST_REF;
         List<Map<String, String>> data = readFile(csvFile);
         SpecificRecord[] recordObj = generateClasses(topic);
-        startSending(kafkaProducer, topic, data, recordObj);
 
-        kafkaProducer.flush();
-        kafkaProducer.close();
+        
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        RunnableTask runnableTask = new RunnableTask(kafkaProducer, topic, data, recordObj);
+        
+        executor.execute(runnableTask);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() { 
+                kafkaProducer.flush();
+                kafkaProducer.close(); 
+            }
+        });
+        
     }
 }
