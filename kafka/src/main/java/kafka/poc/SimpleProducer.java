@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
@@ -15,6 +17,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.Producer;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -32,7 +35,7 @@ public final class SimpleProducer {
     private static Producer producer() {
         Properties properties = new Properties();
         properties.put("bootstrap.servers", "3.8.1.159:9092");
-        properties.put("acks", "1");
+        properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("compression.type", "gzip");
         properties.put("batch.size", 16384);
@@ -76,42 +79,42 @@ public final class SimpleProducer {
         return response;
     }
 
-    private static String getTopicName(Topic topic) {
-        switch (topic) {
-            case INST_REF:
-                return "inst_ref";
-            case PRICES:
-                return "prices";
-            case POSITION:
-                return "position";
-            default:
-                return "";
-        }
-
-    }
-
     private static void startSending(Producer kafkaProducer, Topic topic,
             List<Map<String, String>> dataList) {
         org.apache.avro.specific.SpecificRecord[] recordObj = generateClasses(topic);
+        int sent_counter = 0;
+        AtomicInteger recieved_counter = new AtomicInteger();
+        long startTime = System.currentTimeMillis();
         try {
-            for (Map<String, String> data : dataList) {
-                recordObj = PopulateAvroTopic.populateData(topic, recordObj, data);
+            for (int i = 0; i < 10000; i++){
+                for (Map<String, String> data : dataList) {
+                    recordObj = PopulateAvroTopic.populateData(topic, recordObj, data);
+                    ProducerRecord<Object, Object> record = new ProducerRecord<>(topic.toString(),
+                            serializeMessage(recordObj[0], recordObj[0].getSchema()),
+                            serializeMessage(recordObj[1], recordObj[1].getSchema()));
 
-                ProducerRecord<Object, Object> record = new ProducerRecord<>(getTopicName(topic),
-                        serializeMessage(recordObj[0], recordObj[0].getSchema()),
-                        serializeMessage(recordObj[1], recordObj[1].getSchema()));
-
-                kafkaProducer.send(record);
-                System.out.println("I sent a message");
-
+                    kafkaProducer.send(record, (metadata, exception)->{
+                        recieved_counter.incrementAndGet();
+                    });
+                    sent_counter++;
+                    //System.out.println("I sent a message");
+                    if (System.currentTimeMillis() - startTime > 1000){
+                        System.out.println("I have tried to send: " + sent_counter);
+                        System.out.println("I have recieved acks: " + recieved_counter.getAndSet(0));
+                        System.out.println("---------------------------");
+                        sent_counter = 0;
+                        startTime = System.currentTimeMillis();
+                    }
+                }
             }
-
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
 
         }
-
+        System.out.println(sent_counter);
+        long difference = System.currentTimeMillis() - startTime;
+        System.out.println(difference / 1000.0);
     }
 
 
