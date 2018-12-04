@@ -15,6 +15,7 @@ public enum Topic {
         return name.equals(otherName);
     }
 
+    @Override
     public String toString(){
         return this.name;
     }
