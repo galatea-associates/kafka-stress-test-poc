@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +75,7 @@ public final class SimpleProducer {
     }
 
     public static void startSending(Producer kafkaProducer, Topic topic,
-            List<Map<String, String>> dataList, SpecificRecord[] recordObj) {
-        int sent_counter = 0;
-        AtomicInteger recieved_counter = new AtomicInteger();
+            List<Map<String, String>> dataList, SpecificRecord[] recordObj, Map<String, AtomicInteger> counters) {
         long startTime = System.currentTimeMillis();
         try {
             for (int i = 0; i < 10000; i++) {
@@ -87,15 +86,14 @@ public final class SimpleProducer {
                             serializeMessage(recordObj[1], recordObj[1].getSchema()));
 
                     kafkaProducer.send(record, (metadata, exception) -> {
-                        recieved_counter.incrementAndGet();
+                        counters.get("Received Counter").incrementAndGet();
                     });
-                    sent_counter++;
+                    counters.get("Sent Counter").incrementAndGet();
                     if (System.currentTimeMillis() - startTime > 1000) {
-                        System.out.println("I have tried to send: " + sent_counter);
+                        System.out.println("I have tried to send: " + counters.get("Sent Counter").getAndSet(0));
                         System.out
-                                .println("I have received acks: " + recieved_counter.getAndSet(0));
+                                .println("I have received acks: " + counters.get("Received Counter").getAndSet(0));
                         System.out.println("---------------------------");
-                        sent_counter = 0;
                         startTime = System.currentTimeMillis();
                     }
                 }
@@ -133,9 +131,13 @@ public final class SimpleProducer {
 
         
         ExecutorService executor = Executors.newSingleThreadExecutor();
+        Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>() {{
+            put("Sent Counter", new AtomicInteger());
+            put("Received Counter", new AtomicInteger());
+        }};
 
-        RunnableTask runnableTask = new RunnableTask(kafkaProducer, topic, data, recordObj);
-        
+        RunnableTask runnableTask = new RunnableTask(kafkaProducer, topic, data, recordObj, counters);
+
         executor.execute(runnableTask);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
