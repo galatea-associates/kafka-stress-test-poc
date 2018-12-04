@@ -223,8 +223,8 @@ def process_data_config(config, server_args):
     producer_list = []
 
     for topic in config:
-        producer_counters = Producer(init_val=config[topic]["Counter"]["init_val"],
-                                     limit_val=config[topic]["Counter"]["limit_val"], 
+        producer_counters = Producer(init_val=config[topic]["Counter"]["Initial Value"],
+                                     limit_val=config[topic]["Counter"]["Limit Value"],
                                      ready_start_prod=(not config[topic]['Load data first']))
         producer_list.append(producer_counters)
 

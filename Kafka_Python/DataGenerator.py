@@ -109,7 +109,7 @@ class DataGenerator:
                     self.generate_asset_class(generating_inst=True))
 
         if asset_class is 'Cash':
-            return ''
+            return 0
 
         if ticker is None:
             ticker = self.__get_preemptive_generation(
@@ -132,7 +132,7 @@ class DataGenerator:
                 self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Cash':
-            return ''
+            return 0
 
         if ticker is None:
             ticker = self.__get_preemptive_generation(
@@ -159,7 +159,7 @@ class DataGenerator:
                     self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Cash':
-            return ''
+            return None
 
         if coi is None:
             coi = self.__get_preemptive_generation(
@@ -183,7 +183,7 @@ class DataGenerator:
                     self.generate_asset_class(generating_inst=True))
 
         if asset_class is 'Cash':
-            return ''
+            return None
 
         if ticker is None:
             ticker = self.__get_preemptive_generation(
@@ -234,7 +234,7 @@ class DataGenerator:
                 self.generate_asset_class())
 
         if asset_class == 'Cash':
-            return ''
+            return None
 
         if ticker is None:
             ticker = self.__get_preemptive_generation(
@@ -442,7 +442,7 @@ class DataGenerator:
         if collateral_type == 'Non Cash':
             return '2.00%'
         else:
-            return ''
+            return None
 
     def generate_collateral_margin(self, collateral_type=None):
         """
@@ -461,7 +461,7 @@ class DataGenerator:
         if collateral_type == 'Cash':
             return '140.00%'
         else:
-            return ''
+            return None
 
     def generate_collateral_type(self):
         """
@@ -487,7 +487,7 @@ class DataGenerator:
     def generate_termination_date(self):
         does_exist = random.choice([True, False])
         if not does_exist:
-            return ''
+            return None
         else:
             return self.generate_knowledge_date(from_year=2019, to_year=2020)
 
@@ -501,7 +501,7 @@ class DataGenerator:
         if collateral_type == 'Cash':
             return '5.75%'
         else:
-            return ''
+            return None
 
     def generate_borrow_fee(self, collateral_type=None):
         if collateral_type is None:
@@ -512,7 +512,7 @@ class DataGenerator:
         if collateral_type == 'Non Cash':
             return '4.00%%'
         else:
-            return ''
+            return None
 
     def generate_new_stock_loan_contract_id(self, n_digits=8):
         """
@@ -586,7 +586,7 @@ class DataGenerator:
                 self.generate_status())
 
         if status == 'Live':
-            return ''
+            return None
         else:
             if start_date is None:
                 start_date = self.__get_preemptive_generation(
