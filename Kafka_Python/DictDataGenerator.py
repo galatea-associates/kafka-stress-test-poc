@@ -8,7 +8,6 @@ from DataGenerator import DataGenerator
 ddc = DataGenerator()
 data_template = {
     'inst_ref': {
-        'inst_id': {'func': ddc.generate_new_inst_id, 'args': ['asset_class']},
         'ric': {'func': ddc.generate_ric, 'args': ['ticker', 'asset_class']},
         'isin': {'func': ddc.generate_isin,
                  'args': ['coi', 'cusip', 'asset_class']},
@@ -25,7 +24,7 @@ data_template = {
     'price': {
         'ticker': {'func': partial(ddc.generate_ticker, no_cash=True),
                    'args': ['asset_class']},
-        'price': {'func': ddc.generate_price, 'args': ['inst_id']},
+        'price': {'func': ddc.generate_price, 'args': ['ticker']},
         'curr': {'func': ddc.generate_currency}
     },
     'front_office_position': {

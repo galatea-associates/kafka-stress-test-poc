@@ -250,19 +250,19 @@ class DataGenerator:
 
         return coi
 
-    def generate_price(self, inst_id=None):
-        if inst_id is None:
-            inst_id = self.__get_preemptive_generation(
-                'inst_id',
-                self.generate_inst_id())
+    def generate_price(self, ticker=None):
+        if ticker is None:
+            ticker = self.__get_preemptive_generation(
+                'ticker',
+                self.generate_ticker())
 
-        if inst_id.startswith('ABC'):
+        if ticker in self.__possible_curr:# Dealing with currency
+            return 1.00
+        else:# Dealing with stock
             min = 10
             max = 10000
             num_decimal_points = 2
             return round(random.uniform(min, max), num_decimal_points)
-        else:
-            return 1.00
 
     def generate_currency(self):
         """
