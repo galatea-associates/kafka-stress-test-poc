@@ -1,5 +1,4 @@
 import random
-from functools import partial
 import string
 import datetime
 import time
@@ -12,6 +11,9 @@ import pandas
 class DataGenerator:
 
     def __init__(self):
+        self.__tickers = ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL',
+                          'FB', 'MGI', 'ADBE', 'GRPN']
+        self.__date = None
         self.__curr_in_inst = []
         self.__stock_loan_contract_ids = []
         self.__swap_contract_ids = []
@@ -19,7 +21,7 @@ class DataGenerator:
         self.__cash_inst_ids = {}
         self.__stock_to_cusip = {}
         self.__stock_to_sedol = {}
-        self.__ticker_to_coi = {}
+        self.__ticker_to_coi_and_price = {}
         self.__state = {}
         self.__possible_curr = ['USD', 'CAD', 'EUR', 'GBP']
 
@@ -31,6 +33,9 @@ class DataGenerator:
 
     def clear_state(self):
         self.__state = {}
+
+    def set_date(self, date):
+        self.__date = date
 
     # TODO: change this to function calls, don't pass actual value
     def __get_preemptive_generation(self, field_name, field_value):
@@ -202,8 +207,7 @@ class DataGenerator:
                     self.generate_asset_class(generating_inst=True))
 
         if asset_class == 'Stock':
-            return random.choice(['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F',
-                                  'GOOGL', 'FB'])
+            return random.choice(self.__tickers)
         else:
             possibles_curr_tickers = [c for c in self.__possible_curr
                                       if c not in self.__curr_in_inst]
@@ -282,14 +286,8 @@ class DataGenerator:
             choices.remove('TD')
         return random.choice(choices)
 
-    def generate_knowledge_date(self,
-                                from_year=2016, to_year=2017,
-                                from_month=1, to_month=12,
-                                from_day=1, to_day=28):
-        year = random.randint(from_year, to_year)
-        month = random.randint(from_month, to_month)
-        day = random.randint(from_day, to_day)
-        return datetime.datetime(year, month, day).date()
+    def generate_knowledge_date(self):
+        return self.__date.date()
 
     def generate_effective_date(self, n_days_to_add=3,
                                 knowledge_date=None, position_type=None):

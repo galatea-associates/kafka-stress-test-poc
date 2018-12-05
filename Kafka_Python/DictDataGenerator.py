@@ -1,5 +1,6 @@
 import argparse
 import csv
+import datetime
 import os
 from functools import partial
 from Kafka_Python.Runnable import Runnable
@@ -32,8 +33,9 @@ data_template = {
                 'args': ['ticker', 'asset_class']},
         'position_type': {'func': ddc.generate_position_type},
         'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {'func': ddc.generate_effective_date,
-                           'args': ['knowledge_date', 'position_type']},
+        'effective_date': {
+            'func': partial(ddc.generate_effective_date, n_days_to_add=0),
+            'args': ['knowledge_date', 'position_type']},
         'account': {'func': partial(ddc.generate_account, no_ecp=True)},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
@@ -203,6 +205,8 @@ class DictRunnable(Runnable):
     # of interest
     def __create_data_file(self, file_name, n, data_type):
         # w+ means create file first if it does not already exist
+        date = datetime.datetime.utcnow() - datetime.timedelta(days=4)
+        ddc.set_date(date)
         with open(file_name, mode='w+', newline='') as file:
             data = self.__generate_data(data_template[data_type])
             writer = csv.DictWriter(file, fieldnames=list(data))
@@ -211,8 +215,16 @@ class DictRunnable(Runnable):
             # n - 1 because we already wrote to the file once with the entity
             # variable - we do this to get the keys of the dictionary in order
             # to get the field names of the CSV file
-            for _ in range(n - 1):
+            new_date_at = int(n/4)
+            counter = 1
+            for i in range(n - 1):
+                print(date.date())
+                if i == counter * new_date_at:
+                    date += datetime.timedelta(days=1)
+                    ddc.set_date(date)
+                    counter += 1
                 entity = self.__generate_data(data_template[data_type])
+
                 writer.writerow(entity)
 
     def __generate_data(self, template):
