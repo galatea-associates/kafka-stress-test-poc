@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +31,7 @@ public final class SimpleProducer {
 
     private static Producer producer() {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", "3.8.1.159:9092");
+        properties.put("bootstrap.servers", "127.0.0.1:9092");
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("compression.type", "gzip");
@@ -136,9 +138,21 @@ public final class SimpleProducer {
             put("Received Counter", new AtomicInteger());
         }};
 
-        RunnableTask runnableTask = new RunnableTask(kafkaProducer, topic, data, recordObj, counters);
+        List<CallableTask<Object>> callableTasks = new ArrayList<>();
 
-        executor.execute(runnableTask);
+
+        
+        CallableTask<Object> callableTask = new CallableTask<Object>(kafkaProducer, topic, data, recordObj, counters);
+
+
+        callableTasks.add(callableTask);
+        try {
+            executor.invokeAll(callableTasks);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //executor.submit(callableTask);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
