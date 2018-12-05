@@ -38,16 +38,13 @@ public final class SimpleProducer {
         properties.put("batch.size", 16384);
         properties.put("linger.ms", 1);
         properties.put("buffer.memory", 33554432);
-        properties.put("key.serializer",
-                "org.apache.kafka.common.serialization.ByteArraySerializer");
-        properties.put("value.serializer",
-                "org.apache.kafka.common.serialization.ByteArraySerializer");
+        properties.put("key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
+        properties.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 
         return new KafkaProducer(properties);
     }
 
-    public static <T> byte[] serializeMessage(T eventMessage, org.apache.avro.Schema classSchema)
-            throws IOException {
+    public static <T> byte[] serializeMessage(T eventMessage, org.apache.avro.Schema classSchema) throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
@@ -76,12 +73,21 @@ public final class SimpleProducer {
         return response;
     }
 
-    public static void startSending(Producer kafkaProducer, Topic topic,
-            List<Map<String, String>> dataList, SpecificRecord[] recordObj, Map<String, AtomicInteger> counters) {
+    public static void startSending(Producer kafkaProducer, Topic topic, List<Map<String, String>> dataList,
+            SpecificRecord[] recordObj, Map<String, AtomicInteger> counters, int maxSendInPeriod) {
         long startTime = System.currentTimeMillis();
         try {
             for (int i = 0; i < 10000; i++) {
                 for (Map<String, String> data : dataList) {
+                    while (counters.get("Sent Counter").get() > maxSendInPeriod) {
+                        if (System.currentTimeMillis() - startTime > 1000) {
+                            System.out.println("I have tried to send: " + counters.get("Sent Counter").getAndSet(0));
+                            System.out
+                                    .println("I have received acks: " + counters.get("Received Counter").getAndSet(0));
+                            System.out.println("---------------------------");
+                            startTime = System.currentTimeMillis();
+                        }
+                    }
                     recordObj = PopulateAvroTopic.populateData(topic, recordObj, data);
                     ProducerRecord<Object, Object> record = new ProducerRecord<>(topic.toString(),
                             serializeMessage(recordObj[0], recordObj[0].getSchema()),
@@ -91,13 +97,6 @@ public final class SimpleProducer {
                         counters.get("Received Counter").incrementAndGet();
                     });
                     counters.get("Sent Counter").incrementAndGet();
-                    if (System.currentTimeMillis() - startTime > 1000) {
-                        System.out.println("I have tried to send: " + counters.get("Sent Counter").getAndSet(0));
-                        System.out
-                                .println("I have received acks: " + counters.get("Received Counter").getAndSet(0));
-                        System.out.println("---------------------------");
-                        startTime = System.currentTimeMillis();
-                    }
                 }
             }
         } catch (IOException e) {
@@ -107,18 +106,17 @@ public final class SimpleProducer {
         }
     }
 
-
     public static SpecificRecord[] generateClasses(Topic topic) {
         switch (topic) {
-            case INST_REF:
-                return new SpecificRecord[] {new instrument_reference_data_keys(),
-                        new instrument_reference_data_values()};
-            case PRICES:
-                return new SpecificRecord[] {new prices_keys(), new prices_values()};
-            case POSITION:
-                return new SpecificRecord[] {new position_data_keys(), new position_data_values()};
-            default:
-                return null;
+        case INST_REF:
+            return new SpecificRecord[] { new instrument_reference_data_keys(),
+                    new instrument_reference_data_values() };
+        case PRICES:
+            return new SpecificRecord[] { new prices_keys(), new prices_values() };
+        case POSITION:
+            return new SpecificRecord[] { new position_data_keys(), new position_data_values() };
+        default:
+            return null;
         }
     }
 
@@ -130,20 +128,22 @@ public final class SimpleProducer {
         Topic topic = Topic.INST_REF;
         List<Map<String, String>> data = readFile(csvFile);
         SpecificRecord[] recordObj = generateClasses(topic);
+        int maxSendInPeriod = 40000;
 
-        
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>() {{
-            put("Sent Counter", new AtomicInteger());
-            put("Received Counter", new AtomicInteger());
-        }};
+        Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>() {
+            private static final long serialVersionUID = 3019616454475007213L;
+
+            {
+                put("Sent Counter", new AtomicInteger());
+                put("Received Counter", new AtomicInteger());
+            }
+        };
 
         List<CallableTask<Object>> callableTasks = new ArrayList<>();
 
-
-        
-        CallableTask<Object> callableTask = new CallableTask<Object>(kafkaProducer, topic, data, recordObj, counters);
-
+        CallableTask<Object> callableTask = new CallableTask<Object>(kafkaProducer, topic, data, recordObj, counters,
+                maxSendInPeriod);
 
         callableTasks.add(callableTask);
         try {
@@ -152,15 +152,15 @@ public final class SimpleProducer {
             e.printStackTrace();
         }
 
-        //executor.submit(callableTask);
+        // executor.submit(callableTask);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
-            public void run() { 
+            public void run() {
                 kafkaProducer.flush();
-                kafkaProducer.close(); 
+                kafkaProducer.close();
             }
         });
-        
+
     }
 }
