@@ -17,18 +17,18 @@ public final class PopulateAvroTopic {
     public static SpecificRecord populateData(
             instrument_reference_data_values instRefVals, Map<String, String> data) {
         instRefVals.setAssetClass(data.get("asset_class"));
-        instRefVals.setCOI(data.get("COI"));
-        instRefVals.setCusip(data.get("Cusip"));
-        instRefVals.setISIN(data.get("ISIN"));
-        instRefVals.setRIC(data.get("RIC"));
-        instRefVals.setSEDOL(data.get("SEDOL"));
-        instRefVals.setTicker(data.get("Ticker"));
+        instRefVals.setCoi(data.get("coi"));
+        instRefVals.setCusip(data.get("cusip"));
+        instRefVals.setIsin(data.get("isin"));
+        instRefVals.setRic(data.get("ric"));
+        instRefVals.setSedol(data.get("sedol"));
+        instRefVals.setTicker(data.get("ticker"));
         return instRefVals;
     }
 
     public static SpecificRecord populateData(prices_keys pricesKeys,
             Map<String, String> data) {
-        pricesKeys.setInstId(data.get("inst_id"));
+        pricesKeys.setTicker(data.get("ticker"));
         return pricesKeys;
     }
 
@@ -41,12 +41,12 @@ public final class PopulateAvroTopic {
 
     public static SpecificRecord populateData(
             position_data_keys positionKeys, Map<String, String> data) {
-        positionKeys.setInstId(data.get("inst_id"));
+        positionKeys.setRic(data.get("ric"));
         positionKeys.setAccount(data.get("account"));
         positionKeys.setEffectiveDate(data.get("effective_date"));
         positionKeys.setKnowledgeDate(data.get("knowledge_date"));
         positionKeys.setPurpose(data.get("purpose"));
-        positionKeys.setType(data.get("type"));
+        positionKeys.setPositionType(data.get("position_type"));
         return positionKeys;
     }
 

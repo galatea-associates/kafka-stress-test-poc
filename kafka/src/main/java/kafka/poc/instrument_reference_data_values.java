@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class instrument_reference_data_values extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 8594243793444388413L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"instrument_reference_data_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"asset_class\",\"type\":\"string\"},{\"name\":\"COI\",\"type\":\"string\"},{\"name\":\"RIC\",\"type\":\"string\"},{\"name\":\"ISIN\",\"type\":\"string\"},{\"name\":\"SEDOL\",\"type\":\"string\"},{\"name\":\"Ticker\",\"type\":\"string\"},{\"name\":\"Cusip\",\"type\":\"string\"}]}");
+  private static final long serialVersionUID = -4126788069297184264L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"instrument_reference_data_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"asset_class\",\"type\":\"string\"},{\"name\":\"coi\",\"type\":\"string\"},{\"name\":\"ric\",\"type\":\"string\"},{\"name\":\"isin\",\"type\":\"string\"},{\"name\":\"sedol\",\"type\":\"string\"},{\"name\":\"ticker\",\"type\":\"string\"},{\"name\":\"cusip\",\"type\":\"string\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
@@ -52,12 +52,12 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
   }
 
   @Deprecated public java.lang.CharSequence asset_class;
-  @Deprecated public java.lang.CharSequence COI;
-  @Deprecated public java.lang.CharSequence RIC;
-  @Deprecated public java.lang.CharSequence ISIN;
-  @Deprecated public java.lang.CharSequence SEDOL;
-  @Deprecated public java.lang.CharSequence Ticker;
-  @Deprecated public java.lang.CharSequence Cusip;
+  @Deprecated public java.lang.CharSequence coi;
+  @Deprecated public java.lang.CharSequence ric;
+  @Deprecated public java.lang.CharSequence isin;
+  @Deprecated public java.lang.CharSequence sedol;
+  @Deprecated public java.lang.CharSequence ticker;
+  @Deprecated public java.lang.CharSequence cusip;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -69,21 +69,21 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
   /**
    * All-args constructor.
    * @param asset_class The new value for asset_class
-   * @param COI The new value for COI
-   * @param RIC The new value for RIC
-   * @param ISIN The new value for ISIN
-   * @param SEDOL The new value for SEDOL
-   * @param Ticker The new value for Ticker
-   * @param Cusip The new value for Cusip
+   * @param coi The new value for coi
+   * @param ric The new value for ric
+   * @param isin The new value for isin
+   * @param sedol The new value for sedol
+   * @param ticker The new value for ticker
+   * @param cusip The new value for cusip
    */
-  public instrument_reference_data_values(java.lang.CharSequence asset_class, java.lang.CharSequence COI, java.lang.CharSequence RIC, java.lang.CharSequence ISIN, java.lang.CharSequence SEDOL, java.lang.CharSequence Ticker, java.lang.CharSequence Cusip) {
+  public instrument_reference_data_values(java.lang.CharSequence asset_class, java.lang.CharSequence coi, java.lang.CharSequence ric, java.lang.CharSequence isin, java.lang.CharSequence sedol, java.lang.CharSequence ticker, java.lang.CharSequence cusip) {
     this.asset_class = asset_class;
-    this.COI = COI;
-    this.RIC = RIC;
-    this.ISIN = ISIN;
-    this.SEDOL = SEDOL;
-    this.Ticker = Ticker;
-    this.Cusip = Cusip;
+    this.coi = coi;
+    this.ric = ric;
+    this.isin = isin;
+    this.sedol = sedol;
+    this.ticker = ticker;
+    this.cusip = cusip;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -91,12 +91,12 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return asset_class;
-    case 1: return COI;
-    case 2: return RIC;
-    case 3: return ISIN;
-    case 4: return SEDOL;
-    case 5: return Ticker;
-    case 6: return Cusip;
+    case 1: return coi;
+    case 2: return ric;
+    case 3: return isin;
+    case 4: return sedol;
+    case 5: return ticker;
+    case 6: return cusip;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -106,12 +106,12 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: asset_class = (java.lang.CharSequence)value$; break;
-    case 1: COI = (java.lang.CharSequence)value$; break;
-    case 2: RIC = (java.lang.CharSequence)value$; break;
-    case 3: ISIN = (java.lang.CharSequence)value$; break;
-    case 4: SEDOL = (java.lang.CharSequence)value$; break;
-    case 5: Ticker = (java.lang.CharSequence)value$; break;
-    case 6: Cusip = (java.lang.CharSequence)value$; break;
+    case 1: coi = (java.lang.CharSequence)value$; break;
+    case 2: ric = (java.lang.CharSequence)value$; break;
+    case 3: isin = (java.lang.CharSequence)value$; break;
+    case 4: sedol = (java.lang.CharSequence)value$; break;
+    case 5: ticker = (java.lang.CharSequence)value$; break;
+    case 6: cusip = (java.lang.CharSequence)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -133,99 +133,99 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
   }
 
   /**
-   * Gets the value of the 'COI' field.
-   * @return The value of the 'COI' field.
+   * Gets the value of the 'coi' field.
+   * @return The value of the 'coi' field.
    */
-  public java.lang.CharSequence getCOI() {
-    return COI;
+  public java.lang.CharSequence getCoi() {
+    return coi;
   }
 
   /**
-   * Sets the value of the 'COI' field.
+   * Sets the value of the 'coi' field.
    * @param value the value to set.
    */
-  public void setCOI(java.lang.CharSequence value) {
-    this.COI = value;
+  public void setCoi(java.lang.CharSequence value) {
+    this.coi = value;
   }
 
   /**
-   * Gets the value of the 'RIC' field.
-   * @return The value of the 'RIC' field.
+   * Gets the value of the 'ric' field.
+   * @return The value of the 'ric' field.
    */
-  public java.lang.CharSequence getRIC() {
-    return RIC;
+  public java.lang.CharSequence getRic() {
+    return ric;
   }
 
   /**
-   * Sets the value of the 'RIC' field.
+   * Sets the value of the 'ric' field.
    * @param value the value to set.
    */
-  public void setRIC(java.lang.CharSequence value) {
-    this.RIC = value;
+  public void setRic(java.lang.CharSequence value) {
+    this.ric = value;
   }
 
   /**
-   * Gets the value of the 'ISIN' field.
-   * @return The value of the 'ISIN' field.
+   * Gets the value of the 'isin' field.
+   * @return The value of the 'isin' field.
    */
-  public java.lang.CharSequence getISIN() {
-    return ISIN;
+  public java.lang.CharSequence getIsin() {
+    return isin;
   }
 
   /**
-   * Sets the value of the 'ISIN' field.
+   * Sets the value of the 'isin' field.
    * @param value the value to set.
    */
-  public void setISIN(java.lang.CharSequence value) {
-    this.ISIN = value;
+  public void setIsin(java.lang.CharSequence value) {
+    this.isin = value;
   }
 
   /**
-   * Gets the value of the 'SEDOL' field.
-   * @return The value of the 'SEDOL' field.
+   * Gets the value of the 'sedol' field.
+   * @return The value of the 'sedol' field.
    */
-  public java.lang.CharSequence getSEDOL() {
-    return SEDOL;
+  public java.lang.CharSequence getSedol() {
+    return sedol;
   }
 
   /**
-   * Sets the value of the 'SEDOL' field.
+   * Sets the value of the 'sedol' field.
    * @param value the value to set.
    */
-  public void setSEDOL(java.lang.CharSequence value) {
-    this.SEDOL = value;
+  public void setSedol(java.lang.CharSequence value) {
+    this.sedol = value;
   }
 
   /**
-   * Gets the value of the 'Ticker' field.
-   * @return The value of the 'Ticker' field.
+   * Gets the value of the 'ticker' field.
+   * @return The value of the 'ticker' field.
    */
   public java.lang.CharSequence getTicker() {
-    return Ticker;
+    return ticker;
   }
 
   /**
-   * Sets the value of the 'Ticker' field.
+   * Sets the value of the 'ticker' field.
    * @param value the value to set.
    */
   public void setTicker(java.lang.CharSequence value) {
-    this.Ticker = value;
+    this.ticker = value;
   }
 
   /**
-   * Gets the value of the 'Cusip' field.
-   * @return The value of the 'Cusip' field.
+   * Gets the value of the 'cusip' field.
+   * @return The value of the 'cusip' field.
    */
   public java.lang.CharSequence getCusip() {
-    return Cusip;
+    return cusip;
   }
 
   /**
-   * Sets the value of the 'Cusip' field.
+   * Sets the value of the 'cusip' field.
    * @param value the value to set.
    */
   public void setCusip(java.lang.CharSequence value) {
-    this.Cusip = value;
+    this.cusip = value;
   }
 
   /**
@@ -261,12 +261,12 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
     implements org.apache.avro.data.RecordBuilder<instrument_reference_data_values> {
 
     private java.lang.CharSequence asset_class;
-    private java.lang.CharSequence COI;
-    private java.lang.CharSequence RIC;
-    private java.lang.CharSequence ISIN;
-    private java.lang.CharSequence SEDOL;
-    private java.lang.CharSequence Ticker;
-    private java.lang.CharSequence Cusip;
+    private java.lang.CharSequence coi;
+    private java.lang.CharSequence ric;
+    private java.lang.CharSequence isin;
+    private java.lang.CharSequence sedol;
+    private java.lang.CharSequence ticker;
+    private java.lang.CharSequence cusip;
 
     /** Creates a new Builder */
     private Builder() {
@@ -283,28 +283,28 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
         this.asset_class = data().deepCopy(fields()[0].schema(), other.asset_class);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.COI)) {
-        this.COI = data().deepCopy(fields()[1].schema(), other.COI);
+      if (isValidValue(fields()[1], other.coi)) {
+        this.coi = data().deepCopy(fields()[1].schema(), other.coi);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.RIC)) {
-        this.RIC = data().deepCopy(fields()[2].schema(), other.RIC);
+      if (isValidValue(fields()[2], other.ric)) {
+        this.ric = data().deepCopy(fields()[2].schema(), other.ric);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.ISIN)) {
-        this.ISIN = data().deepCopy(fields()[3].schema(), other.ISIN);
+      if (isValidValue(fields()[3], other.isin)) {
+        this.isin = data().deepCopy(fields()[3].schema(), other.isin);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.SEDOL)) {
-        this.SEDOL = data().deepCopy(fields()[4].schema(), other.SEDOL);
+      if (isValidValue(fields()[4], other.sedol)) {
+        this.sedol = data().deepCopy(fields()[4].schema(), other.sedol);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.Ticker)) {
-        this.Ticker = data().deepCopy(fields()[5].schema(), other.Ticker);
+      if (isValidValue(fields()[5], other.ticker)) {
+        this.ticker = data().deepCopy(fields()[5].schema(), other.ticker);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.Cusip)) {
-        this.Cusip = data().deepCopy(fields()[6].schema(), other.Cusip);
+      if (isValidValue(fields()[6], other.cusip)) {
+        this.cusip = data().deepCopy(fields()[6].schema(), other.cusip);
         fieldSetFlags()[6] = true;
       }
     }
@@ -319,28 +319,28 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
         this.asset_class = data().deepCopy(fields()[0].schema(), other.asset_class);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.COI)) {
-        this.COI = data().deepCopy(fields()[1].schema(), other.COI);
+      if (isValidValue(fields()[1], other.coi)) {
+        this.coi = data().deepCopy(fields()[1].schema(), other.coi);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.RIC)) {
-        this.RIC = data().deepCopy(fields()[2].schema(), other.RIC);
+      if (isValidValue(fields()[2], other.ric)) {
+        this.ric = data().deepCopy(fields()[2].schema(), other.ric);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.ISIN)) {
-        this.ISIN = data().deepCopy(fields()[3].schema(), other.ISIN);
+      if (isValidValue(fields()[3], other.isin)) {
+        this.isin = data().deepCopy(fields()[3].schema(), other.isin);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.SEDOL)) {
-        this.SEDOL = data().deepCopy(fields()[4].schema(), other.SEDOL);
+      if (isValidValue(fields()[4], other.sedol)) {
+        this.sedol = data().deepCopy(fields()[4].schema(), other.sedol);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.Ticker)) {
-        this.Ticker = data().deepCopy(fields()[5].schema(), other.Ticker);
+      if (isValidValue(fields()[5], other.ticker)) {
+        this.ticker = data().deepCopy(fields()[5].schema(), other.ticker);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.Cusip)) {
-        this.Cusip = data().deepCopy(fields()[6].schema(), other.Cusip);
+      if (isValidValue(fields()[6], other.cusip)) {
+        this.cusip = data().deepCopy(fields()[6].schema(), other.cusip);
         fieldSetFlags()[6] = true;
       }
     }
@@ -385,184 +385,184 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
     }
 
     /**
-      * Gets the value of the 'COI' field.
+      * Gets the value of the 'coi' field.
       * @return The value.
       */
-    public java.lang.CharSequence getCOI() {
-      return COI;
+    public java.lang.CharSequence getCoi() {
+      return coi;
     }
 
     /**
-      * Sets the value of the 'COI' field.
-      * @param value The value of 'COI'.
+      * Sets the value of the 'coi' field.
+      * @param value The value of 'coi'.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder setCOI(java.lang.CharSequence value) {
+    public kafka.poc.instrument_reference_data_values.Builder setCoi(java.lang.CharSequence value) {
       validate(fields()[1], value);
-      this.COI = value;
+      this.coi = value;
       fieldSetFlags()[1] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'COI' field has been set.
-      * @return True if the 'COI' field has been set, false otherwise.
+      * Checks whether the 'coi' field has been set.
+      * @return True if the 'coi' field has been set, false otherwise.
       */
-    public boolean hasCOI() {
+    public boolean hasCoi() {
       return fieldSetFlags()[1];
     }
 
 
     /**
-      * Clears the value of the 'COI' field.
+      * Clears the value of the 'coi' field.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder clearCOI() {
-      COI = null;
+    public kafka.poc.instrument_reference_data_values.Builder clearCoi() {
+      coi = null;
       fieldSetFlags()[1] = false;
       return this;
     }
 
     /**
-      * Gets the value of the 'RIC' field.
+      * Gets the value of the 'ric' field.
       * @return The value.
       */
-    public java.lang.CharSequence getRIC() {
-      return RIC;
+    public java.lang.CharSequence getRic() {
+      return ric;
     }
 
     /**
-      * Sets the value of the 'RIC' field.
-      * @param value The value of 'RIC'.
+      * Sets the value of the 'ric' field.
+      * @param value The value of 'ric'.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder setRIC(java.lang.CharSequence value) {
+    public kafka.poc.instrument_reference_data_values.Builder setRic(java.lang.CharSequence value) {
       validate(fields()[2], value);
-      this.RIC = value;
+      this.ric = value;
       fieldSetFlags()[2] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'RIC' field has been set.
-      * @return True if the 'RIC' field has been set, false otherwise.
+      * Checks whether the 'ric' field has been set.
+      * @return True if the 'ric' field has been set, false otherwise.
       */
-    public boolean hasRIC() {
+    public boolean hasRic() {
       return fieldSetFlags()[2];
     }
 
 
     /**
-      * Clears the value of the 'RIC' field.
+      * Clears the value of the 'ric' field.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder clearRIC() {
-      RIC = null;
+    public kafka.poc.instrument_reference_data_values.Builder clearRic() {
+      ric = null;
       fieldSetFlags()[2] = false;
       return this;
     }
 
     /**
-      * Gets the value of the 'ISIN' field.
+      * Gets the value of the 'isin' field.
       * @return The value.
       */
-    public java.lang.CharSequence getISIN() {
-      return ISIN;
+    public java.lang.CharSequence getIsin() {
+      return isin;
     }
 
     /**
-      * Sets the value of the 'ISIN' field.
-      * @param value The value of 'ISIN'.
+      * Sets the value of the 'isin' field.
+      * @param value The value of 'isin'.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder setISIN(java.lang.CharSequence value) {
+    public kafka.poc.instrument_reference_data_values.Builder setIsin(java.lang.CharSequence value) {
       validate(fields()[3], value);
-      this.ISIN = value;
+      this.isin = value;
       fieldSetFlags()[3] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'ISIN' field has been set.
-      * @return True if the 'ISIN' field has been set, false otherwise.
+      * Checks whether the 'isin' field has been set.
+      * @return True if the 'isin' field has been set, false otherwise.
       */
-    public boolean hasISIN() {
+    public boolean hasIsin() {
       return fieldSetFlags()[3];
     }
 
 
     /**
-      * Clears the value of the 'ISIN' field.
+      * Clears the value of the 'isin' field.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder clearISIN() {
-      ISIN = null;
+    public kafka.poc.instrument_reference_data_values.Builder clearIsin() {
+      isin = null;
       fieldSetFlags()[3] = false;
       return this;
     }
 
     /**
-      * Gets the value of the 'SEDOL' field.
+      * Gets the value of the 'sedol' field.
       * @return The value.
       */
-    public java.lang.CharSequence getSEDOL() {
-      return SEDOL;
+    public java.lang.CharSequence getSedol() {
+      return sedol;
     }
 
     /**
-      * Sets the value of the 'SEDOL' field.
-      * @param value The value of 'SEDOL'.
+      * Sets the value of the 'sedol' field.
+      * @param value The value of 'sedol'.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder setSEDOL(java.lang.CharSequence value) {
+    public kafka.poc.instrument_reference_data_values.Builder setSedol(java.lang.CharSequence value) {
       validate(fields()[4], value);
-      this.SEDOL = value;
+      this.sedol = value;
       fieldSetFlags()[4] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'SEDOL' field has been set.
-      * @return True if the 'SEDOL' field has been set, false otherwise.
+      * Checks whether the 'sedol' field has been set.
+      * @return True if the 'sedol' field has been set, false otherwise.
       */
-    public boolean hasSEDOL() {
+    public boolean hasSedol() {
       return fieldSetFlags()[4];
     }
 
 
     /**
-      * Clears the value of the 'SEDOL' field.
+      * Clears the value of the 'sedol' field.
       * @return This builder.
       */
-    public kafka.poc.instrument_reference_data_values.Builder clearSEDOL() {
-      SEDOL = null;
+    public kafka.poc.instrument_reference_data_values.Builder clearSedol() {
+      sedol = null;
       fieldSetFlags()[4] = false;
       return this;
     }
 
     /**
-      * Gets the value of the 'Ticker' field.
+      * Gets the value of the 'ticker' field.
       * @return The value.
       */
     public java.lang.CharSequence getTicker() {
-      return Ticker;
+      return ticker;
     }
 
     /**
-      * Sets the value of the 'Ticker' field.
-      * @param value The value of 'Ticker'.
+      * Sets the value of the 'ticker' field.
+      * @param value The value of 'ticker'.
       * @return This builder.
       */
     public kafka.poc.instrument_reference_data_values.Builder setTicker(java.lang.CharSequence value) {
       validate(fields()[5], value);
-      this.Ticker = value;
+      this.ticker = value;
       fieldSetFlags()[5] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'Ticker' field has been set.
-      * @return True if the 'Ticker' field has been set, false otherwise.
+      * Checks whether the 'ticker' field has been set.
+      * @return True if the 'ticker' field has been set, false otherwise.
       */
     public boolean hasTicker() {
       return fieldSetFlags()[5];
@@ -570,38 +570,38 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
 
 
     /**
-      * Clears the value of the 'Ticker' field.
+      * Clears the value of the 'ticker' field.
       * @return This builder.
       */
     public kafka.poc.instrument_reference_data_values.Builder clearTicker() {
-      Ticker = null;
+      ticker = null;
       fieldSetFlags()[5] = false;
       return this;
     }
 
     /**
-      * Gets the value of the 'Cusip' field.
+      * Gets the value of the 'cusip' field.
       * @return The value.
       */
     public java.lang.CharSequence getCusip() {
-      return Cusip;
+      return cusip;
     }
 
     /**
-      * Sets the value of the 'Cusip' field.
-      * @param value The value of 'Cusip'.
+      * Sets the value of the 'cusip' field.
+      * @param value The value of 'cusip'.
       * @return This builder.
       */
     public kafka.poc.instrument_reference_data_values.Builder setCusip(java.lang.CharSequence value) {
       validate(fields()[6], value);
-      this.Cusip = value;
+      this.cusip = value;
       fieldSetFlags()[6] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'Cusip' field has been set.
-      * @return True if the 'Cusip' field has been set, false otherwise.
+      * Checks whether the 'cusip' field has been set.
+      * @return True if the 'cusip' field has been set, false otherwise.
       */
     public boolean hasCusip() {
       return fieldSetFlags()[6];
@@ -609,11 +609,11 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
 
 
     /**
-      * Clears the value of the 'Cusip' field.
+      * Clears the value of the 'cusip' field.
       * @return This builder.
       */
     public kafka.poc.instrument_reference_data_values.Builder clearCusip() {
-      Cusip = null;
+      cusip = null;
       fieldSetFlags()[6] = false;
       return this;
     }
@@ -624,12 +624,12 @@ public class instrument_reference_data_values extends org.apache.avro.specific.S
       try {
         instrument_reference_data_values record = new instrument_reference_data_values();
         record.asset_class = fieldSetFlags()[0] ? this.asset_class : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.COI = fieldSetFlags()[1] ? this.COI : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.RIC = fieldSetFlags()[2] ? this.RIC : (java.lang.CharSequence) defaultValue(fields()[2]);
-        record.ISIN = fieldSetFlags()[3] ? this.ISIN : (java.lang.CharSequence) defaultValue(fields()[3]);
-        record.SEDOL = fieldSetFlags()[4] ? this.SEDOL : (java.lang.CharSequence) defaultValue(fields()[4]);
-        record.Ticker = fieldSetFlags()[5] ? this.Ticker : (java.lang.CharSequence) defaultValue(fields()[5]);
-        record.Cusip = fieldSetFlags()[6] ? this.Cusip : (java.lang.CharSequence) defaultValue(fields()[6]);
+        record.coi = fieldSetFlags()[1] ? this.coi : (java.lang.CharSequence) defaultValue(fields()[1]);
+        record.ric = fieldSetFlags()[2] ? this.ric : (java.lang.CharSequence) defaultValue(fields()[2]);
+        record.isin = fieldSetFlags()[3] ? this.isin : (java.lang.CharSequence) defaultValue(fields()[3]);
+        record.sedol = fieldSetFlags()[4] ? this.sedol : (java.lang.CharSequence) defaultValue(fields()[4]);
+        record.ticker = fieldSetFlags()[5] ? this.ticker : (java.lang.CharSequence) defaultValue(fields()[5]);
+        record.cusip = fieldSetFlags()[6] ? this.cusip : (java.lang.CharSequence) defaultValue(fields()[6]);
         return record;
       } catch (java.lang.Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

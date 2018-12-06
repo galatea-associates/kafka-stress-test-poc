@@ -5,9 +5,9 @@
     "fields": [
         {"name": "knowledge_date", "type": "string"},
         {"name": "effective_date", "type": "string"},
-        {"name": "type", "type": "string"},
+        {"name": "position_type", "type": "string"},
         {"name": "account", "type": "string"},
-        {"name": "inst_id", "type": "string"},
+        {"name": "ric", "type": "string"},
         {"name": "purpose", "type": "string"}
     ]
 }

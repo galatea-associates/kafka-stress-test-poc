@@ -1,7 +1,6 @@
 package kafka.poc;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
@@ -13,14 +12,9 @@ import org.apache.kafka.clients.producer.Producer;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.avro.specific.SpecificRecord;
@@ -56,28 +50,28 @@ public final class SimpleProducer {
     }
 
     public static void startSending(Producer kafkaProducer, TopicProperties topicProperties,
-			List<Map<String, String>> job) {
+            List<Map<String, String>> job) {
         long startTime = System.currentTimeMillis();
+
         try {
             for (Map<String, String> data : job) {
-                while (counters.get("Sent Counter").get() > topicProperties.getMaxSendInPeriod()) {
-                    if (System.currentTimeMillis() - startTime > 1000) {
-                        System.out.println("I have tried to send: " + counters.get("Sent Counter").getAndSet(0));
-                        System.out
-                                .println("I have received acks: " + counters.get("Received Counter").getAndSet(0));
-                        System.out.println("---------------------------");
-                        startTime = System.currentTimeMillis();
-                    }
+                while (topicProperties.getCounters().get("Sent Counter").get() > topicProperties.getMaxSendInPeriod()) {
+                    continue;
                 }
-                recordObj = PopulateAvroTopic.populateData(topic, recordObj, data);
-                ProducerRecord<Object, Object> record = new ProducerRecord<>(topic.toString(),
-                        serializeMessage(recordObj[0], recordObj[0].getSchema()),
-                        serializeMessage(recordObj[1], recordObj[1].getSchema()));
+                topicProperties.setRecordObj(PopulateAvroTopic.populateData(topicProperties.getTopic(),
+                        topicProperties.getRecordObj(), data));
+
+                ProducerRecord<Object, Object> record = new ProducerRecord<>(topicProperties.getTopic().toString(),
+                        serializeMessage(topicProperties.getRecordObj()[0],
+                                topicProperties.getRecordObj()[0].getSchema()),
+                        serializeMessage(topicProperties.getRecordObj()[1],
+                                topicProperties.getRecordObj()[1].getSchema()));
+
 
                 kafkaProducer.send(record, (metadata, exception) -> {
-                    counters.get("Received Counter").incrementAndGet();
+                    topicProperties.getCounters().get("Received Counter").incrementAndGet();
                 });
-                counters.get("Sent Counter").incrementAndGet();
+                topicProperties.getCounters().get("Sent Counter").incrementAndGet();
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -103,23 +97,37 @@ public final class SimpleProducer {
     public static void main(String[] args) {
 
         Producer kafkaProducer = producer();
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        ExecutorService executor = Executors.newFixedThreadPool(5);
         List<CallableTask<Object>> callableTasks = new ArrayList<>();
-
 
         HashMap<String, TopicProperties> topics = new HashMap<String, TopicProperties>() {
             {
-                    {
+                {
                     put("inst-ref", new TopicProperties(Topic.INST_REF, "./out/inst-ref.csv", 100, 60));
                     put("prices", new TopicProperties(Topic.PRICES, "./out/prices.csv", 20000, 1));
                     put("position", new TopicProperties(Topic.POSITION, "./out/position.csv", 40000, 1));
-                };
+                }
+                ;
             };
         };
+        for (int i = 0; i < 100; i++){
+            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("inst-ref"), topics.get("inst-ref").getJob(1)));
+        }
+        
+        for (int i = 0; i < 70000; i++){
+            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("prices"),
+            topics.get("prices").getJob(1)));
+        }
 
-        CallableTask<Object> callableTask = new CallableTask<Object>(kafkaProducer, topics.get("inst-ref"), topics.get("inst-ref").getJob(1));
-        callableTasks.add(callableTask);
+        for (int i = 0; i < 70000; i++){
+            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("position"),
+            topics.get("position").getJob(1)));
+        }
 
+        System.out.println("Starting execution");
+
+        Thread t = new Thread(new Timer(topics));
+        t.start();
 
         try {
             executor.invokeAll(callableTasks);
@@ -134,6 +142,6 @@ public final class SimpleProducer {
                 kafkaProducer.close();
             }
         });
-
+        
     }
 }

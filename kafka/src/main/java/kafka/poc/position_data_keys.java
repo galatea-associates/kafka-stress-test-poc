@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class position_data_keys extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -4455757475887767581L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"position_data_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"knowledge_date\",\"type\":\"string\"},{\"name\":\"effective_date\",\"type\":\"string\"},{\"name\":\"type\",\"type\":\"string\"},{\"name\":\"account\",\"type\":\"string\"},{\"name\":\"inst_id\",\"type\":\"string\"},{\"name\":\"purpose\",\"type\":\"string\"}]}");
+  private static final long serialVersionUID = -6840420412530155691L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"position_data_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"knowledge_date\",\"type\":\"string\"},{\"name\":\"effective_date\",\"type\":\"string\"},{\"name\":\"position_type\",\"type\":\"string\"},{\"name\":\"account\",\"type\":\"string\"},{\"name\":\"ric\",\"type\":\"string\"},{\"name\":\"purpose\",\"type\":\"string\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
@@ -53,9 +53,9 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
 
   @Deprecated public java.lang.CharSequence knowledge_date;
   @Deprecated public java.lang.CharSequence effective_date;
-  @Deprecated public java.lang.CharSequence type;
+  @Deprecated public java.lang.CharSequence position_type;
   @Deprecated public java.lang.CharSequence account;
-  @Deprecated public java.lang.CharSequence inst_id;
+  @Deprecated public java.lang.CharSequence ric;
   @Deprecated public java.lang.CharSequence purpose;
 
   /**
@@ -69,17 +69,17 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
    * All-args constructor.
    * @param knowledge_date The new value for knowledge_date
    * @param effective_date The new value for effective_date
-   * @param type The new value for type
+   * @param position_type The new value for position_type
    * @param account The new value for account
-   * @param inst_id The new value for inst_id
+   * @param ric The new value for ric
    * @param purpose The new value for purpose
    */
-  public position_data_keys(java.lang.CharSequence knowledge_date, java.lang.CharSequence effective_date, java.lang.CharSequence type, java.lang.CharSequence account, java.lang.CharSequence inst_id, java.lang.CharSequence purpose) {
+  public position_data_keys(java.lang.CharSequence knowledge_date, java.lang.CharSequence effective_date, java.lang.CharSequence position_type, java.lang.CharSequence account, java.lang.CharSequence ric, java.lang.CharSequence purpose) {
     this.knowledge_date = knowledge_date;
     this.effective_date = effective_date;
-    this.type = type;
+    this.position_type = position_type;
     this.account = account;
-    this.inst_id = inst_id;
+    this.ric = ric;
     this.purpose = purpose;
   }
 
@@ -89,9 +89,9 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
     switch (field$) {
     case 0: return knowledge_date;
     case 1: return effective_date;
-    case 2: return type;
+    case 2: return position_type;
     case 3: return account;
-    case 4: return inst_id;
+    case 4: return ric;
     case 5: return purpose;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
@@ -103,9 +103,9 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
     switch (field$) {
     case 0: knowledge_date = (java.lang.CharSequence)value$; break;
     case 1: effective_date = (java.lang.CharSequence)value$; break;
-    case 2: type = (java.lang.CharSequence)value$; break;
+    case 2: position_type = (java.lang.CharSequence)value$; break;
     case 3: account = (java.lang.CharSequence)value$; break;
-    case 4: inst_id = (java.lang.CharSequence)value$; break;
+    case 4: ric = (java.lang.CharSequence)value$; break;
     case 5: purpose = (java.lang.CharSequence)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
@@ -144,19 +144,19 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
   }
 
   /**
-   * Gets the value of the 'type' field.
-   * @return The value of the 'type' field.
+   * Gets the value of the 'position_type' field.
+   * @return The value of the 'position_type' field.
    */
-  public java.lang.CharSequence getType() {
-    return type;
+  public java.lang.CharSequence getPositionType() {
+    return position_type;
   }
 
   /**
-   * Sets the value of the 'type' field.
+   * Sets the value of the 'position_type' field.
    * @param value the value to set.
    */
-  public void setType(java.lang.CharSequence value) {
-    this.type = value;
+  public void setPositionType(java.lang.CharSequence value) {
+    this.position_type = value;
   }
 
   /**
@@ -176,19 +176,19 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
   }
 
   /**
-   * Gets the value of the 'inst_id' field.
-   * @return The value of the 'inst_id' field.
+   * Gets the value of the 'ric' field.
+   * @return The value of the 'ric' field.
    */
-  public java.lang.CharSequence getInstId() {
-    return inst_id;
+  public java.lang.CharSequence getRic() {
+    return ric;
   }
 
   /**
-   * Sets the value of the 'inst_id' field.
+   * Sets the value of the 'ric' field.
    * @param value the value to set.
    */
-  public void setInstId(java.lang.CharSequence value) {
-    this.inst_id = value;
+  public void setRic(java.lang.CharSequence value) {
+    this.ric = value;
   }
 
   /**
@@ -241,9 +241,9 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
 
     private java.lang.CharSequence knowledge_date;
     private java.lang.CharSequence effective_date;
-    private java.lang.CharSequence type;
+    private java.lang.CharSequence position_type;
     private java.lang.CharSequence account;
-    private java.lang.CharSequence inst_id;
+    private java.lang.CharSequence ric;
     private java.lang.CharSequence purpose;
 
     /** Creates a new Builder */
@@ -265,16 +265,16 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
         this.effective_date = data().deepCopy(fields()[1].schema(), other.effective_date);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.type)) {
-        this.type = data().deepCopy(fields()[2].schema(), other.type);
+      if (isValidValue(fields()[2], other.position_type)) {
+        this.position_type = data().deepCopy(fields()[2].schema(), other.position_type);
         fieldSetFlags()[2] = true;
       }
       if (isValidValue(fields()[3], other.account)) {
         this.account = data().deepCopy(fields()[3].schema(), other.account);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.inst_id)) {
-        this.inst_id = data().deepCopy(fields()[4].schema(), other.inst_id);
+      if (isValidValue(fields()[4], other.ric)) {
+        this.ric = data().deepCopy(fields()[4].schema(), other.ric);
         fieldSetFlags()[4] = true;
       }
       if (isValidValue(fields()[5], other.purpose)) {
@@ -297,16 +297,16 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
         this.effective_date = data().deepCopy(fields()[1].schema(), other.effective_date);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.type)) {
-        this.type = data().deepCopy(fields()[2].schema(), other.type);
+      if (isValidValue(fields()[2], other.position_type)) {
+        this.position_type = data().deepCopy(fields()[2].schema(), other.position_type);
         fieldSetFlags()[2] = true;
       }
       if (isValidValue(fields()[3], other.account)) {
         this.account = data().deepCopy(fields()[3].schema(), other.account);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.inst_id)) {
-        this.inst_id = data().deepCopy(fields()[4].schema(), other.inst_id);
+      if (isValidValue(fields()[4], other.ric)) {
+        this.ric = data().deepCopy(fields()[4].schema(), other.ric);
         fieldSetFlags()[4] = true;
       }
       if (isValidValue(fields()[5], other.purpose)) {
@@ -394,40 +394,40 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
     }
 
     /**
-      * Gets the value of the 'type' field.
+      * Gets the value of the 'position_type' field.
       * @return The value.
       */
-    public java.lang.CharSequence getType() {
-      return type;
+    public java.lang.CharSequence getPositionType() {
+      return position_type;
     }
 
     /**
-      * Sets the value of the 'type' field.
-      * @param value The value of 'type'.
+      * Sets the value of the 'position_type' field.
+      * @param value The value of 'position_type'.
       * @return This builder.
       */
-    public kafka.poc.position_data_keys.Builder setType(java.lang.CharSequence value) {
+    public kafka.poc.position_data_keys.Builder setPositionType(java.lang.CharSequence value) {
       validate(fields()[2], value);
-      this.type = value;
+      this.position_type = value;
       fieldSetFlags()[2] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'type' field has been set.
-      * @return True if the 'type' field has been set, false otherwise.
+      * Checks whether the 'position_type' field has been set.
+      * @return True if the 'position_type' field has been set, false otherwise.
       */
-    public boolean hasType() {
+    public boolean hasPositionType() {
       return fieldSetFlags()[2];
     }
 
 
     /**
-      * Clears the value of the 'type' field.
+      * Clears the value of the 'position_type' field.
       * @return This builder.
       */
-    public kafka.poc.position_data_keys.Builder clearType() {
-      type = null;
+    public kafka.poc.position_data_keys.Builder clearPositionType() {
+      position_type = null;
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -472,40 +472,40 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
     }
 
     /**
-      * Gets the value of the 'inst_id' field.
+      * Gets the value of the 'ric' field.
       * @return The value.
       */
-    public java.lang.CharSequence getInstId() {
-      return inst_id;
+    public java.lang.CharSequence getRic() {
+      return ric;
     }
 
     /**
-      * Sets the value of the 'inst_id' field.
-      * @param value The value of 'inst_id'.
+      * Sets the value of the 'ric' field.
+      * @param value The value of 'ric'.
       * @return This builder.
       */
-    public kafka.poc.position_data_keys.Builder setInstId(java.lang.CharSequence value) {
+    public kafka.poc.position_data_keys.Builder setRic(java.lang.CharSequence value) {
       validate(fields()[4], value);
-      this.inst_id = value;
+      this.ric = value;
       fieldSetFlags()[4] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'inst_id' field has been set.
-      * @return True if the 'inst_id' field has been set, false otherwise.
+      * Checks whether the 'ric' field has been set.
+      * @return True if the 'ric' field has been set, false otherwise.
       */
-    public boolean hasInstId() {
+    public boolean hasRic() {
       return fieldSetFlags()[4];
     }
 
 
     /**
-      * Clears the value of the 'inst_id' field.
+      * Clears the value of the 'ric' field.
       * @return This builder.
       */
-    public kafka.poc.position_data_keys.Builder clearInstId() {
-      inst_id = null;
+    public kafka.poc.position_data_keys.Builder clearRic() {
+      ric = null;
       fieldSetFlags()[4] = false;
       return this;
     }
@@ -556,9 +556,9 @@ public class position_data_keys extends org.apache.avro.specific.SpecificRecordB
         position_data_keys record = new position_data_keys();
         record.knowledge_date = fieldSetFlags()[0] ? this.knowledge_date : (java.lang.CharSequence) defaultValue(fields()[0]);
         record.effective_date = fieldSetFlags()[1] ? this.effective_date : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.type = fieldSetFlags()[2] ? this.type : (java.lang.CharSequence) defaultValue(fields()[2]);
+        record.position_type = fieldSetFlags()[2] ? this.position_type : (java.lang.CharSequence) defaultValue(fields()[2]);
         record.account = fieldSetFlags()[3] ? this.account : (java.lang.CharSequence) defaultValue(fields()[3]);
-        record.inst_id = fieldSetFlags()[4] ? this.inst_id : (java.lang.CharSequence) defaultValue(fields()[4]);
+        record.ric = fieldSetFlags()[4] ? this.ric : (java.lang.CharSequence) defaultValue(fields()[4]);
         record.purpose = fieldSetFlags()[5] ? this.purpose : (java.lang.CharSequence) defaultValue(fields()[5]);
         return record;
       } catch (java.lang.Exception e) {

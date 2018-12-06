@@ -3,9 +3,7 @@ package kafka.poc;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.Producer;
 
 public class CallableTask<T> implements Callable<Object> {
@@ -18,11 +16,11 @@ public class CallableTask<T> implements Callable<Object> {
         this.kafkaProducer = kafkaProducer;
         this.topicProperties = topicProperties;
         this.job = job;
-	}
+    }
 
-	@Override
+    @Override
     public Object call() throws Exception {
         SimpleProducer.startSending(this.kafkaProducer, this.topicProperties, this.job);
         return null;
     }
-} 
+}

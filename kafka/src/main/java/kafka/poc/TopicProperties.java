@@ -17,33 +17,44 @@ import org.apache.avro.specific.SpecificRecord;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
 public class TopicProperties {
-    @Getter private Topic topic;
+    @Getter
+    private Topic topic;
     private String csvFile;
-    @Getter private List<Map<String, String>> data;
-    @Getter private int maxSendInPeriod;
-    @Getter private int timePeriod;
+    @Getter
+    private List<Map<String, String>> data;
+    @Getter
+    private int maxSendInPeriod;
+    @Getter
+    private int timePeriod;
 
     private int currentArrayIdx = 0;
-    @Getter private SpecificRecord[] recordObj;
-    @Getter private Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>() {
+    @Setter
+    @Getter
+    private SpecificRecord[] recordObj;
+    @Getter
+    private Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>() {
         private static final long serialVersionUID = 3019616454475007213L;
         {
             put("Sent Counter", new AtomicInteger());
             put("Received Counter", new AtomicInteger());
         }
     };
+    @Getter
+    @Setter
+    private long lastStartTime = System.currentTimeMillis();
 
-    public TopicProperties(Topic topic, String csvFile, int maxSendInPeriod, int timePeriod){
+    public TopicProperties(Topic topic, String csvFile, int maxSendInPeriod, int timePeriod) {
         this.topic = topic;
         this.csvFile = csvFile;
         this.data = readFile(this.csvFile);
         this.maxSendInPeriod = maxSendInPeriod;
-        this.timePeriod = timePeriod;
+        this.timePeriod = timePeriod * 1000;
         this.recordObj = generateClasses(this.topic);
     }
 
@@ -79,12 +90,12 @@ public class TopicProperties {
         }
     }
 
-    public List<Map<String, String>> getJob(int numRowsPerJob){
+    public List<Map<String, String>> getJob(int numRowsPerJob) {
         List<Map<String, String>> jobData = new ArrayList<>();
-        for (int i = 0; i < numRowsPerJob; i++){
+        for (int i = 0; i < numRowsPerJob; i++) {
             jobData.add(this.data.get(this.currentArrayIdx));
             this.currentArrayIdx++;
-            if (this.currentArrayIdx == jobData.size()){
+            if (this.currentArrayIdx == this.data.size()) {
                 this.currentArrayIdx = 0;
             }
         }

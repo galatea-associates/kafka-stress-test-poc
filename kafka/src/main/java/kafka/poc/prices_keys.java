@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class prices_keys extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 2424752608629735034L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"prices_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"inst_id\",\"type\":\"string\"}]}");
+  private static final long serialVersionUID = 5326137337624216139L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"prices_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"ticker\",\"type\":\"string\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
@@ -51,7 +51,7 @@ public class prices_keys extends org.apache.avro.specific.SpecificRecordBase imp
     return DECODER.decode(b);
   }
 
-  @Deprecated public java.lang.CharSequence inst_id;
+  @Deprecated public java.lang.CharSequence ticker;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -62,17 +62,17 @@ public class prices_keys extends org.apache.avro.specific.SpecificRecordBase imp
 
   /**
    * All-args constructor.
-   * @param inst_id The new value for inst_id
+   * @param ticker The new value for ticker
    */
-  public prices_keys(java.lang.CharSequence inst_id) {
-    this.inst_id = inst_id;
+  public prices_keys(java.lang.CharSequence ticker) {
+    this.ticker = ticker;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call.
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return inst_id;
+    case 0: return ticker;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -81,25 +81,25 @@ public class prices_keys extends org.apache.avro.specific.SpecificRecordBase imp
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: inst_id = (java.lang.CharSequence)value$; break;
+    case 0: ticker = (java.lang.CharSequence)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
 
   /**
-   * Gets the value of the 'inst_id' field.
-   * @return The value of the 'inst_id' field.
+   * Gets the value of the 'ticker' field.
+   * @return The value of the 'ticker' field.
    */
-  public java.lang.CharSequence getInstId() {
-    return inst_id;
+  public java.lang.CharSequence getTicker() {
+    return ticker;
   }
 
   /**
-   * Sets the value of the 'inst_id' field.
+   * Sets the value of the 'ticker' field.
    * @param value the value to set.
    */
-  public void setInstId(java.lang.CharSequence value) {
-    this.inst_id = value;
+  public void setTicker(java.lang.CharSequence value) {
+    this.ticker = value;
   }
 
   /**
@@ -134,7 +134,7 @@ public class prices_keys extends org.apache.avro.specific.SpecificRecordBase imp
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<prices_keys>
     implements org.apache.avro.data.RecordBuilder<prices_keys> {
 
-    private java.lang.CharSequence inst_id;
+    private java.lang.CharSequence ticker;
 
     /** Creates a new Builder */
     private Builder() {
@@ -147,8 +147,8 @@ public class prices_keys extends org.apache.avro.specific.SpecificRecordBase imp
      */
     private Builder(kafka.poc.prices_keys.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.inst_id)) {
-        this.inst_id = data().deepCopy(fields()[0].schema(), other.inst_id);
+      if (isValidValue(fields()[0], other.ticker)) {
+        this.ticker = data().deepCopy(fields()[0].schema(), other.ticker);
         fieldSetFlags()[0] = true;
       }
     }
@@ -159,47 +159,47 @@ public class prices_keys extends org.apache.avro.specific.SpecificRecordBase imp
      */
     private Builder(kafka.poc.prices_keys other) {
             super(SCHEMA$);
-      if (isValidValue(fields()[0], other.inst_id)) {
-        this.inst_id = data().deepCopy(fields()[0].schema(), other.inst_id);
+      if (isValidValue(fields()[0], other.ticker)) {
+        this.ticker = data().deepCopy(fields()[0].schema(), other.ticker);
         fieldSetFlags()[0] = true;
       }
     }
 
     /**
-      * Gets the value of the 'inst_id' field.
+      * Gets the value of the 'ticker' field.
       * @return The value.
       */
-    public java.lang.CharSequence getInstId() {
-      return inst_id;
+    public java.lang.CharSequence getTicker() {
+      return ticker;
     }
 
     /**
-      * Sets the value of the 'inst_id' field.
-      * @param value The value of 'inst_id'.
+      * Sets the value of the 'ticker' field.
+      * @param value The value of 'ticker'.
       * @return This builder.
       */
-    public kafka.poc.prices_keys.Builder setInstId(java.lang.CharSequence value) {
+    public kafka.poc.prices_keys.Builder setTicker(java.lang.CharSequence value) {
       validate(fields()[0], value);
-      this.inst_id = value;
+      this.ticker = value;
       fieldSetFlags()[0] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'inst_id' field has been set.
-      * @return True if the 'inst_id' field has been set, false otherwise.
+      * Checks whether the 'ticker' field has been set.
+      * @return True if the 'ticker' field has been set, false otherwise.
       */
-    public boolean hasInstId() {
+    public boolean hasTicker() {
       return fieldSetFlags()[0];
     }
 
 
     /**
-      * Clears the value of the 'inst_id' field.
+      * Clears the value of the 'ticker' field.
       * @return This builder.
       */
-    public kafka.poc.prices_keys.Builder clearInstId() {
-      inst_id = null;
+    public kafka.poc.prices_keys.Builder clearTicker() {
+      ticker = null;
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -209,7 +209,7 @@ public class prices_keys extends org.apache.avro.specific.SpecificRecordBase imp
     public prices_keys build() {
       try {
         prices_keys record = new prices_keys();
-        record.inst_id = fieldSetFlags()[0] ? this.inst_id : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.ticker = fieldSetFlags()[0] ? this.ticker : (java.lang.CharSequence) defaultValue(fields()[0]);
         return record;
       } catch (java.lang.Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

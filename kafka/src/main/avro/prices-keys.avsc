@@ -3,6 +3,6 @@
     "type": "record",
     "name": "prices_keys",
     "fields": [
-        {"name": "inst_id", "type": "string"}
+        {"name": "ticker", "type": "string"}
     ]
 }
