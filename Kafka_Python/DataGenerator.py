@@ -17,11 +17,8 @@ class DataGenerator:
         self.__curr_in_inst = []
         self.__stock_loan_contract_ids = []
         self.__swap_contract_ids = []
-        self.__stock_inst_ids = {}
-        self.__cash_inst_ids = {}
-        self.__stock_to_cusip = {}
-        self.__stock_to_sedol = {}
-        self.__ticker_to_coi_and_price = {}
+        self.__per_ticker_info = {}
+        self.__ticker_to_coi = {}
         self.__state = {}
         self.__possible_curr = ['USD', 'CAD', 'EUR', 'GBP']
 
@@ -45,64 +42,6 @@ class DataGenerator:
         else:
             return self.__state[field_name]
 
-    def generate_new_inst_id(self, n_chars=5, asset_class=None):
-        """
-        Generates a new instrument ID that is not used by any other instrument.
-        ID will start with 'ABC' is the asset_class ia 'Stock' and 'BC" if it is
-        'Cash'
-
-        Args:
-            n_chars: number of characters after prefix ('ABC' or 'BCD')
-
-            asset_class: asset class of the instrument for which the instrument
-            ID is being created
-            If the asset_class is None, we generate it and save the generated
-            value in the state class variable op it can be fetched later on
-
-        Return: string comprised of a prefix and a random suffix
-        """
-        if asset_class is None:
-            asset_class = self.__get_preemptive_generation(
-                'asset_class',
-                self.generate_asset_class(generating_inst=True))
-
-        possible_chars = string.ascii_uppercase + string.digits
-        suffix = [random.choice(possible_chars) for _ in range(n_chars)]
-        if asset_class == 'Stock':
-            inst_id = 'ABC' + ''.join(suffix)
-            self.__stock_inst_ids[inst_id] = {}
-        else:
-            inst_id = 'BCD' + ''.join(suffix)
-            self.__cash_inst_ids[inst_id] = {}
-        return inst_id
-
-    def generate_inst_id(self, only=None, asset_class=None):
-        """
-        Generates an existing instrument ID from __stock_inst_ids if the asset
-        class of interest in 'Stock' or __cash_inst_ids if the asset class of
-        interest is 'Cash'
-
-        Args:
-            only:
-
-        Return: string comprised of n_digits digits
-        """
-
-        if only is None:
-            if asset_class is None:
-                asset_class = self.__get_preemptive_generation(
-                    'asset_class',
-                    self.generate_asset_class(generating_inst=True))
-        elif only == 'S':
-            asset_class = 'Stock'
-        else:
-            asset_class = 'Cash'
-
-        if asset_class == 'Stock':
-            return random.choice(list(self.__stock_inst_ids))
-        else:
-            return random.choice(list(self.__cash_inst_ids))
-
     def generate_cusip(self, n_digits=9, ticker=None, asset_class=None,
                        no_cash=False):
         if no_cash:
@@ -121,12 +60,18 @@ class DataGenerator:
                 'ticker',
                 self.generate_ticker(asset_class))
 
-        if ticker in self.__stock_to_cusip:
-            cusip = self.__stock_to_cusip[ticker]
+        if ticker in self.__per_ticker_info:
+            data = self.__per_ticker_info[ticker]
+            if 'cusip' in data:
+                cusip = self.__per_ticker_info[ticker]['cusip']
+            else:
+                digits = [random.choice(string.digits) for _ in range(n_digits)]
+                cusip = ''.join(digits)
+                self.__per_ticker_info[ticker]['cusip'] = cusip
         else:
             digits = [random.choice(string.digits) for _ in range(n_digits)]
             cusip = ''.join(digits)
-            self.__stock_to_cusip[ticker] = cusip
+            self.__per_ticker_info[ticker] = {'cusip': cusip}
 
         return cusip
 
@@ -144,12 +89,18 @@ class DataGenerator:
                 'ticker',
                 self.generate_ticker(asset_class))
 
-        if ticker in self.__stock_to_sedol:
-            sedol = self.__stock_to_sedol[ticker]
+        if ticker in self.__per_ticker_info:
+            data = self.__per_ticker_info[ticker]
+            if 'sedol' in data:
+                sedol = self.__per_ticker_info[ticker]['sedol']
+            else:
+                digits = [random.choice(string.digits) for _ in range(n_digits)]
+                sedol = ''.join(digits)
+                self.__per_ticker_info[ticker]['sedol'] = sedol
         else:
             digits = [random.choice(string.digits) for _ in range(n_digits)]
             sedol = ''.join(digits)
-            self.__stock_to_sedol[ticker] = sedol
+            self.__per_ticker_info[ticker] = {'sedol': sedol}
 
         return sedol
 
@@ -245,12 +196,16 @@ class DataGenerator:
                 'ticker',
                 self.generate_ticker(asset_class=asset_class, no_cash=True))
 
-        if ticker in self.__ticker_to_coi:
-            coi = self.__ticker_to_coi[ticker]
+        if ticker in self.__per_ticker_info:
+            data = self.__per_ticker_info[ticker]
+            if 'coi' in data:
+                coi = self.__per_ticker_info[ticker]['coi']
+            else:
+                coi = random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
+                self.__per_ticker_info[ticker]['coi'] = coi
         else:
-            coi = random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG',
-                                 'JP'])
-            self.__ticker_to_coi[ticker] = coi
+            coi = random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
+            self.__per_ticker_info[ticker] = {'coi': coi}
 
         return coi
 

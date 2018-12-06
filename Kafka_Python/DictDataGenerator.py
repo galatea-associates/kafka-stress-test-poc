@@ -218,7 +218,6 @@ class DictRunnable(Runnable):
             new_date_at = int(n/4)
             counter = 1
             for i in range(n - 1):
-                print(date.date())
                 if i == counter * new_date_at:
                     date += datetime.timedelta(days=1)
                     ddc.set_date(date)
