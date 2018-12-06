@@ -31,7 +31,7 @@ public final class SimpleProducer {
 
     private static Producer producer() {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", "127.0.0.1:9092");
+        properties.put("bootstrap.servers", "3.8.1.159:9092");
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("compression.type", "gzip");
@@ -55,49 +55,29 @@ public final class SimpleProducer {
         return out.toByteArray();
     }
 
-    private static List<Map<String, String>> readFile(String csvFile) {
-        File file = new File(csvFile);
-        List<Map<String, String>> response = new LinkedList<Map<String, String>>();
-        CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = CsvSchema.emptySchema().withHeader();
-        MappingIterator<Map<String, String>> iterator = null;
-        try {
-            iterator = mapper.reader(Map.class).with(schema).readValues(file);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        while (iterator.hasNext()) {
-            response.add(iterator.next());
-        }
-        return response;
-    }
-
-    public static void startSending(Producer kafkaProducer, Topic topic, List<Map<String, String>> dataList,
-            SpecificRecord[] recordObj, Map<String, AtomicInteger> counters, int maxSendInPeriod) {
+    public static void startSending(Producer kafkaProducer, TopicProperties topicProperties,
+			List<Map<String, String>> job) {
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 10000; i++) {
-                for (Map<String, String> data : dataList) {
-                    while (counters.get("Sent Counter").get() > maxSendInPeriod) {
-                        if (System.currentTimeMillis() - startTime > 1000) {
-                            System.out.println("I have tried to send: " + counters.get("Sent Counter").getAndSet(0));
-                            System.out
-                                    .println("I have received acks: " + counters.get("Received Counter").getAndSet(0));
-                            System.out.println("---------------------------");
-                            startTime = System.currentTimeMillis();
-                        }
+            for (Map<String, String> data : job) {
+                while (counters.get("Sent Counter").get() > topicProperties.getMaxSendInPeriod()) {
+                    if (System.currentTimeMillis() - startTime > 1000) {
+                        System.out.println("I have tried to send: " + counters.get("Sent Counter").getAndSet(0));
+                        System.out
+                                .println("I have received acks: " + counters.get("Received Counter").getAndSet(0));
+                        System.out.println("---------------------------");
+                        startTime = System.currentTimeMillis();
                     }
-                    recordObj = PopulateAvroTopic.populateData(topic, recordObj, data);
-                    ProducerRecord<Object, Object> record = new ProducerRecord<>(topic.toString(),
-                            serializeMessage(recordObj[0], recordObj[0].getSchema()),
-                            serializeMessage(recordObj[1], recordObj[1].getSchema()));
-
-                    kafkaProducer.send(record, (metadata, exception) -> {
-                        counters.get("Received Counter").incrementAndGet();
-                    });
-                    counters.get("Sent Counter").incrementAndGet();
                 }
+                recordObj = PopulateAvroTopic.populateData(topic, recordObj, data);
+                ProducerRecord<Object, Object> record = new ProducerRecord<>(topic.toString(),
+                        serializeMessage(recordObj[0], recordObj[0].getSchema()),
+                        serializeMessage(recordObj[1], recordObj[1].getSchema()));
+
+                kafkaProducer.send(record, (metadata, exception) -> {
+                    counters.get("Received Counter").incrementAndGet();
+                });
+                counters.get("Sent Counter").incrementAndGet();
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -123,36 +103,29 @@ public final class SimpleProducer {
     public static void main(String[] args) {
 
         Producer kafkaProducer = producer();
-        String csvFile = "./out/inst-ref.csv";
-
-        Topic topic = Topic.INST_REF;
-        List<Map<String, String>> data = readFile(csvFile);
-        SpecificRecord[] recordObj = generateClasses(topic);
-        int maxSendInPeriod = 40000;
-
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>() {
-            private static final long serialVersionUID = 3019616454475007213L;
-
-            {
-                put("Sent Counter", new AtomicInteger());
-                put("Received Counter", new AtomicInteger());
-            }
-        };
-
         List<CallableTask<Object>> callableTasks = new ArrayList<>();
 
-        CallableTask<Object> callableTask = new CallableTask<Object>(kafkaProducer, topic, data, recordObj, counters,
-                maxSendInPeriod);
 
+        HashMap<String, TopicProperties> topics = new HashMap<String, TopicProperties>() {
+            {
+                    {
+                    put("inst-ref", new TopicProperties(Topic.INST_REF, "./out/inst-ref.csv", 100, 60));
+                    put("prices", new TopicProperties(Topic.PRICES, "./out/prices.csv", 20000, 1));
+                    put("position", new TopicProperties(Topic.POSITION, "./out/position.csv", 40000, 1));
+                };
+            };
+        };
+
+        CallableTask<Object> callableTask = new CallableTask<Object>(kafkaProducer, topics.get("inst-ref"), topics.get("inst-ref").getJob(1));
         callableTasks.add(callableTask);
+
+
         try {
             executor.invokeAll(callableTasks);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        // executor.submit(callableTask);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

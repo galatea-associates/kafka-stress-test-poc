@@ -11,26 +11,18 @@ import org.apache.kafka.clients.producer.Producer;
 public class CallableTask<T> implements Callable<Object> {
 
     private Producer kafkaProducer;
-    private Topic topic;
-    private List<Map<String, String>> data;
-    private SpecificRecord[] recordObj;
-    private Map<String, AtomicInteger> recieved_counter;
-    private int maxSendInPeriod;
+    private TopicProperties topicProperties;
+    private List<Map<String, String>> job;
 
-    public CallableTask(Producer kafkaProducer, Topic topic, List<Map<String, String>> data, SpecificRecord[] recordObj,
-            Map<String, AtomicInteger> recieved_counter, int maxSendInPeriod) {
+    public CallableTask(Producer kafkaProducer, TopicProperties topicProperties, List<Map<String, String>> job) {
         this.kafkaProducer = kafkaProducer;
-        this.topic = topic;
-        this.data = data;
-        this.recordObj = recordObj;
-        this.recieved_counter = recieved_counter;
-        this.maxSendInPeriod = maxSendInPeriod;
-    }
+        this.topicProperties = topicProperties;
+        this.job = job;
+	}
 
-    @Override
+	@Override
     public Object call() throws Exception {
-        SimpleProducer.startSending(this.kafkaProducer, this.topic, this.data, this.recordObj, this.recieved_counter,
-                this.maxSendInPeriod);
+        SimpleProducer.startSending(this.kafkaProducer, this.topicProperties, this.job);
         return null;
     }
-}
+} 
