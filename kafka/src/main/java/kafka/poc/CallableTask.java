@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.KafkaProducer;
 
 public class CallableTask<T> implements Callable<Object> {
 
-    private Producer kafkaProducer;
+    private KafkaProducer kafkaProducer;
     private TopicProperties topicProperties;
     private List<Map<String, String>> job;
 
-    public CallableTask(Producer kafkaProducer, TopicProperties topicProperties, List<Map<String, String>> job) {
+    public CallableTask(KafkaProducer kafkaProducer, TopicProperties topicProperties, List<Map<String, String>> job) {
         this.kafkaProducer = kafkaProducer;
         this.topicProperties = topicProperties;
         this.job = job;

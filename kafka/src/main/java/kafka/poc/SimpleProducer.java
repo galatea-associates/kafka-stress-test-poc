@@ -8,7 +8,6 @@ import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.Producer;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +22,7 @@ public final class SimpleProducer {
     private SimpleProducer() {
     }
 
-    private static Producer producer() {
+    private static KafkaProducer producer() {
         Properties properties = new Properties();
         properties.put("bootstrap.servers", "3.8.1.159:9092");
         properties.put("acks", "all");
@@ -49,7 +48,7 @@ public final class SimpleProducer {
         return out.toByteArray();
     }
 
-    public static void startSending(Producer kafkaProducer, TopicProperties topicProperties,
+    public static void startSending(KafkaProducer kafkaProducer, TopicProperties topicProperties,
             List<Map<String, String>> job) {
         long startTime = System.currentTimeMillis();
 
@@ -96,7 +95,7 @@ public final class SimpleProducer {
 
     public static void main(String[] args) {
 
-        Producer kafkaProducer = producer();
+        KafkaProducer kafkaProducer = producer();
         ExecutorService executor = Executors.newFixedThreadPool(5);
         List<CallableTask<Object>> callableTasks = new ArrayList<>();
 
