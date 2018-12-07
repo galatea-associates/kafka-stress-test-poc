@@ -93,11 +93,16 @@ public final class SimpleProducer {
         }
     }
 
+
+
     public static void main(String[] args) {
 
         KafkaProducer kafkaProducer = producer();
-        ExecutorService executor = Executors.newFixedThreadPool(5);
+        ExecutorService[] executor = new ExecutorService[] {Executors.newFixedThreadPool(5), Executors.newFixedThreadPool(5), Executors.newFixedThreadPool(5)};
         List<CallableTask<Object>> callableTasks = new ArrayList<>();
+        List<CallableTask<Object>> callableTasks1 = new ArrayList<>();
+        List<CallableTask<Object>> callableTasks2 = new ArrayList<>();
+
 
         HashMap<String, TopicProperties> topics = new HashMap<String, TopicProperties>() {
             {
@@ -110,16 +115,17 @@ public final class SimpleProducer {
             };
         };
         for (int i = 0; i < 100; i++){
-            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("inst-ref"), topics.get("inst-ref").getJob(1)));
+            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("inst-ref"),
+            topics.get("inst-ref").getJob(1)));
         }
         
         for (int i = 0; i < 70000; i++){
-            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("prices"),
+            callableTasks1.add(new CallableTask<Object>(kafkaProducer, topics.get("prices"),
             topics.get("prices").getJob(1)));
         }
 
         for (int i = 0; i < 70000; i++){
-            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("position"),
+            callableTasks2.add(new CallableTask<Object>(kafkaProducer, topics.get("position"),
             topics.get("position").getJob(1)));
         }
 
@@ -129,11 +135,13 @@ public final class SimpleProducer {
         t.start();
 
         try {
-            executor.invokeAll(callableTasks);
+            executor[0].invokeAll(callableTasks);
+            executor[0].invokeAll(callableTasks1);
+            executor[0].invokeAll(callableTasks2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        System.out.println("i am done");
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
