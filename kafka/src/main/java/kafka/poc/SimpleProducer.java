@@ -109,8 +109,8 @@ public final class SimpleProducer {
         };
 
         new Thread(new RunTopics(kafkaProducer, topics.get("inst-ref"), 100, 1, 1, cyclicBarrier)).start();
-        new Thread(new RunTopics(kafkaProducer, topics.get("prices"), 70000, 1, 1, cyclicBarrier)).start();
-        new Thread(new RunTopics(kafkaProducer, topics.get("position"), 70000, 1, 1, cyclicBarrier)).start();
+        new Thread(new RunTopics(kafkaProducer, topics.get("prices"), 1200000, 1, 1, cyclicBarrier)).start();
+        new Thread(new RunTopics(kafkaProducer, topics.get("position"), 2400000, 1, 1, cyclicBarrier)).start();
         new Thread(new Timer(topics, cyclicBarrier)).start();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
