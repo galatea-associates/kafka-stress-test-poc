@@ -9,12 +9,13 @@ from DataGenerator import DataGenerator
 ddc = DataGenerator()
 data_template = {
     'inst_ref': {
-        'ric': {'func': ddc.generate_ric, 'args': ['ticker', 'asset_class']},
+        'ric': {'func': ddc.generate_new_ric, 'args': ['asset_class']},
         'isin': {'func': ddc.generate_isin,
                  'args': ['coi', 'cusip', 'asset_class']},
         'sedol': {'func': ddc.generate_sedol,
                   'args': ['ticker', 'asset_class']},
-        'ticker': {'func': ddc.generate_ticker, 'args': ['asset_class']},
+        'ticker': {'func': partial(ddc.generate_ticker, new_ric_generator=True),
+                   'args': ['asset_class', 'ric']},
         'cusip': {'func': ddc.generate_cusip,
                   'args': ['ticker', 'asset_class']},
         'asset_class': {'func': partial(ddc.generate_asset_class,
@@ -24,7 +25,7 @@ data_template = {
     },
     'price': {
         'ticker': {'func': partial(ddc.generate_ticker, no_cash=True),
-                   'args': ['asset_class']},
+                   'args': ['asset_class', 'ric']},
         'price': {'func': ddc.generate_price, 'args': ['ticker']},
         'curr': {'func': ddc.generate_currency}
     },

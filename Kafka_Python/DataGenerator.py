@@ -1,6 +1,7 @@
 import random
 import string
 import datetime
+from functools import partial
 import time
 # from pandas import Timestamp
 import pandas
@@ -11,8 +12,11 @@ import pandas
 class DataGenerator:
 
     def __init__(self):
-        self.__tickers = ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL',
-                          'FB', 'MGI', 'ADBE', 'GRPN']
+        self.__possible_ex_codes = ['L', 'N', 'OQ', 'SI', 'AL', 'VI', 'BB', 'BM', 'BR', 'BG', 'TC', 'TO', 'HK', 'SS',
+                                    'FR', 'BE', 'DE', 'JA', 'DE', 'IL', 'VX', 'MFM', 'PA', 'ME', 'NZ']
+        self.__possible_cois = ['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP']
+        self.__tickers = ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB', 'MGI', 'ADBE', 'GRPN', 'A', 'GOOG',
+                          'INTC', 'KO', 'MSFT', 'TXN', 'WMT', 'MMM', 'HOG', 'C', 'K', 'FAX', 'UXIN', 'DO', 'UHT', 'M']
         self.__date = None
         self.__curr_in_inst = []
         self.__stock_loan_contract_ids = []
@@ -21,6 +25,8 @@ class DataGenerator:
         self.__ticker_to_coi = {}
         self.__state = {}
         self.__possible_curr = ['USD', 'CAD', 'EUR', 'GBP']
+        self.__rics_to_use = [ticker + '.' + code for ticker in self.__tickers for code in self.__possible_ex_codes]
+        self.__rics_in_use = []
 
     def state_contains_field(self, field_to_generate):
         return field_to_generate in self.__state
@@ -35,8 +41,9 @@ class DataGenerator:
         self.__date = date
 
     # TODO: change this to function calls, don't pass actual value
-    def __get_preemptive_generation(self, field_name, field_value):
+    def __get_preemptive_generation(self, field_name, field_value_gen):
         if field_name not in self.__state:
+            field_value = field_value_gen()
             self.__state[field_name] = field_value
             return field_value
         else:
@@ -50,7 +57,7 @@ class DataGenerator:
             if asset_class is None:
                 asset_class = self.__get_preemptive_generation(
                     'asset_class',
-                    self.generate_asset_class(generating_inst=True))
+                    partial(self.generate_asset_class, generating_inst=True))
 
         if asset_class is 'Cash':
             return 0
@@ -58,7 +65,7 @@ class DataGenerator:
         if ticker is None:
             ticker = self.__get_preemptive_generation(
                 'ticker',
-                self.generate_ticker(asset_class))
+                partial(self.generate_ticker, asset_class=asset_class))
 
         if ticker in self.__per_ticker_info:
             data = self.__per_ticker_info[ticker]
@@ -79,7 +86,7 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class(generating_inst=True))
+                partial(self.generate_asset_class, generating_inst=True))
 
         if asset_class == 'Cash':
             return 0
@@ -87,7 +94,7 @@ class DataGenerator:
         if ticker is None:
             ticker = self.__get_preemptive_generation(
                 'ticker',
-                self.generate_ticker(asset_class))
+                partial(self.generate_ticker, asset_class=asset_class))
 
         if ticker in self.__per_ticker_info:
             data = self.__per_ticker_info[ticker]
@@ -112,7 +119,7 @@ class DataGenerator:
             if asset_class is None:
                 asset_class = self.__get_preemptive_generation(
                     'asset_class',
-                    self.generate_asset_class(generating_inst=True))
+                    partial(self.generate_asset_class, generating_inst=True))
 
         if asset_class == 'Cash':
             return None
@@ -120,48 +127,73 @@ class DataGenerator:
         if coi is None:
             coi = self.__get_preemptive_generation(
                 'coi',
-                self.generate_coi(asset_class))
+                partial(self.generate_coi, asset_class))
 
         if cusip is None:
             cusip = self.__get_preemptive_generation(
                 'cusip',
-                self.generate_cusip())
+                partial(self.generate_cusip, asset_class=asset_class))
 
         return coi + cusip + '4'
 
-    def generate_ric(self, ticker=None, asset_class=None, no_cash=False):
+    def generate_ric(self, asset_class=None, no_cash=False):
         if no_cash:
             asset_class = 'Stock'
         else:
             if asset_class is None:
                 asset_class = self.__get_preemptive_generation(
                     'asset_class',
-                    self.generate_asset_class(generating_inst=True))
+                    partial(self.generate_asset_class, generating_inst=True))
 
         if asset_class is 'Cash':
             return None
 
-        if ticker is None:
-            ticker = self.__get_preemptive_generation(
-                'ticker',
-                self.generate_ticker(asset_class))
+        # Works because inst_ref generated before anything else
+        if len(self.__rics_in_use) > 0:
+            ric = random.choice(self.__rics_in_use)
+        else:
+            ric = random.choice(self.__rics_to_use)
 
-        return ticker + '.' + random.choice(['L', 'N', 'OQ'])
+        self.__state['ticker'] = ric.partition('.')[0]
+        return ric
 
-    def generate_ticker(self, asset_class=None, no_cash=False):
+    def generate_new_ric(self, asset_class=None, no_cash=False):
         if no_cash:
             asset_class = 'Stock'
         else:
             if asset_class is None:
                 asset_class = self.__get_preemptive_generation(
                     'asset_class',
-                    self.generate_asset_class(generating_inst=True))
+                    partial(self.generate_asset_class, generating_inst=True))
+
+        if asset_class is 'Cash':
+            return None
+
+        ric = random.choice(self.__rics_to_use)
+        self.__rics_to_use.remove(ric)
+        self.__rics_in_use.append(ric)
+        self.__state['ticker'] = ric.partition('.')[0]
+        return ric
+
+    def generate_ticker(self, asset_class=None, ric=None, new_ric_generator=False, no_cash=False):
+        if no_cash:
+            asset_class = 'Stock'
+        else:
+            if asset_class is None:
+                asset_class = self.__get_preemptive_generation(
+                    'asset_class',
+                    partial(self.generate_asset_class, generating_inst=True))
 
         if asset_class == 'Stock':
-            return random.choice(self.__tickers)
+            if new_ric_generator:
+                ric_generator = self.generate_new_ric
+            else:
+                ric_generator = self.generate_ric
+            if ric is None:
+                ric = self.__get_preemptive_generation('ric', partial(ric_generator, asset_class=asset_class))
+            return ric.partition('.')[0]
         else:
-            possibles_curr_tickers = [c for c in self.__possible_curr
-                                      if c not in self.__curr_in_inst]
+            possibles_curr_tickers = [c for c in self.__possible_curr if c not in self.__curr_in_inst]
             curr = random.choice(possibles_curr_tickers)
             self.__curr_in_inst.append(curr)
             return curr
@@ -186,7 +218,7 @@ class DataGenerator:
         if asset_class is None:
             asset_class = self.__get_preemptive_generation(
                 'asset_class',
-                self.generate_asset_class())
+                partial(self.generate_asset_class))
 
         if asset_class == 'Cash':
             return None
@@ -194,17 +226,17 @@ class DataGenerator:
         if ticker is None:
             ticker = self.__get_preemptive_generation(
                 'ticker',
-                self.generate_ticker(asset_class=asset_class, no_cash=True))
+                partial(self.generate_ticker, asset_class=asset_class, no_cash=True))
 
         if ticker in self.__per_ticker_info:
             data = self.__per_ticker_info[ticker]
             if 'coi' in data:
                 coi = self.__per_ticker_info[ticker]['coi']
             else:
-                coi = random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
+                coi = random.choice(self.__possible_cois)
                 self.__per_ticker_info[ticker]['coi'] = coi
         else:
-            coi = random.choice(['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP'])
+            coi = random.choice(self.__possible_cois)
             self.__per_ticker_info[ticker] = {'coi': coi}
 
         return coi
@@ -213,7 +245,7 @@ class DataGenerator:
         if ticker is None:
             ticker = self.__get_preemptive_generation(
                 'ticker',
-                self.generate_ticker())
+                partial(self.generate_ticker))
 
         if ticker in self.__possible_curr:# Dealing with currency
             return 1.00
@@ -249,12 +281,12 @@ class DataGenerator:
         if position_type is None:
             position_type = self.__get_preemptive_generation(
                 'position_type',
-                self.generate_position_type())
+                partial(self.generate_position_type))
 
         if knowledge_date is None:
             knowledge_date = self.__get_preemptive_generation(
                 'knowledge_date',
-                self.generate_knowledge_date())
+                partial(self.generate_knowledge_date))
 
         if position_type == 'SD':
             return knowledge_date
@@ -390,7 +422,7 @@ class DataGenerator:
         if collateral_type is None:
             collateral_type = self.__get_preemptive_generation(
                 'collateral_type',
-                self.generate_collateral_type())
+                partial(self.generate_collateral_type))
 
         if collateral_type == 'Non Cash':
             return '2.00%'
@@ -409,7 +441,7 @@ class DataGenerator:
         if collateral_type is None:
             collateral_type = self.__get_preemptive_generation(
                 'collateral_type',
-                self.generate_collateral_type())
+                partial(self.generate_collateral_type))
 
         if collateral_type == 'Cash':
             return '140.00%'
@@ -449,7 +481,7 @@ class DataGenerator:
         if collateral_type is None:
             collateral_type = self.__get_preemptive_generation(
                 'collateral_type',
-                self.generate_collateral_type())
+                partial(self.generate_collateral_type))
 
         if collateral_type == 'Cash':
             return '5.75%'
@@ -460,7 +492,7 @@ class DataGenerator:
         if collateral_type is None:
             collateral_type = self.__get_preemptive_generation(
                 'collateral_type',
-                self.generate_collateral_type())
+                partial(self.generate_collateral_type))
 
         if collateral_type == 'Non Cash':
             return '4.00%%'
@@ -536,7 +568,7 @@ class DataGenerator:
         if status is None:
             status = self.__get_preemptive_generation(
                 'status',
-                self.generate_status())
+                partial(self.generate_status))
 
         if status == 'Live':
             return None
@@ -544,7 +576,7 @@ class DataGenerator:
             if start_date is None:
                 start_date = self.__get_preemptive_generation(
                     'start_date',
-                    self.generate_swap_start_date())
+                    partial(self.generate_swap_start_date))
 
             return start_date + datetime.timedelta(days=365*n_years_to_add)
 
