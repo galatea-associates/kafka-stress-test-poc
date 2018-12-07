@@ -23,9 +23,9 @@ public final class SimpleProducer {
     private SimpleProducer() {
     }
 
-    private static KafkaProducer producer() {
+    private static KafkaProducer producer(String serverIP) {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", "3.8.1.159:9092");
+        properties.put("bootstrap.servers", serverIP);
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("compression.type", "gzip");
@@ -95,7 +95,7 @@ public final class SimpleProducer {
 
     public static void main(String[] args) {
 
-        KafkaProducer kafkaProducer = producer();
+        KafkaProducer kafkaProducer = producer(args[0]);
         CyclicBarrier cyclicBarrier = new CyclicBarrier(4);
         HashMap<String, TopicProperties> topics = new HashMap<String, TopicProperties>() {
             {
