@@ -1,10 +1,10 @@
 import random
 import string
-import datetime
 from functools import partial
+from datetime import datetime, timezone, timedelta
 import time
 # from pandas import Timestamp
-import pandas
+import pandas as pd
 # TODO: merge sedol and cusip dictionaries
 # TODO: check inst_id is unique
 
@@ -12,11 +12,11 @@ import pandas
 class DataGenerator:
 
     def __init__(self):
+        self.__offset = 0
         self.__possible_ex_codes = ['L', 'N', 'OQ', 'SI', 'AL', 'VI', 'BB', 'BM', 'BR', 'BG', 'TC', 'TO', 'HK', 'SS',
                                     'FR', 'BE', 'DE', 'JA', 'DE', 'IL', 'VX', 'MFM', 'PA', 'ME', 'NZ']
         self.__possible_cois = ['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP']
-        self.__tickers = ['IBM', 'APPL', 'TSLA', 'AMZN', 'DIS', 'F', 'GOOGL', 'FB', 'MGI', 'ADBE', 'GRPN', 'A', 'GOOG',
-                          'INTC', 'KO', 'MSFT', 'TXN', 'WMT', 'MMM', 'HOG', 'C', 'K', 'FAX', 'UXIN', 'DO', 'UHT', 'M']
+        self.__tickers = self.__read_tickers_from_csv('tickers.csv')
         self.__date = None
         self.__curr_in_inst = []
         self.__stock_loan_contract_ids = []
@@ -24,9 +24,13 @@ class DataGenerator:
         self.__per_ticker_info = {}
         self.__ticker_to_coi = {}
         self.__state = {}
-        self.__possible_curr = ['USD', 'CAD', 'EUR', 'GBP']
-        self.__rics_to_use = [ticker + '.' + code for ticker in self.__tickers for code in self.__possible_ex_codes]
+        self.__possible_currs = ['USD', 'CAD', 'EUR', 'GBP']
+        self.__rics_to_use \
+            = list(set([ticker + '.' + code for ticker in self.__tickers for code in self.__possible_ex_codes]))
         self.__rics_in_use = []
+
+    def __read_tickers_from_csv(self, csv_file):
+        return pd.read_csv(csv_file)['Symbol'].drop_duplicates().values.tolist()
 
     def state_contains_field(self, field_to_generate):
         return field_to_generate in self.__state
@@ -39,6 +43,9 @@ class DataGenerator:
 
     def set_date(self, date):
         self.__date = date
+
+    def set_offset(self, offset):
+        self.__offset = offset
 
     # TODO: change this to function calls, don't pass actual value
     def __get_preemptive_generation(self, field_name, field_value_gen):
@@ -193,14 +200,14 @@ class DataGenerator:
                 ric = self.__get_preemptive_generation('ric', partial(ric_generator, asset_class=asset_class))
             return ric.partition('.')[0]
         else:
-            possibles_curr_tickers = [c for c in self.__possible_curr if c not in self.__curr_in_inst]
+            possibles_curr_tickers = [c for c in self.__possible_currs if c not in self.__curr_in_inst]
             curr = random.choice(possibles_curr_tickers)
             self.__curr_in_inst.append(curr)
             return curr
 
     def generate_asset_class(self, generating_inst=False):
         if generating_inst:
-            if len(self.__curr_in_inst) == len(self.__possible_curr):
+            if len(self.__curr_in_inst) == len(self.__possible_currs):
                 return 'Stock'
             return random.choice(['Stock', 'Cash'])
         else:
@@ -247,7 +254,7 @@ class DataGenerator:
                 'ticker',
                 partial(self.generate_ticker))
 
-        if ticker in self.__possible_curr:# Dealing with currency
+        if ticker in self.__possible_currs:# Dealing with currency
             return 1.00
         else:# Dealing with stock
             min = 10
@@ -255,7 +262,7 @@ class DataGenerator:
             num_decimal_points = 2
             return round(random.uniform(min, max), num_decimal_points)
 
-    def generate_currency(self):
+    def generate_currency(self, for_ticker=False, ticker=None):
         """
         Generates a country of issuer
 
@@ -263,7 +270,26 @@ class DataGenerator:
 
         Return: one of the following strings ['USD', 'CAD', 'EUR', 'GBP']
         """
-        return random.choice(self.__possible_curr)
+        if not for_ticker:
+            return random.choice(self.__possible_currs)
+
+        if ticker is None:
+            ticker = self.__get_preemptive_generation(
+                'ticker',
+                self.generate_ticker)
+
+        if ticker in self.__per_ticker_info:
+            data = self.__per_ticker_info[ticker]
+            if 'curr' in data:
+                curr = self.__per_ticker_info[ticker]['curr']
+            else:
+                curr = random.choice(self.__possible_currs)
+                self.__per_ticker_info[ticker]['curr'] = curr
+        else:
+            curr = random.choice(self.__possible_currs)
+            self.__per_ticker_info[ticker] = {'curr': curr}
+
+        return curr
 
     def generate_position_type(self, no_sd=False, no_td=False):
         choices = ['SD', 'TD']
@@ -291,7 +317,7 @@ class DataGenerator:
         if position_type == 'SD':
             return knowledge_date
         else:
-            return knowledge_date + datetime.timedelta(days=n_days_to_add)
+            return knowledge_date + timedelta(days=n_days_to_add)
 
     # TODO: see if you have to merge the account and account number fields
     def generate_account(self, n_digits=4, no_ecp=False, no_icp=False):
@@ -561,7 +587,7 @@ class DataGenerator:
         year = random.randint(from_year, to_year)
         month = random.randint(from_month, to_month)
         day = random.randint(from_day, to_day)
-        return datetime.datetime(year, month, day).date()
+        return datetime(year, month, day).date()
 
     def generate_swap_end_date(self, n_years_to_add=5,
                                start_date=None, status=None):
@@ -578,7 +604,7 @@ class DataGenerator:
                     'start_date',
                     partial(self.generate_swap_start_date))
 
-            return start_date + datetime.timedelta(days=365*n_years_to_add)
+            return start_date + timedelta(days=365*n_years_to_add)
 
     def generate_swap_type(self):
         """
@@ -632,7 +658,7 @@ class DataGenerator:
 
         Return: timestamp
         """
-
-        now = Timestamp.utcnow()
-        return now.to_datetime64()
-        # return datetime.datetime.utcnow()
+        now = datetime.now(timezone.utc)
+        epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)  # use POSIX epoch
+        posix_timestamp_micros = (now - epoch) // timedelta(microseconds=1)
+        return posix_timestamp_micros + self.__offset

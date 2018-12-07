@@ -21,13 +21,13 @@ data_template = {
         'asset_class': {'func': partial(ddc.generate_asset_class,
                                         generating_inst=True)},
         'coi': {'func': ddc.generate_coi, 'args': ['asset_class']},
-        # 'event-time': {'func': ddc.generate_time_stamp}
     },
     'price': {
         'ticker': {'func': partial(ddc.generate_ticker, no_cash=True),
                    'args': ['asset_class', 'ric']},
         'price': {'func': ddc.generate_price, 'args': ['ticker']},
-        'curr': {'func': ddc.generate_currency}
+        'curr': {'func': partial(ddc.generate_currency, for_ticker=True)},
+        'event-time': {'func': ddc.generate_time_stamp}
     },
     'front_office_position': {
         'ric': {'func': partial(ddc.generate_ric, no_cash=True),
@@ -164,7 +164,7 @@ class DictRunnable(Runnable):
         if not os.path.exists('out'):
             os.makedirs('out')
         if args.inst_refs > 0:
-            self.__create_data_file('out/inst-refs.csv',
+            self.__create_data_file('out/inst_refs.csv',
                                     args.inst_refs,
                                     'inst_ref')
         if args.prices > 0:
@@ -209,7 +209,7 @@ class DictRunnable(Runnable):
         date = datetime.datetime.utcnow() - datetime.timedelta(days=4)
         ddc.set_date(date)
         with open(file_name, mode='w+', newline='') as file:
-            data = self.__generate_data(data_template[data_type])
+            data = self.__generate_data(data_template[data_type], 0)
             writer = csv.DictWriter(file, fieldnames=list(data))
             writer.writeheader()
             writer.writerow(data)
@@ -218,16 +218,17 @@ class DictRunnable(Runnable):
             # to get the field names of the CSV file
             new_date_at = int(n/4)
             counter = 1
-            for i in range(n - 1):
+            for i in range(1, n):
                 if i == counter * new_date_at:
                     date += datetime.timedelta(days=1)
                     ddc.set_date(date)
                     counter += 1
-                entity = self.__generate_data(data_template[data_type])
+                entity = self.__generate_data(data_template[data_type], i)
 
                 writer.writerow(entity)
 
-    def __generate_data(self, template):
+    def __generate_data(self, template, offset):
+        ddc.set_offset(offset)
         data = {}
         for field, generator_function in template.items():
             if field not in data:
