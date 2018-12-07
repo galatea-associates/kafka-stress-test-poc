@@ -9,6 +9,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import java.util.Properties;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,7 +67,6 @@ public final class SimpleProducer {
                         serializeMessage(topicProperties.getRecordObj()[1],
                                 topicProperties.getRecordObj()[1].getSchema()));
 
-
                 kafkaProducer.send(record, (metadata, exception) -> {
                     topicProperties.getCounters().get("Received Counter").incrementAndGet();
                 });
@@ -93,17 +93,10 @@ public final class SimpleProducer {
         }
     }
 
-
-
     public static void main(String[] args) {
 
         KafkaProducer kafkaProducer = producer();
-        ExecutorService[] executor = new ExecutorService[] {Executors.newFixedThreadPool(5), Executors.newFixedThreadPool(5), Executors.newFixedThreadPool(5)};
-        List<CallableTask<Object>> callableTasks = new ArrayList<>();
-        List<CallableTask<Object>> callableTasks1 = new ArrayList<>();
-        List<CallableTask<Object>> callableTasks2 = new ArrayList<>();
-
-
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(4);
         HashMap<String, TopicProperties> topics = new HashMap<String, TopicProperties>() {
             {
                 {
@@ -114,34 +107,12 @@ public final class SimpleProducer {
                 ;
             };
         };
-        for (int i = 0; i < 100; i++){
-            callableTasks.add(new CallableTask<Object>(kafkaProducer, topics.get("inst-ref"),
-            topics.get("inst-ref").getJob(1)));
-        }
-        
-        for (int i = 0; i < 70000; i++){
-            callableTasks1.add(new CallableTask<Object>(kafkaProducer, topics.get("prices"),
-            topics.get("prices").getJob(1)));
-        }
 
-        for (int i = 0; i < 70000; i++){
-            callableTasks2.add(new CallableTask<Object>(kafkaProducer, topics.get("position"),
-            topics.get("position").getJob(1)));
-        }
+        new Thread(new RunTopics(kafkaProducer, topics.get("inst-ref"), 100, 1, 1, cyclicBarrier)).start();
+        new Thread(new RunTopics(kafkaProducer, topics.get("prices"), 70000, 1, 1, cyclicBarrier)).start();
+        new Thread(new RunTopics(kafkaProducer, topics.get("position"), 70000, 1, 1, cyclicBarrier)).start();
+        new Thread(new Timer(topics, cyclicBarrier)).start();
 
-        System.out.println("Starting execution");
-
-        Thread t = new Thread(new Timer(topics));
-        t.start();
-
-        try {
-            executor[0].invokeAll(callableTasks);
-            executor[0].invokeAll(callableTasks1);
-            executor[0].invokeAll(callableTasks2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("i am done");
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -149,6 +120,6 @@ public final class SimpleProducer {
                 kafkaProducer.close();
             }
         });
-        
+
     }
 }
