@@ -25,7 +25,7 @@ public final class SimpleProducer {
 
     private static KafkaProducer producer(String serverIP) {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", serverIP);
+        properties.put("bootstrap.servers", serverIP+":9092");
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("compression.type", "gzip");
