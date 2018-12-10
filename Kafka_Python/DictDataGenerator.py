@@ -23,13 +23,14 @@ data_template = {
         'asset_class': {'func': partial(ddc.generate_asset_class,
                                         generating_inst=True)},
         'coi': {'func': ddc.generate_coi, 'args': ['asset_class']},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'price': {
         'ticker': {'func': partial(ddc.generate_ticker, no_cash=True),
                    'args': ['asset_class', 'ric']},
         'price': {'func': ddc.generate_price, 'args': ['ticker']},
         'curr': {'func': partial(ddc.generate_currency, for_ticker=True)},
-        'event-time': {'func': ddc.generate_time_stamp}
+        'update_time_stamp': {'func': ddc.generate_update_time_stamp}
     },
     'front_office_position': {
         'ric': {'func': partial(ddc.generate_ric, no_cash=True),
@@ -43,6 +44,7 @@ data_template = {
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='FOP')},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'back_office_position': {
         'cusip': {'func': partial(ddc.generate_cusip, no_cash=True),
@@ -56,6 +58,7 @@ data_template = {
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='BOP')},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'depot_position': {
         'isin': {'func': partial(ddc.generate_isin, no_cash=True),
@@ -69,7 +72,8 @@ data_template = {
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='DP')},
-        'depot_id': {'func': ddc.generate_depot_id}
+        'depot_id': {'func': ddc.generate_depot_id},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'order_execution': {
         'order_id': {'func': ddc.generate_order_id, 'args': ['asset_class']},
@@ -81,7 +85,8 @@ data_template = {
         'curr': {'func': ddc.generate_currency},
         'ric': {'func': partial(ddc.generate_ric, no_cash=True),
                 'args': ['ticker', 'asset_class']},
-        'qty': {'func': ddc.generate_qty}
+        'qty': {'func': ddc.generate_qty},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'stock_loan_position': {
         'stock_loan_contract_id': {
@@ -106,7 +111,8 @@ data_template = {
         'termination_date': {'func': ddc.generate_termination_date},
         'account': {'func': ddc.generate_account},
         'is_callable': {'func': ddc.generate_is_callable},
-        'return_type': {'func': ddc.generate_return_type}
+        'return_type': {'func': ddc.generate_return_type},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'swap_contract': {
         'swap_contract_id': {'func': ddc.generate_new_swap_contract_id},
@@ -124,6 +130,7 @@ data_template = {
         'field6': {'func': ddc.generate_rdn},
         'field7': {'func': ddc.generate_rdn},
         'field8': {'func': ddc.generate_rdn},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'swap_position': {
         'ric': {'func': partial(ddc.generate_ric, no_cash=True),
@@ -138,12 +145,14 @@ data_template = {
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
         'purpose': {'func': partial(ddc.generate_purpose, data_type='ST')},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'cash': {
         'amount': {'func': ddc.generate_qty},
         'curr': {'func': ddc.generate_currency},
         'account_num': {'func': ddc.generate_account_number},
-        'purpose': {'func': partial(ddc.generate_purpose, data_type='C')}
+        'purpose': {'func': partial(ddc.generate_purpose, data_type='C')},
+        'time_stamp': {'func': ddc.generate_time_stamp},
     }
 }
 
@@ -285,6 +294,7 @@ class DictRunnable(Runnable):
                 entity = self.__generate_data(data_template[data_type], i)
 
                 writer.writerow(entity)
+        ddc.reset_update_timestamp()
 
     def __generate_data(self, template, offset):
         ddc.set_offset(offset)

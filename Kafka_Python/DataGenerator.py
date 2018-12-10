@@ -12,6 +12,7 @@ import pandas as pd
 class DataGenerator:
 
     def __init__(self):
+        self.__update_timestamp = 0
         self.__offset = 0
         self.__possible_ex_codes = ['L', 'N', 'OQ', 'SI', 'AL', 'VI', 'BB', 'BM', 'BR', 'BG', 'TC', 'TO', 'HK', 'SS',
                                     'FR', 'BE', 'DE', 'JA', 'DE', 'IL', 'VX', 'MFM', 'PA', 'ME', 'NZ']
@@ -650,6 +651,20 @@ class DataGenerator:
         """
         return 'Rdn'
 
+    def generate_update_time_stamp(self):
+        """
+        Returns timestamp
+
+        Args:
+
+        Return: timestamp
+        """
+        self.__update_timestamp += random.randint(1, 11)
+        return self.__update_timestamp
+
+    def reset_update_timestamp(self):
+        self.__update_timestamp = 0
+
     def generate_time_stamp(self):
         """
         Returns timestamp
@@ -661,4 +676,4 @@ class DataGenerator:
         now = datetime.now(timezone.utc)
         epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)  # use POSIX epoch
         posix_timestamp_micros = (now - epoch) // timedelta(microseconds=1)
-        return posix_timestamp_micros + self.__offset
+        return posix_timestamp_micros
