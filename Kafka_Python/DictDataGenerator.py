@@ -1,6 +1,8 @@
 import argparse
 import csv
 import datetime
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 import os
 from functools import partial
 from Kafka_Python.Runnable import Runnable
@@ -159,46 +161,103 @@ class DictRunnable(Runnable):
         dict_data_generator = DictRunnable()
         dict_data_generator .__generate_data_files(args)
 
+    def __authenticate_gdrive(self, creds):
+        gauth = GoogleAuth()
+        # Try to load saved client credentials
+        gauth.LoadCredentialsFile(creds)
+        if gauth.credentials is None:
+            # Authenticate if they're not there
+            gauth.LocalWebserverAuth()
+        elif gauth.access_token_expired:
+            # Refresh them if expired
+            gauth.Refresh()
+        else:
+            # Initialize the saved creds
+            gauth.Authorize()
+        # Save the current credentials to a file
+        gauth.SaveCredentialsFile(creds)
+        return gauth
+
     def __generate_data_files(self, args):
         # Create out directory if it does not yet exist
         if not os.path.exists('out'):
             os.makedirs('out')
+
+        gauth = self.__authenticate_gdrive(args.creds)
+        drive = GoogleDrive(gauth)
+
         if args.inst_refs > 0:
             self.__create_data_file('out/inst_refs.csv',
                                     args.inst_refs,
                                     'inst_ref')
+            self.__upload_to_gdrive(args.folder_id, drive, 'inst_refs.csv')
         if args.prices > 0:
             self.__create_data_file('out/prices.csv', args.prices, 'price')
+            self.__upload_to_gdrive(args.folder_id, drive, 'prices.csv')
         if args.front_office_positions > 0:
             self.__create_data_file('out/front_office_positions.csv',
                                     args.front_office_positions,
                                     'front_office_position')
+            self.__upload_to_gdrive(args.folder_id,
+                                    drive,
+                                    'front_office_positions.csv')
         if args.back_office_positions > 0:
             self.__create_data_file('out/back_office_positions.csv',
                                     args.back_office_positions,
                                     'back_office_position')
+            self.__upload_to_gdrive(args.folder_id,
+                                    drive,
+                                    'back_office_positions.csv')
         if args.depot_positions > 0:
             self.__create_data_file('out/depot_positions.csv',
                                     args.depot_positions,
                                     'depot_position')
+            self.__upload_to_gdrive(args.folder_id,
+                                    drive,
+                                    'depot_positions.csv')
         if args.order_executions > 0:
             self.__create_data_file('out/order_executions.csv',
                                     args.order_executions,
                                     'order_execution')
+            self.__upload_to_gdrive(args.folder_id,
+                                    drive,
+                                    'order_executions.csv')
         if args.stock_loan_positions > 0:
             self.__create_data_file('out/stock_loan_positions.csv',
                                     args.stock_loan_positions,
                                     'stock_loan_position')
+            self.__upload_to_gdrive(args.folder_id,
+                                    drive,
+                                    'stock_loan_positions.csv')
         if args.swap_contracts > 0:
             self.__create_data_file('out/swap_contracts.csv',
                                     args.swap_contracts,
                                     'swap_contract')
+            self.__upload_to_gdrive(args.folder_id, drive, 'swap_contracts.csv')
         if args.swap_positions > 0:
             self.__create_data_file('out/swap_positions.csv',
                                     args.swap_positions,
                                     'swap_position')
+            self.__upload_to_gdrive(args.folder_id, drive, 'swap_positions.csv')
         if args.cash > 0:
             self.__create_data_file('out/cash.csv', args.cash, 'cash')
+            self.__upload_to_gdrive(args.folder_id, drive, 'cash.csv')
+
+    def __upload_to_gdrive(self, folder_id, drive, file_name):
+        file_list = drive.ListFile(
+            {'q': "'%s' in parents" % folder_id}
+        ).GetList()
+        for f in file_list:
+            if f['title'] == file_name:
+                f.Delete()
+
+        file = drive.CreateFile({
+            "parents": [{"kind": "drive#fileLink", "id": folder_id}]
+        })
+        file.SetContentFile('out/' + file_name)
+        file['title'] = file_name
+        file['mimeType'] = 'text/x-csv'
+        file.Upload()
 
     # file_name corresponds to the name of the CSV file the function will write
     # to n is the number of data entities to write to the CSV file
@@ -262,6 +321,9 @@ def get_args():
     parser.add_argument('--swap-contracts', **optional_args)
     parser.add_argument('--swap-positions', **optional_args)
     parser.add_argument('--cash', **optional_args)
+    parser.add_argument('--creds', required=True)
+    parser.add_argument('--folder-id', required=True)
+
     return parser.parse_args()
 
 

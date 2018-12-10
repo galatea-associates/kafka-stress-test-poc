@@ -22,3 +22,4 @@ Kafka_Python/data/*
 .coverage
 report/*
 docs/*
+mycreds.txt
