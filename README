@@ -1,33 +1,15 @@
 This is a proof of concept project for Kafka.
 
 To be able to run this code, you need to install some requirements:
-- pip install -r requirements.txt
+- This can all be done through maven.
 
 To run the Producer, execute the following command:
 
-- python SimpleProducer.py --serverIP=<IP of one of the kafka brokers>
+- mvn compile
+- mvn -q exec:java -Dexec.mainClass=kafka.poc.SimpleProducer  -Dexec.args="<server IP>"
+
+NOTE: Replace <server IP> with one of the broker server IP's.
 
 To run the Consumer, execute the following command:
 
-- python SimpleConsumer.py --serverIP=<IP of one of the kafka brokers>
-
-
-Do note for either the -h (or --help) flag is available to show what flags are usable for either application.
-
-
-How the project works:
-
-The Producer runs multiple processes dependent on what is specified within the DataConfiguration.py file.
-As a result, it is able to produce data to the kafka server synchronously. After a process has published some data,
-it awaits a response before continuing, hence blocking the process until a reply. Once a reply has been received,
-hence confirming receipt of the message sent to Kafka, the process increments a shared counter. This shared counter is
-created for each topic, and is shared by all processes publishing for that topic. If the counter exceeds a set limit then
-the thread is set on a busy wait, until the counter is reset to start sending again. This feature effectively puts a limit 
-as to how many messages can be sent within a given allotted time period. An extra process for each topic is
-also a time counter process. This will time how many messages were published for a given topic within an allotted time
-period. At which point the shared counter will be reset to 0, to ensure that the other processes for the topic can restart.
-Then on closing all the processes created are terminated, and the list of number of messages sent within each time period
-is written to a csv file.
-
-The Consumer runs similar to that of the producer, however instead of limiting the number of messages per allotted time 
-period, it just counts the number of messages received within the time period.
+- ?
