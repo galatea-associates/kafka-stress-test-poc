@@ -45,7 +45,9 @@ public class RunTopics implements Runnable {
             e1.printStackTrace();
 		}
         try {
+            System.out.println("Size Bef:" + callableTasks.size());
             executor.invokeAll(callableTasks);
+            System.out.println("Size Aft:"+ callableTasks.size());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
