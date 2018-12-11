@@ -69,18 +69,20 @@ public class Timer implements Runnable {
 
         }
         Runtime.getRuntime().addShutdownHook(new Thread() {
-            private void writeCSV() throws IOException {
+            private void writeCSV(){
                 for (Topic topic : Topic.values()) {
-                    FileWriter writer = new FileWriter("./out/"+topic.toString()+".csv");
-
-
-                    for (Counter counter : Counter.values()) {
-                        String collect = results.get(topic.toString()).get(counter.toString()).stream().map(i->((Integer) i).toString()).collect(Collectors.joining(","));
-                        writer.write(collect);
+                    try {
+                        FileWriter writer = new FileWriter("./out/" + topic.toString() + ".csv");
+                        for (Counter counter : Counter.values()) {
+                            String collect = results.get(topic.toString()).get(counter.toString()).stream().map(i->((Integer) i).toString()).collect(Collectors.joining(","));
+                            writer.write(collect);
+                        }
+                        writer.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
 
-
-                    writer.close();
                 }
             }
 
