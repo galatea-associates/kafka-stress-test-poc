@@ -17,9 +17,9 @@ public class Timer implements Runnable {
 
     private HashMap<String, Integer> getTopicCounters(TopicProperties topic) {
         if (System.currentTimeMillis() - topic.getLastStartTime() > topic.getTimePeriod()) {
-            int sentCounter = topic.getCounters().get("Sent Counter").getAndSet(0);
-            int receivedCounter = topic.getCounters().get("Received Counter").getAndSet(0);
-            int errorCounter = topic.getCounters().get("Error Counter").getAndSet(0);
+            int sentCounter = topic.getCounters().get(Counter.SENT.toString()).getAndSet(0);
+            int receivedCounter = topic.getCounters().get(Counter.RECEIVED.toString()).getAndSet(0);
+            int errorCounter = topic.getCounters().get(Counter.ERROR.toString()).getAndSet(0);
             System.out.println(topic.getTopic().toString());
             System.out.println("I have tried to send: " + sentCounter);
             System.out.println("I have received acks: " + receivedCounter);
@@ -28,9 +28,9 @@ public class Timer implements Runnable {
             return new HashMap<String, Integer>() {
                 {
                     {
-                        put("Sent Counter", sentCounter);
-                        put("Received Counter", receivedCounter);
-                        put("Error Counter", errorCounter);
+                        put(Counter.SENT.toString(), sentCounter);
+                        put(Counter.RECEIVED.toString(), receivedCounter);
+                        put(Counter.ERROR.toString(), errorCounter);
                     } ;
                 };
             };
@@ -52,62 +52,43 @@ public class Timer implements Runnable {
         HashMap<String, Integer> counterResults;
 
         HashMap<String, HashMap<String, List<Integer>>> results =
-                new HashMap<String, HashMap<String, List<Integer>>>() {
-                    private static final long serialVersionUID = 1999814976537772940L;
+                new HashMap<String, HashMap<String, List<Integer>>>();
 
-                    {
-                        put("inst-ref", new HashMap<String, List<Integer>>() {
-                            private static final long serialVersionUID = 6562375338505855905L;
+        for (Topic topic : Topic.values()){
 
-                            {
-                                put("Sent Counter", new ArrayList<Integer>());
-                                put("Received Counter", new ArrayList<Integer>());
-                                put("Error Counter", new ArrayList<Integer>());
-                            }
-                        });
-                        put("position", new HashMap<String, List<Integer>>() {
-                            private static final long serialVersionUID = 5849690482183889132L;
+            results.put(topic.toString(), new HashMap<String, List<Integer>>() {
+                {
+                    put(Counter.SENT.toString(), new ArrayList<Integer>());
+                    put(Counter.RECEIVED.toString(), new ArrayList<Integer>());
+                    put(Counter.ERROR.toString(), new ArrayList<Integer>());
+                }
+            });
 
-                            {
-                                put("Sent Counter", new ArrayList<Integer>());
-                                put("Received Counter", new ArrayList<Integer>());
-                                put("Error Counter", new ArrayList<Integer>());
-                            }
-                        });
-                        put("prices", new HashMap<String, List<Integer>>() {
-                            private static final long serialVersionUID = -376004311328108957L;
-
-                            {
-                                put("Sent Counter", new ArrayList<Integer>());
-                                put("Received Counter", new ArrayList<Integer>());
-                                put("Error Counter", new ArrayList<Integer>());
-                            }
-                        });
-                    }
-                };
+        }
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            private void writeCSV(){
+
+            }
+
+            private void printStats(){
+
+            }
+
             @Override
             public void run() {
                 System.out.println("I closing now");
+
             }
         });
 
 
         while (true) {
-            if ((counterResults = getTopicCounters(this.topics.get("inst-ref"))) != null) {
-                results.get("inst-ref").get("Sent Counter").add(counterResults.get("Sent Counter"));
-                results.get("inst-ref").get("Received Counter").add(counterResults.get("Received Counter"));
-                results.get("inst-ref").get("Error Counter").add(counterResults.get("Error Counter"));
-            }
-            if ((counterResults = getTopicCounters(this.topics.get("position"))) != null) {
-                results.get("position").get("Sent Counter").add(counterResults.get("Sent Counter"));
-                results.get("position").get("Received Counter").add(counterResults.get("Received Counter"));
-                results.get("position").get("Error Counter").add(counterResults.get("Error Counter"));
-            }
-            if ((counterResults = getTopicCounters(this.topics.get("prices"))) != null) {
-                results.get("prices").get("Sent Counter").add(counterResults.get("Sent Counter"));
-                results.get("prices").get("Received Counter").add(counterResults.get("Received Counter"));
-                results.get("prices").get("Error Counter").add(counterResults.get("Error Counter"));
+            for (Topic topic : Topic.values()){
+                if ((counterResults = getTopicCounters(this.topics.get(topic.toString()))) != null) {
+                    results.get(topic.toString()).get(Counter.SENT.toString()).add(counterResults.get(Counter.SENT.toString()));
+                    results.get(topic.toString()).get(Counter.RECEIVED.toString()).add(counterResults.get(Counter.RECEIVED.toString()));
+                    results.get(topic.toString()).get(Counter.ERROR.toString()).add(counterResults.get(Counter.ERROR.toString()));
+                }
             }
         }
     }
