@@ -82,20 +82,6 @@ public final class SimpleProducer {
         }
     }
 
-    public static SpecificRecord[] generateClasses(Topic topic) {
-        switch (topic) {
-        case INST_REF:
-            return new SpecificRecord[] { new instrument_reference_data_keys(),
-                    new instrument_reference_data_values() };
-        case PRICES:
-            return new SpecificRecord[] { new prices_keys(), new prices_values() };
-        case POSITION:
-            return new SpecificRecord[] { new position_data_keys(), new position_data_values() };
-        default:
-            return null;
-        }
-    }
-
     public static void main(String[] args) {
 
         KafkaProducer kafkaProducer = producer(args[0]);
