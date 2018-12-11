@@ -11,7 +11,7 @@ from DataGenerator import DataGenerator
 ddc = DataGenerator()
 data_template = {
     'inst_ref': {
-        'ric': {'func': ddc.generate_new_ric, 'args': ['asset_class']},
+        'ric*': {'func': ddc.generate_new_ric, 'args': ['asset_class']},
         'isin': {'func': ddc.generate_isin,
                  'args': ['coi', 'cusip', 'asset_class']},
         'sedol': {'func': ddc.generate_sedol,
@@ -26,57 +26,57 @@ data_template = {
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'price': {
-        'ticker': {'func': partial(ddc.generate_ticker, no_cash=True),
-                   'args': ['asset_class', 'ric']},
+        'ticker*': {'func': partial(ddc.generate_ticker, no_cash=True),
+                    'args': ['asset_class', 'ric']},
         'price': {'func': ddc.generate_price, 'args': ['ticker']},
         'curr': {'func': partial(ddc.generate_currency, for_ticker=True)},
-        'update_time_stamp': {'func': ddc.generate_update_time_stamp}
+        'update_time_stamp*': {'func': ddc.generate_update_time_stamp}
     },
     'front_office_position': {
-        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
-                'args': ['ticker', 'asset_class']},
-        'position_type': {'func': ddc.generate_position_type},
-        'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {
+        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+                 'args': ['ticker', 'asset_class']},
+        'position_type*': {'func': ddc.generate_position_type},
+        'knowledge_date*': {'func': ddc.generate_knowledge_date},
+        'effective_date*': {
             'func': partial(ddc.generate_effective_date, n_days_to_add=0),
             'args': ['knowledge_date', 'position_type']},
-        'account': {'func': partial(ddc.generate_account, no_ecp=True)},
+        'account*': {'func': partial(ddc.generate_account, no_ecp=True)},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
-        'purpose': {'func': partial(ddc.generate_purpose, data_type='FOP')},
+        'purpose*': {'func': partial(ddc.generate_purpose, data_type='FOP')},
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'back_office_position': {
-        'cusip': {'func': partial(ddc.generate_cusip, no_cash=True),
+        'cusip*': {'func': partial(ddc.generate_cusip, no_cash=True),
                   'args': ['ticker', 'asset_class']},
-        'position_type': {'func': ddc.generate_position_type},
-        'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {'func': partial(ddc.generate_effective_date,
-                                           n_days_to_add=3),
-                           'args': ['knowledge_date', 'position_type']},
-        'account': {'func': ddc.generate_account},
+        'position_type*': {'func': ddc.generate_position_type},
+        'knowledge_date*': {'func': ddc.generate_knowledge_date},
+        'effective_date*': {'func': partial(ddc.generate_effective_date,
+                                            n_days_to_add=3),
+                            'args': ['knowledge_date', 'position_type']},
+        'account*': {'func': ddc.generate_account},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
-        'purpose': {'func': partial(ddc.generate_purpose, data_type='BOP')},
+        'purpose*': {'func': partial(ddc.generate_purpose, data_type='BOP')},
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'depot_position': {
-        'isin': {'func': partial(ddc.generate_isin, no_cash=True),
+        'isin*': {'func': partial(ddc.generate_isin, no_cash=True),
                  'args': ['coi', 'cusip', 'asset_class']},
         'position_type': {'func': partial(ddc.generate_position_type,
                                           no_td=True)},
-        'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {'func': ddc.generate_effective_date,
-                           'args': ['knowledge_date', 'position_type']},
-        'account': {'func': partial(ddc.generate_account, no_ecp=True)},
+        'knowledge_date*': {'func': ddc.generate_knowledge_date},
+        'effective_date*': {'func': ddc.generate_effective_date,
+                            'args': ['knowledge_date', 'position_type']},
+        'account*': {'func': partial(ddc.generate_account, no_ecp=True)},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
-        'purpose': {'func': partial(ddc.generate_purpose, data_type='DP')},
-        'depot_id': {'func': ddc.generate_depot_id},
+        'purpose*': {'func': partial(ddc.generate_purpose, data_type='DP')},
+        'depot_id*': {'func': ddc.generate_depot_id},
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'order_execution': {
-        'order_id': {'func': ddc.generate_order_id, 'args': ['asset_class']},
+        'order_id*': {'func': ddc.generate_order_id, 'args': ['asset_class']},
         'account_num': {'func': ddc.generate_account_number},
         'direction': {'func': ddc.generate_direction},
         'sto_id': {'func': ddc.generate_sto_id, 'args': ['asset_class']},
@@ -89,18 +89,18 @@ data_template = {
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'stock_loan_position': {
-        'stock_loan_contract_id': {
+        'stock_loan_contract_id*': {
             'func': ddc.generate_new_stock_loan_contract_id
         },
-        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
-                'args': ['ticker', 'asset_class']},
-        'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {'func': ddc.generate_effective_date,
-                           'args': ['knowledge_date', 'position_type']},
-        'purpose': {'func': partial(ddc.generate_purpose, data_type='SL')},
+        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+                 'args': ['ticker', 'asset_class']},
+        'knowledge_date*': {'func': ddc.generate_knowledge_date},
+        'effective_date*': {'func': ddc.generate_effective_date,
+                            'args': ['knowledge_date', 'position_type']},
+        'purpose*': {'func': partial(ddc.generate_purpose, data_type='SL')},
         'td_qty': {'func': ddc.generate_qty},
         'sd_qty': {'func': ddc.generate_qty},
-        'collateral_type': {'func': ddc.generate_collateral_type},
+        'collateral_type*': {'func': ddc.generate_collateral_type},
         'haircut': {'func': ddc.generate_haircut, 'args': ['collateral_type']},
         'collateral_margin': {'func': ddc.generate_collateral_margin,
                               'args': ['collateral_type']},
@@ -109,13 +109,13 @@ data_template = {
         'borrow_fee': {'func': ddc.generate_borrow_fee,
                        'args': ['collateral_type']},
         'termination_date': {'func': ddc.generate_termination_date},
-        'account': {'func': ddc.generate_account},
+        'account*': {'func': ddc.generate_account},
         'is_callable': {'func': ddc.generate_is_callable},
         'return_type': {'func': ddc.generate_return_type},
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'swap_contract': {
-        'swap_contract_id': {'func': ddc.generate_new_swap_contract_id},
+        'swap_contract_id*': {'func': ddc.generate_new_swap_contract_id},
         'status': {'func': ddc.generate_status},
         'start_date': {'func': ddc.generate_swap_start_date},
         'end_date': {'func': ddc.generate_swap_end_date,
@@ -133,18 +133,18 @@ data_template = {
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'swap_position': {
-        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
-                'args': ['ticker', 'asset_class']},
-        'swap_contract_id': {'func': ddc.generate_swap_contract_id},
-        'position_type': {'func': ddc.generate_position_type},
-        'knowledge_date': {'func': ddc.generate_knowledge_date},
-        'effective_date': {'func': partial(ddc.generate_effective_date,
-                                           n_days_to_add=3),
-                           'args': ['knowledge_date', 'position_type']},
-        'account': {'func': ddc.generate_account},
+        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+                 'args': ['ticker', 'asset_class']},
+        'swap_contract_id*': {'func': ddc.generate_swap_contract_id},
+        'position_type*': {'func': ddc.generate_position_type},
+        'knowledge_date*': {'func': ddc.generate_knowledge_date},
+        'effective_date*': {'func': partial(ddc.generate_effective_date,
+                                            n_days_to_add=3),
+                            'args': ['knowledge_date', 'position_type']},
+        'account*': {'func': ddc.generate_account},
         'direction': {'func': ddc.generate_direction},
         'qty': {'func': ddc.generate_qty},
-        'purpose': {'func': partial(ddc.generate_purpose, data_type='ST')},
+        'purpose*': {'func': partial(ddc.generate_purpose, data_type='ST')},
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'cash': {
@@ -299,23 +299,34 @@ class DictRunnable(Runnable):
                 writer.writerow(entity)
         ddc.reset_update_timestamp()
 
+    def __is_key(self, field):
+        return '*' in field
+
     def __generate_data(self, template, offset):
         ddc.set_offset(offset)
         data = {}
         for field, generator_function in template.items():
             if field not in data:
+                if self.__is_key(field):
+                    field = field.replace('*', '')
+                    suffix = '*'
+                else:
+                    suffix = ''
+
                 if ddc.state_contains_field(field):
-                    data[field] = ddc.get_state_value(field)
+                    data[field + suffix] = ddc.get_state_value(field)
                 elif 'args' in generator_function:
                     args = {}
                     for arg in generator_function['args']:
                         if arg in data:
                             args[arg] = data[arg]
+                        elif arg + '*' in data:
+                            args[arg] = data[arg + '*']
                         elif ddc.state_contains_field(arg):
                             args[arg] = ddc.get_state_value(arg)
-                    data[field] = generator_function['func'](**args)
+                    data[field + suffix] = generator_function['func'](**args)
                 else:
-                    data[field] = generator_function['func']()
+                    data[field + suffix] = generator_function['func']()
         ddc.clear_state()
 
         return data
