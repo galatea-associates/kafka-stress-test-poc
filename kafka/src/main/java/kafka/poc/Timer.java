@@ -74,20 +74,20 @@ public class Timer implements Runnable {
                 for (Topic topic : Topic.values()) {
                     System.out.println("Topic: " + topic.toString());
                     for (Counter counter : Counter.values()) {
-                        System.out.println("Average " + counter.toString() + ": "
+                        System.out.print("Average " + counter.toString() + ": "
                                 + results.get(topic.toString()).get(counter.toString()).stream()
                                         .mapToInt(val -> val).average().orElse(0.0));
-                        System.out.println("Min " + counter.toString() + ": "
+                        System.out.print(" Min " + counter.toString() + ": "
                                 + results.get(topic.toString()).get(counter.toString()).stream()
                                         .mapToInt(val -> val).min());
-                        System.out.println("Max " + counter.toString() + ": "
+                        System.out.print (" Max " + counter.toString() + ": "
                                 + results.get(topic.toString()).get(counter.toString()).stream()
                                         .mapToInt(val -> val).max());
-                        System.out.println("Total " + counter.toString() + ": "
+                        System.out.println(" Total " + counter.toString() + ": "
                                 + results.get(topic.toString()).get(counter.toString()).stream()
                                         .mapToInt(val -> val).sum());
-                        System.out.println("---------------------");
                     }
+                    System.out.println("---------------------");
 
                 }
             }
