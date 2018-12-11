@@ -32,8 +32,8 @@ configuration = {
 #             "Initial Value": 0,
 #             "Limit Value": 20000
 #         },
-#         "Avro Schema - Keys": "positions-keys.avsc",
-#         "Avro Schema - Values": "positions-values.avsc",
+#         "Avro Schema - Keys": "front-office-positions-keys.avsc",
+#         "Avro Schema - Values": "front-office-positions-values.avsc",
 #         "Serializer": "Avro",
 #         "Data": CSVReader(),
 #         "Data Args": {
