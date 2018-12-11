@@ -7,7 +7,7 @@
         {"name": "effective_date", "type": "string"},
         {"name": "type", "type": "string"},
         {"name": "account", "type": "string"},
-        {"name": "cusip", "type": "string"},
+        {"name": "ric", "type": "string"},
         {"name": "purpose", "type": "string"}
     ]
 }
