@@ -72,6 +72,7 @@ public class Timer implements Runnable {
 
             private void printStats() {
                 System.out.println("Writing stats now");
+                System.out.println(results.get("prices").get("Received Counter").get(4));
             }
 
             @Override
