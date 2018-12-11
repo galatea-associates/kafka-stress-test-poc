@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 
-public class CallableTask<T> implements Callable<Object> {
+public class CallableTask implements Callable<Object> {
 
     private KafkaProducer kafkaProducer;
     private TopicProperties topicProperties;
