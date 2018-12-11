@@ -41,9 +41,9 @@ public class TopicProperties {
     private Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>() {
         private static final long serialVersionUID = 3019616454475007213L;
         {
-            put("Sent Counter", new AtomicInteger());
-            put("Received Counter", new AtomicInteger());
-            put("Error Counter", new AtomicInteger());
+            put(Counter.SENT.toString(), new AtomicInteger());
+            put(Counter.RECEIVED.toString(), new AtomicInteger());
+            put(Counter.ERROR.toString(), new AtomicInteger());
         }
     };
     @Getter

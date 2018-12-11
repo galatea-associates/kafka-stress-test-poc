@@ -53,7 +53,7 @@ public final class SimpleProducer {
             List<Map<String, String>> job) {
         try {
             for (Map<String, String> data : job) {
-                while (topicProperties.getCounters().get("Sent Counter").get() > topicProperties.getMaxSendInPeriod()) {
+                while (topicProperties.getCounters().get(Counter.SENT.toString()).get() > topicProperties.getMaxSendInPeriod()) {
                     continue;
                 }
                 topicProperties.setRecordObj(PopulateAvroTopic.populateData(topicProperties.getTopic(),
@@ -67,13 +67,13 @@ public final class SimpleProducer {
 
                 kafkaProducer.send(record, (metadata, exception) -> {
                     if (exception != null){
-                        topicProperties.getCounters().get("Error Counter").incrementAndGet();
+                        topicProperties.getCounters().get(Counter.ERROR.toString()).incrementAndGet();
 
                     } else{
-                        topicProperties.getCounters().get("Received Counter").incrementAndGet();
+                        topicProperties.getCounters().get(Counter.RECEIVED.toString()).incrementAndGet();
                     }
                 });
-                topicProperties.getCounters().get("Sent Counter").incrementAndGet();
+                topicProperties.getCounters().get(Counter.SENT.toString()).incrementAndGet();
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -99,23 +99,6 @@ public final class SimpleProducer {
     public static void main(String[] args) {
 
         KafkaProducer kafkaProducer = producer(args[0]);
-        CyclicBarrier cyclicBarrier = new CyclicBarrier(4);
-        HashMap<String, TopicProperties> topics = new HashMap<String, TopicProperties>() {
-            {
-                {
-                    put("inst-ref", new TopicProperties(Topic.INST_REF, "./out/inst-ref.csv", 100, 60));
-                    put("prices", new TopicProperties(Topic.PRICES, "./out/prices.csv", 20000, 1));
-                    put("position", new TopicProperties(Topic.POSITION, "./out/position.csv", 40000, 1));
-                }
-                ;
-            };
-        };
-
-        new Thread(new RunTopics(kafkaProducer, topics.get("inst-ref"), 100, 1, 1, cyclicBarrier)).start();
-        new Thread(new RunTopics(kafkaProducer, topics.get("prices"), 1200000, 1, 1, cyclicBarrier)).start();
-        new Thread(new RunTopics(kafkaProducer, topics.get("position"), 2400000, 1, 1, cyclicBarrier)).start();
-        new Thread(new Timer(topics, cyclicBarrier)).start();
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -123,6 +106,23 @@ public final class SimpleProducer {
                 kafkaProducer.close();
             }
         });
+
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(4);
+        HashMap<String, TopicProperties> topics = new HashMap<String, TopicProperties>() {
+            {
+                {
+                    put(Topic.INST_REF.toString(), new TopicProperties(Topic.INST_REF, "./out/inst-ref.csv", 100, 60));
+                    put(Topic.PRICES.toString(), new TopicProperties(Topic.PRICES, "./out/prices.csv", 20000, 1));
+                    put(Topic.POSITION.toString(), new TopicProperties(Topic.POSITION, "./out/position.csv", 40000, 1));
+                }
+                ;
+            };
+        };
+
+        new Thread(new RunTopics(kafkaProducer, topics.get(Topic.INST_REF.toString()), 100, 1, 1, cyclicBarrier)).start();
+        new Thread(new RunTopics(kafkaProducer, topics.get(Topic.PRICES.toString()), 1200000, 1, 1, cyclicBarrier)).start();
+        new Thread(new RunTopics(kafkaProducer, topics.get(Topic.POSITION.toString()), 2400000, 1, 1, cyclicBarrier)).start();
+        new Thread(new Timer(topics, cyclicBarrier)).start();
 
     }
 }
