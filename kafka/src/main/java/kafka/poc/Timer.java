@@ -71,8 +71,25 @@ public class Timer implements Runnable {
             }
 
             private void printStats() {
-                System.out.println("Writing stats now");
-                System.out.println(results.get("prices").get("Received Counter").get(4));
+                for (Topic topic : Topic.values()) {
+                    System.out.println("Topic: " + topic.toString());
+                    for (Counter counter : Counter.values()) {
+                        System.out.println("Average " + counter.toString() + ": "
+                                + results.get(topic.toString()).get(counter.toString()).stream()
+                                        .mapToInt(val -> val).average().orElse(0.0));
+                        System.out.println("Min " + counter.toString() + ": "
+                                + results.get(topic.toString()).get(counter.toString()).stream()
+                                        .mapToInt(val -> val).min());
+                        System.out.println("Max " + counter.toString() + ": "
+                                + results.get(topic.toString()).get(counter.toString()).stream()
+                                        .mapToInt(val -> val).max());
+                        System.out.println("Total " + counter.toString() + ": "
+                                + results.get(topic.toString()).get(counter.toString()).stream()
+                                        .mapToInt(val -> val).sum());
+                        System.out.println("---------------------");
+                    }
+
+                }
             }
 
             @Override
