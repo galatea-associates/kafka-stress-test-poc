@@ -277,6 +277,9 @@ class DictRunnable(Runnable):
         date = datetime.datetime.utcnow() - datetime.timedelta(days=4)
         ddc.set_date(date)
         with open(file_name, mode='w+', newline='') as file:
+            file.write(' '.join(map(str.capitalize,
+                                    data_type.split('_')))
+                       + '\n')
             data = self.__generate_data(data_template[data_type], 0)
             writer = csv.DictWriter(file, fieldnames=list(data))
             writer.writeheader()
