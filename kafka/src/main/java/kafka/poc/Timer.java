@@ -54,7 +54,7 @@ public class Timer implements Runnable {
         HashMap<String, HashMap<String, List<Integer>>> results =
                 new HashMap<String, HashMap<String, List<Integer>>>();
 
-        for (Topic topic : Topic.values()){
+        for (Topic topic : Topic.values()) {
 
             results.put(topic.toString(), new HashMap<String, List<Integer>>() {
                 {
@@ -66,28 +66,31 @@ public class Timer implements Runnable {
 
         }
         Runtime.getRuntime().addShutdownHook(new Thread() {
-            private void writeCSV(){
-
+            private void writeCSV() {
+                System.out.println("Writing CSV now");
             }
 
-            private void printStats(){
-
+            private void printStats() {
+                System.out.println("Writing stats now");
             }
 
             @Override
             public void run() {
-                System.out.println("I closing now");
+                writeCSV();
+                printStats();
 
             }
         });
 
 
         while (true) {
-            for (Topic topic : Topic.values()){
-                if ((counterResults = getTopicCounters(this.topics.get(topic.toString()))) != null) {
-                    results.get(topic.toString()).get(Counter.SENT.toString()).add(counterResults.get(Counter.SENT.toString()));
-                    results.get(topic.toString()).get(Counter.RECEIVED.toString()).add(counterResults.get(Counter.RECEIVED.toString()));
-                    results.get(topic.toString()).get(Counter.ERROR.toString()).add(counterResults.get(Counter.ERROR.toString()));
+            for (Topic topic : Topic.values()) {
+                if ((counterResults =
+                        getTopicCounters(this.topics.get(topic.toString()))) != null) {
+                    for (Counter counter : Counter.values()) {
+                        results.get(topic.toString()).get(counter.toString())
+                                .add(counterResults.get(counter.toString()));
+                    }
                 }
             }
         }
