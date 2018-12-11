@@ -28,11 +28,11 @@ public class RunTopics implements Runnable {
 
     @Override
     public void run() {
-        List<CallableTask<Object>> callableTasks = new ArrayList<>();
+        List<CallableTask> callableTasks = new ArrayList<>();
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         for (int i = 0; i < numMessagesToLoad; i++){
-            callableTasks.add(new CallableTask<Object>(kafkaProducer, topicProperties,
+            callableTasks.add(new CallableTask(kafkaProducer, topicProperties,
             topicProperties.getJob(numbJobsPerLoad)));
         }
         try {
