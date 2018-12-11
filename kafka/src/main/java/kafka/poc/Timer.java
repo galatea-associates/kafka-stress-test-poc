@@ -74,7 +74,7 @@ public class Timer implements Runnable {
                 for (Topic topic : Topic.values()) {
                     try {
                         File file = new File("./results/", topic.toString() + ".csv");
-                        FileWriter writer = new FileWriter(file, True);
+                        FileWriter writer = new FileWriter(file, true);
                         for (Counter counter : Counter.values()) {
                             String collect = results.get(topic.toString()).get(counter.toString()).stream().map(i->((Integer) i).toString()).collect(Collectors.joining(","));
                             writer.write(collect);
