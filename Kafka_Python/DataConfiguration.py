@@ -55,8 +55,8 @@ configuration = {
             "Initial Value": 0,
             "Limit Value": 100
         },
-        "Avro Schema - Keys": "Kafka_Python/instrument_reference_data-keys.avsc",
-        "Avro Schema - Values": "Kafka_Python/instrument_reference_data-values.avsc",
+        "Avro Schema - Keys": "Kafka_Python/instrument-reference-data-keys.avsc",
+        "Avro Schema - Values": "Kafka_Python/instrument-reference-data-values.avsc",
         "Serializer": "Avro",
         "Data": CSVReader(),
         "Data Args": {

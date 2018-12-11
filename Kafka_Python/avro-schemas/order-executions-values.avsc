@@ -11,6 +11,6 @@
         {"name": "curr", "type": "string"},
         {"name": "sto_id", "type": "int"},
         {"name": "agent_id", "type": "int"},
-        {"name": "price", "type": "double"},
+        {"name": "price", "type": "double"}
     ]
 }

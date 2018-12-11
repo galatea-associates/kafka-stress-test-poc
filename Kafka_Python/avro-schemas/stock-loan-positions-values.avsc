@@ -12,6 +12,6 @@
         {"name": "termination_date", "type": "string"},
         {"name": "is_callable", "type": "string"},
         {"name": "return_type", "type": "string"},
-        {"name": "time_stamp", "type": "int"},
+        {"name": "time_stamp", "type": "int"}
     ]
 }

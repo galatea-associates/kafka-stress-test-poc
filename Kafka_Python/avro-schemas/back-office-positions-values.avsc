@@ -4,7 +4,7 @@
     "name": "back_office_position_data",
     "fields": [
         {"name": "direction", "type": "string"},
-        {"name": "qty", "type": "int"}
+        {"name": "qty", "type": "int"},
         {"name": "time_stamp", "type": "int"}
     ]
 }

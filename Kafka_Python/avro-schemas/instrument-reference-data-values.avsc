@@ -8,7 +8,7 @@
         {"name": "isin", "type": "string"},
         {"name": "sedol", "type": "int"},
         {"name": "ticker", "type": "string"},
-        {"name": "cusip", "type": "int"}
+        {"name": "cusip", "type": "int"},
         {"name": "time_stamp", "type": "int"}
     ]
 }
