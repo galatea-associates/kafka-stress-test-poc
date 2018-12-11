@@ -51,8 +51,6 @@ public final class SimpleProducer {
 
     public static void startSending(KafkaProducer kafkaProducer, TopicProperties topicProperties,
             List<Map<String, String>> job) {
-        long startTime = System.currentTimeMillis();
-
         try {
             for (Map<String, String> data : job) {
                 while (topicProperties.getCounters().get("Sent Counter").get() > topicProperties.getMaxSendInPeriod()) {
@@ -68,7 +66,12 @@ public final class SimpleProducer {
                                 topicProperties.getRecordObj()[1].getSchema()));
 
                 kafkaProducer.send(record, (metadata, exception) -> {
-                    topicProperties.getCounters().get("Received Counter").incrementAndGet();
+                    if (exception != null){
+                        topicProperties.getCounters().get("Error Counter").incrementAndGet();
+
+                    } else{
+                        topicProperties.getCounters().get("Received Counter").incrementAndGet();
+                    }
                 });
                 topicProperties.getCounters().get("Sent Counter").incrementAndGet();
             }

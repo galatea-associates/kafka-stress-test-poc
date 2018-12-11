@@ -43,6 +43,7 @@ public class TopicProperties {
         {
             put("Sent Counter", new AtomicInteger());
             put("Received Counter", new AtomicInteger());
+            put("Error Counter", new AtomicInteger());
         }
     };
     @Getter
