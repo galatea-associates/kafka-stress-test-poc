@@ -1,5 +1,6 @@
 package kafka.poc;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,7 +73,8 @@ public class Timer implements Runnable {
             private void writeCSV(){
                 for (Topic topic : Topic.values()) {
                     try {
-                        FileWriter writer = new FileWriter("./results/" + topic.toString() + ".csv");
+                        File file = new File("./results/", topic.toString() + ".csv");
+                        FileWriter writer = new FileWriter(file, True);
                         for (Counter counter : Counter.values()) {
                             String collect = results.get(topic.toString()).get(counter.toString()).stream().map(i->((Integer) i).toString()).collect(Collectors.joining(","));
                             writer.write(collect);
