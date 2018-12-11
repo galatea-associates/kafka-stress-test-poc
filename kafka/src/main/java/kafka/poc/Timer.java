@@ -1,10 +1,13 @@
 package kafka.poc;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.stream.Collectors;
 
 public class Timer implements Runnable {
     private HashMap<String, TopicProperties> topics;
@@ -66,8 +69,19 @@ public class Timer implements Runnable {
 
         }
         Runtime.getRuntime().addShutdownHook(new Thread() {
-            private void writeCSV() {
-                System.out.println("Writing CSV now");
+            private void writeCSV() throws IOException {
+                for (Topic topic : Topic.values()) {
+                    FileWriter writer = new FileWriter("./out/"+topic.toString()+".csv");
+
+
+                    for (Counter counter : Counter.values()) {
+                        String collect = results.get(topic.toString()).get(counter.toString()).stream().map(i->((Integer) i).toString()).collect(Collectors.joining(","));
+                        writer.write(collect);
+                    }
+
+
+                    writer.close();
+                }
             }
 
             private void printStats() {
