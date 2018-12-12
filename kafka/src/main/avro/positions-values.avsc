@@ -3,7 +3,7 @@
     "type": "record",
     "name": "position_data_values",
     "fields": [
-        {"name": "direction", "type": "string"},
+        {"name": "direction", "type": ["null","string"]},
         {"name": "qty", "type": "int"}
     ]
 }

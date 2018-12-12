@@ -3,6 +3,6 @@
     "type": "record",
     "name": "instrument_reference_data_keys",
     "fields": [
-        {"name": "inst_id", "type": "string"}
+        {"name": "inst_id", "type": ["null","string"]}
     ]
 }
