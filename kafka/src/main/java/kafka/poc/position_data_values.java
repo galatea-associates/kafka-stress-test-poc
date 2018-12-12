@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class position_data_values extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 695512700931852605L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"position_data_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"direction\",\"type\":\"string\"},{\"name\":\"qty\",\"type\":\"int\"}]}");
+  private static final long serialVersionUID = 53342557571261496L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"position_data_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"direction\",\"type\":[\"null\",\"string\"]},{\"name\":\"qty\",\"type\":\"int\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();

@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class instrument_reference_data_keys extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 8507853454885703814L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"instrument_reference_data_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"inst_id\",\"type\":\"string\"}]}");
+  private static final long serialVersionUID = 3142804833889575531L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"instrument_reference_data_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"inst_id\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
