@@ -13,12 +13,10 @@ public class RunTopics implements Runnable {
     private TopicProperties topicProperties;
     private int numMessagesToLoad;
     private int numThreads;
-    private KafkaProducer kafkaProducer;
     private int numbJobsPerLoad;
     private CyclicBarrier cyclicBarrier;
 
-    public RunTopics(KafkaProducer kafkaProducer, TopicProperties topicProperties, int numMessagesToLoad, int numThreads, int numbJobsPerLoad, CyclicBarrier cyclicBarrier){
-        this.kafkaProducer = kafkaProducer;
+    public RunTopics( TopicProperties topicProperties, int numMessagesToLoad, int numThreads, int numbJobsPerLoad, CyclicBarrier cyclicBarrier){
         this.topicProperties = topicProperties;
         this.numMessagesToLoad = numMessagesToLoad;
         this.numThreads = numThreads;
@@ -32,7 +30,7 @@ public class RunTopics implements Runnable {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         for (int i = 0; i < numMessagesToLoad; i++){
-            callableTasks.add(new CallableTask(kafkaProducer, topicProperties,
+            callableTasks.add(new CallableTask(topicProperties,
             topicProperties.getJob(numbJobsPerLoad)));
         }
         try {

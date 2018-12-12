@@ -7,14 +7,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
+import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.specific.SpecificRecord;
-
+import org.apache.kafka.clients.producer.KafkaProducer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,13 +51,23 @@ public class TopicProperties {
     @Setter
     private long lastStartTime = System.currentTimeMillis();
 
-    public TopicProperties(Topic topic, String csvFile, int maxSendInPeriod, int timePeriod) {
+    @Getter
+    private KafkaProducer producer;
+
+    public TopicProperties(Topic topic, String csvFile, int maxSendInPeriod, int timePeriod, Properties properties) {
         this.topic = topic;
         this.csvFile = csvFile;
         this.data = readFile(this.csvFile);
         this.maxSendInPeriod = maxSendInPeriod;
         this.timePeriod = timePeriod * 1000;
-        this.recordObj = generateClasses(this.topic);
+        this.recordObj = generateClasses(this.topic, properties);
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                producer.flush();
+                producer.close();
+            }
+        });
     }
 
     private static List<Map<String, String>> readFile(String csvFile) {
@@ -77,14 +88,17 @@ public class TopicProperties {
         return response;
     }
 
-    private static SpecificRecord[] generateClasses(Topic topic) {
+    private SpecificRecord[] generateClasses(Topic topic, Properties properties) {
         switch (topic) {
         case INST_REF:
+            this.producer = new KafkaProducer<instrument_reference_data_keys, instrument_reference_data_values>(properties);
             return new SpecificRecord[] { new instrument_reference_data_keys(),
                     new instrument_reference_data_values() };
         case PRICES:
+            this.producer = new KafkaProducer<prices_keys, prices_values>(properties);
             return new SpecificRecord[] { new prices_keys(), new prices_values() };
         case POSITION:
+            this.producer = new KafkaProducer<position_data_keys, position_data_values>(properties);
             return new SpecificRecord[] { new position_data_keys(), new position_data_values() };
         default:
             return null;
