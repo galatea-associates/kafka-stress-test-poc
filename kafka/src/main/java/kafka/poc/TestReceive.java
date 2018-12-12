@@ -22,13 +22,13 @@ public class TestReceive{
     public static void main(String[] args){
         Properties props = new Properties();
 
-        props.put("bootstrap.servers", "3.8.1.159:9092");
+        props.put("bootstrap.servers", args[0]+":9092");
         props.put("group.id", "group1");
 
 
         props.put("key.deserializer", "io.confluent.kafka.serializers.KafkaAvroDeserializer");
         props.put("value.deserializer", "io.confluent.kafka.serializers.KafkaAvroDeserializer");
-        props.put("schema.registry.url", "http://3.8.1.159:8081");
+        props.put("schema.registry.url", "http://" + args[0] +":8081");
 
         //props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         
