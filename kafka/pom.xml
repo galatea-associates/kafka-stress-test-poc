@@ -33,6 +33,11 @@
             <artifactId>kafka-avro-serializer</artifactId>
             <version>3.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-streams-avro-serde</artifactId>
+            <version>5.0.1</version>
+        </dependency>
          <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
