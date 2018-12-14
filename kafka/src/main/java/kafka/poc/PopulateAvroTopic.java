@@ -1,7 +1,8 @@
 package kafka.poc;
 
-import java.util.Map;
 import org.apache.avro.specific.SpecificRecord;
+
+import java.util.Map;
 
 public final class PopulateAvroTopic {
     private PopulateAvroTopic() {

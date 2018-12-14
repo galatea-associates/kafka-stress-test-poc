@@ -7,7 +7,7 @@ public enum Topic {
 
     private final String name;
 
-    private Topic (String s){
+    Topic(String s){
         name = s;
     }
 
