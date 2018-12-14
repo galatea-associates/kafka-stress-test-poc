@@ -5,7 +5,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import os
 from functools import partial
-from Kafka_Python.Runnable import Runnable
+from Runnable import Runnable
 from DataGenerator import DataGenerator
 
 ddc = DataGenerator()
@@ -26,8 +26,8 @@ data_template = {
         'time_stamp': {'func': ddc.generate_time_stamp},
     },
     'price': {
-        'ticker*': {'func': partial(ddc.generate_ticker, no_cash=True),
-                    'args': ['asset_class', 'ric']},
+        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+                 'args': ['ticker', 'ric']},
         'price': {'func': ddc.generate_price, 'args': ['ticker']},
         'curr': {'func': partial(ddc.generate_currency, for_ticker=True)},
         'update_time_stamp*': {'func': ddc.generate_update_time_stamp}
