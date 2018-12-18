@@ -26,16 +26,22 @@ public class SimpleStream {
             SpecificAvroSerde.class);
         streamsConfiguration.put("schema.registry.url", "http://"+args[0]+":8081");
 
-        final Map<String, String> serdeConfig = Collections.singletonMap("schema.registry.url", "http://"+args[0]+":8081");
+        Map<String, String> serdeConfig = Collections.singletonMap("schema.registry.url", "http://"+args[0]+":8081");
 
-        final Serde<instrument_reference_data_keys> keySpecificAvroSerde = new SpecificAvroSerde<>();
-        keySpecificAvroSerde.configure(serdeConfig, true); // `true` for record keys
-        final Serde<instrument_reference_data_values> valueSpecificAvroSerde = new SpecificAvroSerde<>();
-        valueSpecificAvroSerde.configure(serdeConfig, false); // `false` for record values
+        Serde<position_data_keys> positionKeySerde = new SpecificAvroSerde<>();
+        positionKeySerde.configure(serdeConfig, true); // `true` for record keys
+        Serde<position_data_values> postionValueSerde = new SpecificAvroSerde<>();
+        postionValueSerde.configure(serdeConfig, false); // `false` for record values
 
-        final StreamsBuilder builder = new StreamsBuilder();
+        Serde<instrument_reference_data_keys> instRefKeySerde = new SpecificAvroSerde<>();
+        instRefKeySerde.configure(serdeConfig, true); // `true` for record keys
+        Serde<instrument_reference_data_values> instRefValueSerde = new SpecificAvroSerde<>();
+        instRefValueSerde.configure(serdeConfig, false); // `false` for record values
 
-        KStream<instrument_reference_data_keys, instrument_reference_data_values> source = builder.stream("prices", Consumed.with(keySpecificAvroSerde, valueSpecificAvroSerde)); 
+        StreamsBuilder builder = new StreamsBuilder();
+
+        KStream<position_data_keys, position_data_values> positionsSource = builder.stream("positions", Consumed.with(positionKeySerde, postionValueSerde)); 
+        KStream<instrument_reference_data_keys, instrument_reference_data_values> instRefSource = builder.stream("inst-ref", Consumed.with(instRefKeySerde, instRefValueSerde)); 
 
         //source.to("test");//sends on new topic
 
