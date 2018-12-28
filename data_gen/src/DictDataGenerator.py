@@ -8,151 +8,151 @@ from functools import partial
 from Runnable import Runnable
 from DataGenerator import DataGenerator
 
-ddc = DataGenerator()
+data_generator = DataGenerator()
 data_template = {
     'inst_ref': {
-        'ric*': {'func': ddc.generate_new_ric, 'args': ['asset_class']},
-        'isin': {'func': ddc.generate_isin,
+        'ric*': {'func': data_generator.generate_new_ric, 'args': ['asset_class']},
+        'isin': {'func': data_generator.generate_isin,
                  'args': ['coi', 'cusip', 'asset_class']},
-        'sedol': {'func': ddc.generate_sedol,
+        'sedol': {'func': data_generator.generate_sedol,
                   'args': ['ticker', 'asset_class']},
-        'ticker': {'func': partial(ddc.generate_ticker, new_ric_generator=True),
+        'ticker': {'func': partial(data_generator.generate_ticker, new_ric_generator=True),
                    'args': ['asset_class', 'ric']},
-        'cusip': {'func': ddc.generate_cusip,
+        'cusip': {'func': data_generator.generate_cusip,
                   'args': ['ticker', 'asset_class']},
-        'asset_class': {'func': partial(ddc.generate_asset_class,
+        'asset_class': {'func': partial(data_generator.generate_asset_class,
                                         generating_inst=True)},
-        'coi': {'func': ddc.generate_coi, 'args': ['asset_class']},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'coi': {'func': data_generator.generate_coi, 'args': ['asset_class']},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'price': {
-        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+        'ric*': {'func': partial(data_generator.generate_ric, no_cash=True),
                  'args': ['ticker', 'ric']},
-        'price': {'func': ddc.generate_price, 'args': ['ticker']},
-        'curr': {'func': partial(ddc.generate_currency, for_ticker=True)},
-        'update_time_stamp*': {'func': ddc.generate_update_time_stamp}
+        'price': {'func': data_generator.generate_price, 'args': ['ticker']},
+        'curr': {'func': partial(data_generator.generate_currency, for_ticker=True)},
+        'update_time_stamp*': {'func': data_generator.generate_update_time_stamp}
     },
     'front_office_position': {
-        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+        'ric*': {'func': partial(data_generator.generate_ric, no_cash=True),
                  'args': ['ticker', 'asset_class']},
-        'position_type*': {'func': ddc.generate_position_type},
-        'knowledge_date*': {'func': ddc.generate_knowledge_date},
+        'position_type*': {'func': data_generator.generate_position_type},
+        'knowledge_date*': {'func': data_generator.generate_knowledge_date},
         'effective_date*': {
-            'func': partial(ddc.generate_effective_date, n_days_to_add=0),
+            'func': partial(data_generator.generate_effective_date, n_days_to_add=0),
             'args': ['knowledge_date', 'position_type']},
-        'account*': {'func': partial(ddc.generate_account, no_ecp=True)},
-        'direction': {'func': ddc.generate_direction},
-        'qty': {'func': ddc.generate_qty},
-        'purpose*': {'func': partial(ddc.generate_purpose, data_type='FOP')},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'account*': {'func': partial(data_generator.generate_account, no_ecp=True)},
+        'direction': {'func': data_generator.generate_direction},
+        'qty': {'func': data_generator.generate_qty},
+        'purpose*': {'func': partial(data_generator.generate_purpose, data_type='FOP')},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'back_office_position': {
-        'cusip*': {'func': partial(ddc.generate_cusip, no_cash=True),
+        'cusip*': {'func': partial(data_generator.generate_cusip, no_cash=True),
                   'args': ['ticker', 'asset_class']},
-        'position_type*': {'func': ddc.generate_position_type},
-        'knowledge_date*': {'func': ddc.generate_knowledge_date},
-        'effective_date*': {'func': partial(ddc.generate_effective_date,
+        'position_type*': {'func': data_generator.generate_position_type},
+        'knowledge_date*': {'func': data_generator.generate_knowledge_date},
+        'effective_date*': {'func': partial(data_generator.generate_effective_date,
                                             n_days_to_add=3),
                             'args': ['knowledge_date', 'position_type']},
-        'account*': {'func': ddc.generate_account},
-        'direction': {'func': ddc.generate_direction},
-        'qty': {'func': ddc.generate_qty},
-        'purpose*': {'func': partial(ddc.generate_purpose, data_type='BOP')},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'account*': {'func': data_generator.generate_account},
+        'direction': {'func': data_generator.generate_direction},
+        'qty': {'func': data_generator.generate_qty},
+        'purpose*': {'func': partial(data_generator.generate_purpose, data_type='BOP')},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'depot_position': {
-        'isin*': {'func': partial(ddc.generate_isin, no_cash=True),
+        'isin*': {'func': partial(data_generator.generate_isin, no_cash=True),
                  'args': ['coi', 'cusip', 'asset_class']},
-        'position_type': {'func': partial(ddc.generate_position_type,
+        'position_type': {'func': partial(data_generator.generate_position_type,
                                           no_td=True)},
-        'knowledge_date*': {'func': ddc.generate_knowledge_date},
-        'effective_date*': {'func': ddc.generate_effective_date,
+        'knowledge_date*': {'func': data_generator.generate_knowledge_date},
+        'effective_date*': {'func': data_generator.generate_effective_date,
                             'args': ['knowledge_date', 'position_type']},
-        'account*': {'func': partial(ddc.generate_account, no_ecp=True)},
-        'direction': {'func': ddc.generate_direction},
-        'qty': {'func': ddc.generate_qty},
-        'purpose*': {'func': partial(ddc.generate_purpose, data_type='DP')},
-        'depot_id*': {'func': ddc.generate_depot_id},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'account*': {'func': partial(data_generator.generate_account, no_ecp=True)},
+        'direction': {'func': data_generator.generate_direction},
+        'qty': {'func': data_generator.generate_qty},
+        'purpose*': {'func': partial(data_generator.generate_purpose, data_type='DP')},
+        'depot_id*': {'func': data_generator.generate_depot_id},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'order_execution': {
-        'order_id*': {'func': ddc.generate_order_id, 'args': ['asset_class']},
-        'account_num': {'func': ddc.generate_account_number},
-        'direction': {'func': ddc.generate_direction},
-        'sto_id': {'func': ddc.generate_sto_id, 'args': ['asset_class']},
-        'agent_id': {'func': ddc.generate_agent_id, 'args': ['asset_class']},
-        'price': {'func': ddc.generate_price, 'args': ['inst_id']},
-        'curr': {'func': ddc.generate_currency},
-        'ric': {'func': partial(ddc.generate_ric, no_cash=True),
+        'order_id*': {'func': data_generator.generate_order_id, 'args': ['asset_class']},
+        'account_num': {'func': data_generator.generate_account_number},
+        'direction': {'func': data_generator.generate_direction},
+        'sto_id': {'func': data_generator.generate_sto_id, 'args': ['asset_class']},
+        'agent_id': {'func': data_generator.generate_agent_id, 'args': ['asset_class']},
+        'price': {'func': data_generator.generate_price, 'args': ['inst_id']},
+        'curr': {'func': data_generator.generate_currency},
+        'ric': {'func': partial(data_generator.generate_ric, no_cash=True),
                 'args': ['ticker', 'asset_class']},
-        'qty': {'func': ddc.generate_qty},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'qty': {'func': data_generator.generate_qty},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'stock_loan_position': {
         'stock_loan_contract_id*': {
-            'func': ddc.generate_new_stock_loan_contract_id
+            'func': data_generator.generate_new_stock_loan_contract_id
         },
-        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+        'ric*': {'func': partial(data_generator.generate_ric, no_cash=True),
                  'args': ['ticker', 'asset_class']},
-        'knowledge_date*': {'func': ddc.generate_knowledge_date},
-        'effective_date*': {'func': ddc.generate_effective_date,
+        'knowledge_date*': {'func': data_generator.generate_knowledge_date},
+        'effective_date*': {'func': data_generator.generate_effective_date,
                             'args': ['knowledge_date', 'position_type']},
-        'purpose*': {'func': partial(ddc.generate_purpose, data_type='SL')},
-        'td_qty': {'func': ddc.generate_qty},
-        'sd_qty': {'func': ddc.generate_qty},
-        'collateral_type*': {'func': ddc.generate_collateral_type},
-        'haircut': {'func': ddc.generate_haircut, 'args': ['collateral_type']},
-        'collateral_margin': {'func': ddc.generate_collateral_margin,
+        'purpose*': {'func': partial(data_generator.generate_purpose, data_type='SL')},
+        'td_qty': {'func': data_generator.generate_qty},
+        'sd_qty': {'func': data_generator.generate_qty},
+        'collateral_type*': {'func': data_generator.generate_collateral_type},
+        'haircut': {'func': data_generator.generate_haircut, 'args': ['collateral_type']},
+        'collateral_margin': {'func': data_generator.generate_collateral_margin,
                               'args': ['collateral_type']},
-        'rebate_rate': {'func': ddc.generate_rebate_rate,
+        'rebate_rate': {'func': data_generator.generate_rebate_rate,
                         'args': ['collateral_type']},
-        'borrow_fee': {'func': ddc.generate_borrow_fee,
+        'borrow_fee': {'func': data_generator.generate_borrow_fee,
                        'args': ['collateral_type']},
-        'termination_date': {'func': ddc.generate_termination_date},
-        'account*': {'func': ddc.generate_account},
-        'is_callable': {'func': ddc.generate_is_callable},
-        'return_type': {'func': ddc.generate_return_type},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'termination_date': {'func': data_generator.generate_termination_date},
+        'account*': {'func': data_generator.generate_account},
+        'is_callable': {'func': data_generator.generate_is_callable},
+        'return_type': {'func': data_generator.generate_return_type},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'swap_contract': {
-        'swap_contract_id*': {'func': ddc.generate_new_swap_contract_id},
-        'status': {'func': ddc.generate_status},
-        'start_date': {'func': ddc.generate_swap_start_date},
-        'end_date': {'func': ddc.generate_swap_end_date,
+        'swap_contract_id*': {'func': data_generator.generate_new_swap_contract_id},
+        'status': {'func': data_generator.generate_status},
+        'start_date': {'func': data_generator.generate_swap_start_date},
+        'end_date': {'func': data_generator.generate_swap_end_date,
                      'args': ['status', 'start_date']},
-        'swap_type': {'func': ddc.generate_swap_type},
-        'reference_rate': {'func': ddc.generate_reference_rate},
-        'field1': {'func': ddc.generate_rdn},
-        'field2': {'func': ddc.generate_rdn},
-        'field3': {'func': ddc.generate_rdn},
-        'field4': {'func': ddc.generate_rdn},
-        'field5': {'func': ddc.generate_rdn},
-        'field6': {'func': ddc.generate_rdn},
-        'field7': {'func': ddc.generate_rdn},
-        'field8': {'func': ddc.generate_rdn},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'swap_type': {'func': data_generator.generate_swap_type},
+        'reference_rate': {'func': data_generator.generate_reference_rate},
+        'field1': {'func': data_generator.generate_rdn},
+        'field2': {'func': data_generator.generate_rdn},
+        'field3': {'func': data_generator.generate_rdn},
+        'field4': {'func': data_generator.generate_rdn},
+        'field5': {'func': data_generator.generate_rdn},
+        'field6': {'func': data_generator.generate_rdn},
+        'field7': {'func': data_generator.generate_rdn},
+        'field8': {'func': data_generator.generate_rdn},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'swap_position': {
-        'ric*': {'func': partial(ddc.generate_ric, no_cash=True),
+        'ric*': {'func': partial(data_generator.generate_ric, no_cash=True),
                  'args': ['ticker', 'asset_class']},
-        'swap_contract_id*': {'func': ddc.generate_swap_contract_id},
-        'position_type*': {'func': ddc.generate_position_type},
-        'knowledge_date*': {'func': ddc.generate_knowledge_date},
-        'effective_date*': {'func': partial(ddc.generate_effective_date,
+        'swap_contract_id*': {'func': data_generator.generate_swap_contract_id},
+        'position_type*': {'func': data_generator.generate_position_type},
+        'knowledge_date*': {'func': data_generator.generate_knowledge_date},
+        'effective_date*': {'func': partial(data_generator.generate_effective_date,
                                             n_days_to_add=3),
                             'args': ['knowledge_date', 'position_type']},
-        'account*': {'func': ddc.generate_account},
-        'direction': {'func': ddc.generate_direction},
-        'qty': {'func': ddc.generate_qty},
-        'purpose*': {'func': partial(ddc.generate_purpose, data_type='ST')},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'account*': {'func': data_generator.generate_account},
+        'direction': {'func': data_generator.generate_direction},
+        'qty': {'func': data_generator.generate_qty},
+        'purpose*': {'func': partial(data_generator.generate_purpose, data_type='ST')},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     },
     'cash': {
-        'amount': {'func': ddc.generate_qty},
-        'curr': {'func': ddc.generate_currency},
-        'account_num': {'func': ddc.generate_account_number},
-        'purpose': {'func': partial(ddc.generate_purpose, data_type='C')},
-        'time_stamp': {'func': ddc.generate_time_stamp},
+        'amount': {'func': data_generator.generate_qty},
+        'curr': {'func': data_generator.generate_currency},
+        'account_num': {'func': data_generator.generate_account_number},
+        'purpose': {'func': partial(data_generator.generate_purpose, data_type='C')},
+        'time_stamp': {'func': data_generator.generate_time_stamp},
     }
 }
 
@@ -254,13 +254,10 @@ class DictRunnable(Runnable):
             self.__upload_to_gdrive(args.folder_id, drive, 'cash.csv')
 
     def __upload_to_gdrive(self, folder_id, drive, file_name):
-        file_list = drive.ListFile(
-            {'q': "'%s' in parents" % folder_id}
-        ).GetList()
-        for f in file_list:
-            if f['title'] == file_name:
-                f.Delete()
+        self.__delete_existing_file(folder_id, drive, file_name)
+        self.__add_file(folder_id, drive, file_name)
 
+    def __add_file(self, folder_id, drive, file_name):
         file = drive.CreateFile({
             "parents": [{"kind": "drive#fileLink", "id": folder_id}]
         })
@@ -269,6 +266,15 @@ class DictRunnable(Runnable):
         file['mimeType'] = 'text/x-csv'
         file.Upload()
 
+    def __delete_existing_file(self, folder_id, drive, file_name):
+        file_list = self.__get_all_files_in_folder(folder_id, drive)
+        for f in file_list:
+            if f['title'] == file_name:
+                f.Delete()
+
+    def __get_all_files_in_folder(self, folder_id, drive):
+        return drive.ListFile({'q': "'%s' in parents" % folder_id}).GetList()
+
     # file_name corresponds to the name of the CSV file the function will write
     # to n is the number of data entities to write to the CSV file
     # data_generator is the function reference that generates the data entity
@@ -276,14 +282,12 @@ class DictRunnable(Runnable):
     def __create_data_file(self, file_name, n, data_type):
         # w+ means create file first if it does not already exist
         date = datetime.datetime.utcnow() - datetime.timedelta(days=4)
-        ddc.set_date(date)
+        data_generator.set_date(date)
         with open(file_name, mode='w+', newline='') as file:
-            file.write(' '.join(map(str.capitalize,
-                                    data_type.split('_')))
-                       + '\n')
-            data = self.__generate_data(data_template[data_type], 0)
-            writer = csv.DictWriter(file, fieldnames=list(data))
-            writer.writeheader()
+            self.__write_data_type_at_top(file, data_type)
+
+            data = self.__generate_data(data_template[data_type])
+            writer = self.__create_csv_with_headers(file, list(data))
             writer.writerow(data)
             # n - 1 because we already wrote to the file once with the entity
             # variable - we do this to get the keys of the dictionary in order
@@ -293,44 +297,65 @@ class DictRunnable(Runnable):
             for i in range(1, n):
                 if i == counter * new_date_at:
                     date += datetime.timedelta(days=1)
-                    ddc.set_date(date)
+                    data_generator.set_date(date)
                     counter += 1
-                entity = self.__generate_data(data_template[data_type], i)
+                entity = self.__generate_data(data_template[data_type])
 
                 writer.writerow(entity)
-        ddc.reset_update_timestamp()
+        data_generator.reset_update_timestamp()
+
+    def __write_data_type_at_top(self, file, data_type):
+        file.write(' '.join(map(str.capitalize, data_type.split('_'))) + '\n')
+
+    def __create_csv_with_headers(self, file, headers):
+        writer = csv.DictWriter(file, fieldnames=headers)
+        writer.writeheader()
+        return writer
 
     def __is_key(self, field):
         return '*' in field
 
-    def __generate_data(self, template, offset):
-        ddc.set_offset(offset)
+    def __generate_data(self, template):
         data = {}
         for field, generator_function in template.items():
-            if field not in data:
-                if self.__is_key(field):
-                    field = field.replace('*', '')
+            if not self.__field_already_generated(field, data):
+                if self.__is_key(field, data):
                     suffix = '*'
+                    field = self.__remove_asterix_from_field_name(field)
                 else:
                     suffix = ''
 
-                if ddc.state_contains_field(field):
-                    data[field + suffix] = ddc.get_state_value(field)
+                if data_generator.state_contains_field(field):
+                    data[field + suffix] = data_generator.get_state_value(field)
                 elif 'args' in generator_function:
-                    args = {}
-                    for arg in generator_function['args']:
-                        if arg in data:
-                            args[arg] = data[arg]
-                        elif arg + '*' in data:
-                            args[arg] = data[arg + '*']
-                        elif ddc.state_contains_field(arg):
-                            args[arg] = ddc.get_state_value(arg)
-                    data[field + suffix] = generator_function['func'](**args)
+                    args_needed = generator_function['args']
+                    args_generated = self.__generate_args_for_generator_function(args_needed, data)
+                    data[field + suffix] = generator_function['func'](**args_generated)
                 else:
                     data[field + suffix] = generator_function['func']()
-        ddc.clear_state()
-
+        data_generator.clear_state()
         return data
+
+    def __remove_aterix_field_name(self, field):
+        return field.replace('*', '')
+
+
+    def __is_key(self, field, data):
+        return field + '*' in data
+
+    def __field_already_generated(self, field, data):
+        return field in data
+
+    def __generate_args_for_generator_function(self, args_needed, data):
+        args_generated = {}
+        for field in args_needed:
+            if self.__field_already_generated(field, data):
+                args_generated[field] = data[field]
+            elif self.__is_key(field, data):
+                args_generated[field] = data[field + '*']
+            elif data_generator.state_contains_field(field):
+                args_generated[field] = data_generator.get_state_value(field)
+        return args_generated
 
 
 def get_args():

@@ -13,7 +13,6 @@ class DataGenerator:
 
     def __init__(self):
         self.__update_timestamp = 0
-        self.__offset = 0
         self.__possible_ex_codes = ['L', 'N', 'OQ', 'SI', 'AL', 'VI', 'BB', 'BM', 'BR', 'BG', 'TC', 'TO', 'HK', 'SS',
                                     'FR', 'BE', 'DE', 'JA', 'DE', 'IL', 'VX', 'MFM', 'PA', 'ME', 'NZ']
         self.__possible_cois = ['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP']
@@ -44,9 +43,6 @@ class DataGenerator:
 
     def set_date(self, date):
         self.__date = date
-
-    def set_offset(self, offset):
-        self.__offset = offset
 
     # TODO: change this to function calls, don't pass actual value
     def __get_preemptive_generation(self, field_name, field_value_gen):
