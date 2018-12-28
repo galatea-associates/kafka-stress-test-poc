@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class position_data_keys extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -6840420412530155691L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"position_data_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"knowledge_date\",\"type\":\"string\"},{\"name\":\"effective_date\",\"type\":\"string\"},{\"name\":\"position_type\",\"type\":\"string\"},{\"name\":\"account\",\"type\":\"string\"},{\"name\":\"ric\",\"type\":\"string\"},{\"name\":\"purpose\",\"type\":\"string\"}]}");
+  private static final long serialVersionUID = -8862845213805254850L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"position_data_keys\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"knowledge_date\",\"type\":[\"null\",\"string\"]},{\"name\":\"effective_date\",\"type\":[\"null\",\"string\"]},{\"name\":\"position_type\",\"type\":[\"null\",\"string\"]},{\"name\":\"account\",\"type\":[\"null\",\"string\"]},{\"name\":\"ric\",\"type\":[\"null\",\"string\"]},{\"name\":\"purpose\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();

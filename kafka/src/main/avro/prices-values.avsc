@@ -4,6 +4,6 @@
     "name": "prices_values",
     "fields": [
         {"name": "price", "type": "double"},
-        {"name": "curr", "type": "string"}
+        {"name": "curr", "type": ["null","string"]}
     ]
 }

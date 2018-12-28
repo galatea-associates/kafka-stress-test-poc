@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class instrument_reference_data_values extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -4126788069297184264L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"instrument_reference_data_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"asset_class\",\"type\":\"string\"},{\"name\":\"coi\",\"type\":\"string\"},{\"name\":\"ric\",\"type\":\"string\"},{\"name\":\"isin\",\"type\":\"string\"},{\"name\":\"sedol\",\"type\":\"string\"},{\"name\":\"ticker\",\"type\":\"string\"},{\"name\":\"cusip\",\"type\":\"string\"}]}");
+  private static final long serialVersionUID = 8210899447347455523L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"instrument_reference_data_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"asset_class\",\"type\":[\"null\",\"string\"]},{\"name\":\"coi\",\"type\":[\"null\",\"string\"]},{\"name\":\"ric\",\"type\":[\"null\",\"string\"]},{\"name\":\"isin\",\"type\":[\"null\",\"string\"]},{\"name\":\"sedol\",\"type\":[\"null\",\"string\"]},{\"name\":\"ticker\",\"type\":[\"null\",\"string\"]},{\"name\":\"cusip\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();

@@ -13,8 +13,8 @@ import org.apache.avro.message.SchemaStore;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class prices_values extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 7573873671524643007L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"prices_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"curr\",\"type\":\"string\"}]}");
+  private static final long serialVersionUID = 676678704915561742L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"prices_values\",\"namespace\":\"kafka.poc\",\"fields\":[{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"curr\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
