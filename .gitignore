@@ -23,4 +23,6 @@ src/data/*
 report/*
 docs/*
 *.prof
-mycreds.txt
+data_gen/creds.txt
+data_gen/client_secrets.json
+data_gen/out

@@ -17,7 +17,7 @@ class DataGenerator:
         self.__possible_ex_codes = ['L', 'N', 'OQ', 'SI', 'AL', 'VI', 'BB', 'BM', 'BR', 'BG', 'TC', 'TO', 'HK', 'SS',
                                     'FR', 'BE', 'DE', 'JA', 'DE', 'IL', 'VX', 'MFM', 'PA', 'ME', 'NZ']
         self.__possible_cois = ['US', 'GB', 'CA', 'FR', 'DE', 'CH', 'SG', 'JP']
-        self.__tickers = self.__read_tickers_from_csv('tickers.csv')
+        self.__tickers = self.__read_tickers_from_csv('data_gen/src/tickers.csv')
         self.__date = None
         self.__curr_in_inst = []
         self.__stock_loan_contract_ids = []

@@ -188,6 +188,7 @@ class DictRunnable(Runnable):
         return gauth
 
     def __generate_data_files(self, args):
+        os.chdir('data_gen')
         # Create out directory if it does not yet exist
         if not os.path.exists('out'):
             os.makedirs('out')
