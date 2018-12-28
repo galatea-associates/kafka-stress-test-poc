@@ -26,3 +26,4 @@ docs/*
 data_gen/creds.txt
 data_gen/client_secrets.json
 data_gen/out
+.pytest_cache
