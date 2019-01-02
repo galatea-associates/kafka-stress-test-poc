@@ -2,7 +2,7 @@ package kafka.poc;
 
 public enum Topic {
     INST_REF ("inst-ref"),
-    PRICES ("prices"),
+    PRICES ("price"),
     POSITION ("position");
 
     private final String name;
